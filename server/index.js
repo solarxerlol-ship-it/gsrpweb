@@ -40,21 +40,26 @@ app.use(cors({ origin: allowedOrigin, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Session (stored in MongoDB so it survives serverless cold starts) ─────────
+// ── Trust Vercel's proxy so secure cookies work ───────────────────────────────
+app.set("trust proxy", 1);
+
+// ── Session ───────────────────────────────────────────────────────────────────
 app.use(session({
+  name:              "gsrp.sid",
   secret:            process.env.SESSION_SECRET || "gsrp-change-me",
   resave:            false,
   saveUninitialized: false,
   store:             MongoStore.create({
-    mongoUrl:         process.env.MONGO_URI,
-    collectionName:   "portal_sessions",   // separate from bot's sessions collection
-    ttl:              7 * 24 * 60 * 60,
-    autoRemove:       "native",
+    mongoUrl:       process.env.MONGO_URI,
+    collectionName: "portal_sessions",
+    ttl:            7 * 24 * 60 * 60,
+    autoRemove:     "native",
+    touchAfter:     24 * 3600,
   }),
   cookie: {
-    secure:   process.env.NODE_ENV === "production",
+    secure:   true,    // always — Vercel is always HTTPS
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === "production" ? "lax" : false,
+    sameSite: "lax",   // lax works for OAuth redirect flows
     maxAge:   7 * 24 * 60 * 60 * 1000,
   },
 }));
