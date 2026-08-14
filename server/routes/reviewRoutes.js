@@ -63,6 +63,7 @@ router.post("/", async (req, res) => {
       name:   name.trim().slice(0,50),
       rating: parseInt(rating),
       text:   text.trim().slice(0,400),
+      status: "approved",
     });
     cooldowns.set(ip, now);
     res.status(201).json({ success: true, id: review._id });
