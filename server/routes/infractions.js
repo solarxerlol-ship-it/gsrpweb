@@ -93,6 +93,8 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
 
     const record = await Infraction.create({
       userId,
+      robloxUserId:    req.body.robloxUserId || null,
+      robloxAvatarUrl: req.body.robloxAvatarUrl || null,
       type:        type.toUpperCase(),
       reason,
       description: description || "",

@@ -31,15 +31,17 @@ connect().catch(err => console.error("[DB] Connection error:", err.message));
 // ── Schemas ───────────────────────────────────────────────────────────────────
 
 const infractionSchema = new mongoose.Schema({
-  userId:      String,
-  caseId:      Number,
-  type:        String,
-  reason:      String,
-  description: String,
-  moderator:   String,
-  guild:       String,
-  source:      { type: String, default: "bot" },
-  timestamp:   { type: Number, default: () => Date.now() },
+  userId:          String,   // Roblox username
+  robloxUserId:    String,   // Roblox numeric ID (for avatar fetching)
+  robloxAvatarUrl: String,   // cached headshot URL
+  caseId:          Number,
+  type:            String,
+  reason:          String,
+  description:     String,
+  moderator:       String,
+  guild:           String,
+  source:          { type: String, default: "bot" },
+  timestamp:       { type: Number, default: () => Date.now() },
 });
 
 const promotionSchema = new mongoose.Schema({

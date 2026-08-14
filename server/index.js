@@ -88,6 +88,42 @@ app.use("/api/announcements", require("./routes/announcementRoutes"));
 app.use("/api/docs",          require("./routes/docsRoutes"));
 app.use("/api/applications",  require("./routes/applicationRoutes"));
 
+// ── Roblox proxy — resolves username → userId and fetches headshot ────────────
+app.get("/api/roblox/user", async (req, res) => {
+  const { username } = req.query;
+  if (!username) return res.status(400).json({ error: "username required" });
+  try {
+    const axios = require("axios");
+    const r = await axios.post(
+      "https://users.roblox.com/v1/usernames/users",
+      { usernames: [username], excludeBannedUsers: false },
+      { timeout: 5000 }
+    );
+    const user = r.data?.data?.[0];
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json({ id: user.id, name: user.name });
+  } catch (err) {
+    res.status(502).json({ error: "Roblox API unavailable" });
+  }
+});
+
+app.get("/api/roblox/avatar", async (req, res) => {
+  const { userId } = req.query;
+  if (!userId) return res.status(400).json({ error: "userId required" });
+  try {
+    const axios = require("axios");
+    const r = await axios.get(
+      `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png`,
+      { timeout: 5000 }
+    );
+    const url = r.data?.data?.[0]?.imageUrl;
+    if (!url) return res.status(404).json({ error: "Avatar not found" });
+    res.json({ url });
+  } catch (err) {
+    res.status(502).json({ error: "Roblox API unavailable" });
+  }
+});
+
 // ── Page routes ───────────────────────────────────────────────────────────────
 const { requireAuth, requireLevel } = require("./middleware");
 
