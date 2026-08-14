@@ -34,8 +34,8 @@ async function getUser() {
  *
  *  staff      — Overview, Shifts, ERLC, LOA, Statistics
  *  moderator  — + Infractions, Roster
- *  admin      — + Promotions, Internal Affairs
- *  management — + Announcements, Applications, Training, Audit Log, Settings
+ *  admin      — + Promotions
+ *  management — + Applications, Audit Log, Settings
  *  owner      — everything
  *
  * ─────────────────────────────────────────────────────────────────────────── */
@@ -51,11 +51,8 @@ const NAV = [
   { label: "Roster",           icon: "users",     href: "/roster",      minLevel: "moderator"  },
   // ── Admin+ ─────────────────────────────────────────────────────────────────
   { label: "Promotions",       icon: "arrow-up",  href: "/promotions",  minLevel: "admin"      },
-  { label: "Internal Affairs", icon: "eye",       href: "#",            minLevel: "admin"      },
   // ── Management+ ────────────────────────────────────────────────────────────
-  { label: "Announcements",    icon: "megaphone", href: "/announcements", minLevel: "management" },
   { label: "Applications",     icon: "clipboard", href: "#",              minLevel: "management" },
-  { label: "Training",         icon: "book-open", href: "#",              minLevel: "management" },
   { label: "Audit Log",        icon: "file-text", href: "/audit",         minLevel: "management" },
   { label: "Settings",         icon: "settings",  href: "/settings",      minLevel: "management" },
 ];
