@@ -158,8 +158,8 @@
           <div id="active-shifts"><div class="empty-state">No one is on duty.</div></div>
         </div>
 
-        <!-- Log Punishment card — list by default, form opens on button press -->
-        <div class="card" id="log-panel" style="display:flex;flex-direction:column;min-height:0;">
+        <!-- Punishments card — list with Log button that opens modal -->
+        <div class="card" id="log-panel" style="display:flex;flex-direction:column;">
           <div class="card-header" style="flex-shrink:0;">
             <span class="card-title">Punishments</span>
             <button class="btn btn-primary btn-sm" id="toggle-log-btn">
@@ -167,45 +167,8 @@
               Log Punishment
             </button>
           </div>
-
-          <!-- Log form — hidden by default, slides open -->
-          <div id="log-form-wrap" style="display:none;flex-shrink:0;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:14px;">
-            <div id="log-alert"></div>
-            <form id="form-log" class="log-form-grid">
-              <div>
-                <label class="form-label" style="margin-bottom:5px;">Roblox Username</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                  <img id="log-avatar" src="" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg-hover);flex-shrink:0;display:none;" alt="">
-                  <input class="form-input" id="log-username" placeholder="RobloxUsername" required autocomplete="off" />
-                </div>
-              </div>
-              <div>
-                <label class="form-label" style="margin-bottom:5px;">Type</label>
-                <div class="type-pills" id="type-pills">
-                  <button type="button" class="type-pill" data-type="verbal">Verbal Warn</button>
-                  <button type="button" class="type-pill" data-type="warn">Warn</button>
-                  <button type="button" class="type-pill" data-type="kick">Kick</button>
-                  <button type="button" class="type-pill" data-type="ban">Ban</button>
-                </div>
-                <input type="hidden" id="log-type" />
-              </div>
-              <div>
-                <label class="form-label" style="margin-bottom:5px;">Reason</label>
-                <input class="form-input" id="log-reason" placeholder="Reason for punishment" required />
-              </div>
-              <div>
-                <label class="form-label" style="margin-bottom:5px;">Description <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
-                <textarea class="form-textarea" id="log-desc" placeholder="Additional details..." style="min-height:56px;"></textarea>
-              </div>
-              <div style="display:flex;gap:8px;">
-                <button type="button" class="btn btn-ghost btn-sm" id="cancel-log-btn" style="flex:1;">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-sm" id="log-submit" style="flex:2;">Submit</button>
-              </div>
-            </form>
-          </div>
-
           <!-- Punishment list — scrollable, stays in card -->
-          <div id="recent-punishments" style="overflow-y:auto;flex:1;min-height:0;max-height:340px;">
+          <div id="recent-punishments" style="overflow-y:auto;max-height:340px;">
             <div class="empty-state">No punishments logged.</div>
           </div>
         </div>
@@ -235,7 +198,47 @@
   </div>
 </div>
 
-<!-- User profile modal -->
+<!-- Log Punishment modal -->
+<div class="modal-overlay" id="modal-punishment">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Log Punishment</span>
+      <button class="modal-close" onclick="closeModal('modal-punishment')">&times;</button>
+    </div>
+    <div id="log-alert"></div>
+    <form id="form-log" class="log-form-grid">
+      <div>
+        <label class="form-label" style="margin-bottom:5px;">Roblox Username</label>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <img id="log-avatar" src="" style="width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg-hover);flex-shrink:0;display:none;" alt="">
+          <input class="form-input" id="log-username" placeholder="RobloxUsername" required autocomplete="off" />
+        </div>
+      </div>
+      <div>
+        <label class="form-label" style="margin-bottom:5px;">Type</label>
+        <div class="type-pills" id="type-pills">
+          <button type="button" class="type-pill" data-type="verbal">Verbal Warn</button>
+          <button type="button" class="type-pill" data-type="warn">Warn</button>
+          <button type="button" class="type-pill" data-type="kick">Kick</button>
+          <button type="button" class="type-pill" data-type="ban">Ban</button>
+        </div>
+        <input type="hidden" id="log-type" />
+      </div>
+      <div>
+        <label class="form-label" style="margin-bottom:5px;">Reason</label>
+        <input class="form-input" id="log-reason" placeholder="Reason for punishment" required />
+      </div>
+      <div>
+        <label class="form-label" style="margin-bottom:5px;">Description <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+        <textarea class="form-textarea" id="log-desc" placeholder="Additional details..." style="min-height:70px;"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-punishment')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="log-submit">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
 <div class="modal-overlay" id="modal-profile">
   <div class="modal">
     <div class="modal-header">
@@ -307,26 +310,8 @@
     loadTopHours();
     setupTypePills();
     setupAvatarPreview();
-    setupLogToggle();
-  }
 
-  /* ── Toggle log form ────────────────────────────────────────────────────── */
-  function setupLogToggle() {
-    const btn     = document.getElementById('toggle-log-btn');
-    const wrap    = document.getElementById('log-form-wrap');
-    const cancel  = document.getElementById('cancel-log-btn');
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      const open = wrap.style.display === 'none';
-      wrap.style.display = open ? 'block' : 'none';
-      btn.innerHTML = open
-        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><line x1="5" y1="12" x2="19" y2="12"/></svg> Close`
-        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Log Punishment`;
-    });
-    if (cancel) cancel.addEventListener('click', () => {
-      wrap.style.display = 'none';
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Log Punishment`;
-    });
+    document.getElementById('toggle-log-btn').addEventListener('click', () => openModal('modal-punishment'));
   }
 
   /* ── Type pills ─────────────────────────────────────────────────────────── */
@@ -398,6 +383,7 @@
       document.getElementById('log-type').value = '';
       avatarImg.style.display = 'none';
       alertEl.innerHTML = '';
+      closeModal('modal-punishment');
       loadRecentPunishments();
     } catch (err) {
       alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
