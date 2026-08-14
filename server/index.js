@@ -85,6 +85,7 @@ app.use("/api/promotions",    require("./routes/promotions"));
 app.use("/api/erlc",          require("./routes/erlcRoutes"));
 app.use("/api/staff",         require("./routes/staffRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
+app.use("/api/docs",         require("./routes/docsRoutes"));
 
 // ── Page routes ───────────────────────────────────────────────────────────────
 const { requireAuth, requireLevel } = require("./middleware");

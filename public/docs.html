@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documents — Georgia State Roleplay Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Documents</span>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="add-btn" style="display:none;">+ Add Document</button>
+      </div>
+    </header>
+    <div class="content">
+
+      <!-- Category filter tabs -->
+      <div class="tabs" style="margin-bottom:16px;">
+        <div class="tab active" data-cat="">All</div>
+        <div class="tab" data-cat="policy">Policy</div>
+        <div class="tab" data-cat="sop">SOP</div>
+        <div class="tab" data-cat="training">Training</div>
+        <div class="tab" data-cat="forms">Forms</div>
+        <div class="tab" data-cat="other">Other</div>
+      </div>
+
+      <div id="docs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Document Modal -->
+<div class="modal-overlay" id="modal-doc">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="doc-modal-title">Add Document</span>
+      <button class="modal-close" onclick="closeModal('modal-doc')">&times;</button>
+    </div>
+    <div id="doc-alert"></div>
+    <form id="doc-form">
+      <input type="hidden" id="doc-id">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input class="form-input" id="doc-title" placeholder="Document title" required>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="doc-category">
+            <option value="policy">Policy</option>
+            <option value="sop">SOP</option>
+            <option value="training">Training</option>
+            <option value="forms">Forms</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Link (URL)</label>
+          <input class="form-input" id="doc-url" placeholder="https://docs.google.com/...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="doc-desc" placeholder="Brief description of this document..." style="min-height:80px;"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-doc')">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="doc-submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- View Document Modal -->
+<div class="modal-overlay" id="modal-view">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="view-title">Document</span>
+      <button class="modal-close" onclick="closeModal('modal-view')">&times;</button>
+    </div>
+    <div id="view-body"></div>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;" id="view-actions"></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  const CAT_COLORS = {
+    policy: "red", sop: "blue", training: "green", forms: "yellow", other: "gray"
+  };
+
+  let currentUser = null;
+  let currentCat  = "";
+  let allDocs     = [];
+
+  async function init() {
+    await renderSidebar();
+    currentUser = await getUser();
+    if (currentUser && ['management','owner'].includes(currentUser.accessLevel)) {
+      document.getElementById("add-btn").style.display = "";
+    }
+    setupTabs();
+    load();
+  }
+
+  function setupTabs() {
+    document.querySelectorAll(".tab[data-cat]").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab[data-cat]").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        currentCat = tab.dataset.cat;
+        render();
+      });
+    });
+  }
+
+  async function load() {
+    try {
+      allDocs = await api("GET", "/api/docs");
+      render();
+    } catch (err) {
+      document.getElementById("docs-grid").innerHTML =
+        `<div class="empty-state" style="grid-column:1/-1;">${err.message}</div>`;
+    }
+  }
+
+  function render() {
+    const grid = document.getElementById("docs-grid");
+    const filtered = currentCat ? allDocs.filter(d => d.category === currentCat) : allDocs;
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">No documents found.</div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(d => `
+      <div class="card" style="cursor:pointer;transition:border-color 0.15s;" onmouseenter="this.style.borderColor='var(--border-md)'" onmouseleave="this.style.borderColor=''" onclick="viewDoc('${d._id}')">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;">
+          <span class="badge badge-${CAT_COLORS[d.category]||'gray'}">${d.category}</span>
+          ${d.url ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;color:var(--text-muted);flex-shrink:0;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>` : ''}
+        </div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px;">${d.title}</div>
+        ${d.description ? `<div style="font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${d.description}</div>` : ''}
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);">Added by ${d.authorName || "Unknown"} · ${formatDate(d.createdAt)}</div>
+      </div>
+    `).join("");
+  }
+
+  function viewDoc(id) {
+    const doc = allDocs.find(d => d._id === id);
+    if (!doc) return;
+    document.getElementById("view-title").textContent = doc.title;
+    document.getElementById("view-body").innerHTML = `
+      <div style="margin-bottom:12px;">
+        <span class="badge badge-${CAT_COLORS[doc.category]||'gray'}">${doc.category}</span>
+      </div>
+      ${doc.description ? `<p style="font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:16px;white-space:pre-wrap;">${doc.description}</p>` : ''}
+      ${doc.url ? `<a href="${doc.url}" target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Open Document
+      </a>` : '<span class="text-muted" style="font-size:13px;">No link attached.</span>'}
+      <div style="margin-top:16px;font-size:11px;color:var(--text-muted);">Added by ${doc.authorName || "Unknown"} · ${formatDate(doc.createdAt)}</div>
+    `;
+    const actionsEl = document.getElementById("view-actions");
+    if (currentUser && ['management','owner'].includes(currentUser.accessLevel)) {
+      actionsEl.innerHTML = `
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-view');editDoc('${doc._id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDoc('${doc._id}')">Delete</button>
+      `;
+    } else {
+      actionsEl.innerHTML = "";
+    }
+    openModal("modal-view");
+  }
+
+  function editDoc(id) {
+    const doc = allDocs.find(d => d._id === id);
+    if (!doc) return;
+    document.getElementById("doc-modal-title").textContent = "Edit Document";
+    document.getElementById("doc-id").value          = doc._id;
+    document.getElementById("doc-title").value       = doc.title;
+    document.getElementById("doc-category").value    = doc.category;
+    document.getElementById("doc-url").value         = doc.url || "";
+    document.getElementById("doc-desc").value        = doc.description || "";
+    document.getElementById("doc-alert").innerHTML   = "";
+    openModal("modal-doc");
+  }
+
+  async function deleteDoc(id) {
+    if (!confirm("Delete this document?")) return;
+    try {
+      await api("DELETE", `/api/docs/${id}`);
+      closeModal("modal-view");
+      showToast("Document deleted.");
+      load();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  document.getElementById("add-btn").addEventListener("click", () => {
+    document.getElementById("doc-modal-title").textContent = "Add Document";
+    document.getElementById("doc-id").value = "";
+    document.getElementById("doc-form").reset();
+    document.getElementById("doc-alert").innerHTML = "";
+    openModal("modal-doc");
+  });
+
+  document.getElementById("doc-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById("doc-alert");
+    alertEl.innerHTML = "";
+    const id = document.getElementById("doc-id").value;
+    const payload = {
+      title:       document.getElementById("doc-title").value.trim(),
+      category:    document.getElementById("doc-category").value,
+      url:         document.getElementById("doc-url").value.trim(),
+      description: document.getElementById("doc-desc").value.trim(),
+    };
+    try {
+      if (id) {
+        await api("PATCH", `/api/docs/${id}`, payload);
+        showToast("Document updated.");
+      } else {
+        await api("POST", "/api/docs", payload);
+        showToast("Document added.");
+      }
+      closeModal("modal-doc");
+      load();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

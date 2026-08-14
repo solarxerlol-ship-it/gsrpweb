@@ -140,11 +140,12 @@ router.patch("/:userId/access-level", requireAuth, requireLevel("owner"), apiWri
 
 router.post("/shift/start", requireAuth, async (req, res) => {
   try {
-    const existing = await Shift.findOne({ discordId: req.session.user.discordId, active: true });
+    const userId = req.session.user.discordId || req.session.user._id;
+    const existing = await Shift.findOne({ discordId: userId, active: true });
     if (existing) return res.status(400).json({ error: "Shift already active." });
 
     const shift = await Shift.create({
-      discordId: req.session.user.discordId,
+      discordId: userId,
       username:  req.session.user.displayName,
     });
     res.json(shift.toObject());
@@ -155,7 +156,8 @@ router.post("/shift/start", requireAuth, async (req, res) => {
 
 router.post("/shift/end", requireAuth, async (req, res) => {
   try {
-    const shift = await Shift.findOne({ discordId: req.session.user.discordId, active: true });
+    const userId = req.session.user.discordId || req.session.user._id;
+    const shift = await Shift.findOne({ discordId: userId, active: true });
     if (!shift) return res.status(400).json({ error: "No active shift." });
 
     const endedAt  = Date.now();
@@ -169,7 +171,8 @@ router.post("/shift/end", requireAuth, async (req, res) => {
 
 router.get("/shift/active", requireAuth, async (req, res) => {
   try {
-    const shift = await Shift.findOne({ discordId: req.session.user.discordId, active: true }).lean();
+    const userId = req.session.user.discordId || req.session.user._id;
+    const shift = await Shift.findOne({ discordId: userId, active: true }).lean();
     res.json(shift || null);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -211,8 +214,9 @@ router.post("/loa", requireAuth, async (req, res) => {
     if (!reason || !startDate || !endDate) {
       return res.status(400).json({ error: "reason, startDate, endDate required." });
     }
+    const userId = req.session.user.discordId || req.session.user._id;
     const loa = await LOA.create({
-      discordId: req.session.user.discordId,
+      discordId: userId,
       username:  req.session.user.displayName,
       reason, startDate, endDate,
     });
@@ -222,9 +226,14 @@ router.post("/loa", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/loa/all", requireAuth, requireLevel("moderator"), async (req, res) => {
+// All staff can see LOAs (own + others shown based on role in frontend)
+router.get("/loa/all", requireAuth, async (req, res) => {
   try {
-    const loas = await LOA.find().sort({ createdAt: -1 }).lean();
+    const userId = req.session.user.discordId || req.session.user._id;
+    const isMod  = ["moderator","admin","management","owner"].includes(req.session.user.accessLevel);
+    // Moderators+ see all; regular staff see only their own
+    const query  = isMod ? {} : { discordId: userId };
+    const loas   = await LOA.find(query).sort({ createdAt: -1 }).lean();
     res.json(loas);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -172,6 +172,8 @@
 
     renderSidebar();
 
+    const colors = { owner:"#f59e0b", management:"#ef4444", admin:"#8b5cf6", moderator:"#4f6fff", staff:"#22c55e" };
+
     // Chip
     const avatarUrl = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=64`
@@ -181,7 +183,6 @@
     const rankEl = document.getElementById("chip-rank");
     if (rankEl) {
       rankEl.textContent = user.roleLabel || capitalize(user.accessLevel);
-      const colors = { owner:"#f59e0b", management:"#ef4444", admin:"#8b5cf6", moderator:"#4f6fff", staff:"#22c55e" };
       rankEl.style.color = colors[user.accessLevel] || "#4f6fff";
     }
 
@@ -204,11 +205,11 @@
 
   // All possible quick actions with minLevel gate
   const QUICK_ACTIONS = [
-    { label: "Log Punishment", href: "/infractions", minLevel: "moderator",
+    { label: "Log Punishment", action: () => openModal("modal-punishment"), minLevel: "moderator",
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>` },
     { label: "View Logs",      href: "/infractions", minLevel: "moderator",
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>` },
-    { label: "Sessions",       href: "/erlc",
+    { label: "ERLC",           href: "/erlc",
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>` },
     { label: "Staff Roster",   href: "/roster",      minLevel: "moderator",
       icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` },
@@ -232,11 +233,16 @@
     const el = document.getElementById("quick-actions");
     const visible = QUICK_ACTIONS.filter(a => canAccess(accessLevel, a.minLevel));
     el.innerHTML = visible.map(a => `
-      <div class="quick-action" onclick="location.href='${a.href}'">
+      <div class="quick-action" onclick="${a.action ? 'void(0)' : `location.href='${a.href}'`}" data-action="${a.action ? 'modal' : ''}">
         ${a.icon}
         ${a.label}
       </div>
     `).join("");
+    // Wire action buttons
+    el.querySelectorAll("[data-action='modal']").forEach((btn, i) => {
+      const matching = visible.filter(a => a.action)[i];
+      if (matching) btn.onclick = matching.action;
+    });
   }
 
   async function loadStats() {

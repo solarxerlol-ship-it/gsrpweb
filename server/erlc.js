@@ -4,11 +4,17 @@
  */
 
 const axios = require("axios");
+const { HttpsProxyAgent } = require("https-proxy-agent");
 
 const BASE = "https://api.erlc.gg/v2";
 
 function headers() {
   return { "server-key": process.env.ERLC_SERVER_KEY };
+}
+
+// Routes outbound requests through Fixie's static IP when on Vercel
+function proxyAgent() {
+  return process.env.FIXIE_URL ? new HttpsProxyAgent(process.env.FIXIE_URL) : undefined;
 }
 
 /**
@@ -38,7 +44,10 @@ async function getServer(opts = {}) {
   }
   const query = params.toString() ? `?${params}` : "";
   try {
-    const res = await axios.get(`${BASE}/server${query}`, { headers: headers() });
+    const res = await axios.get(`${BASE}/server${query}`, {
+      headers: headers(),
+      httpsAgent: proxyAgent(),
+    });
     return res.data;
   } catch (err) {
     throw wrapErlcError(err);
@@ -86,7 +95,7 @@ async function runCommand(command) {
     const res = await axios.post(
       `${BASE}/server/command`,
       { command },
-      { headers: { ...headers(), "Content-Type": "application/json" } }
+      { headers: { ...headers(), "Content-Type": "application/json" }, httpsAgent: proxyAgent() }
     );
     return res.data;
   } catch (err) {

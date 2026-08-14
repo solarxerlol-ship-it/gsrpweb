@@ -142,11 +142,13 @@
       tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No infractions found.</td></tr>';
       return;
     }
-    tbody.innerHTML = records.map(r => `
+    tbody.innerHTML = records.map(r => {
+      const type = (r.type || "").toLowerCase();
+      return `
       <tr>
         <td><span class="mono text-muted">#${r.caseId}</span></td>
         <td><span class="mono">${r.userId}</span></td>
-        <td><span class="badge badge-${TYPE_COLORS[r.type] || 'gray'}">${r.type}</span></td>
+        <td><span class="badge badge-${TYPE_COLORS[type] || 'gray'}">${type}</span></td>
         <td class="truncate" style="max-width:200px;">${r.reason}</td>
         <td class="text-muted">${r.moderator || "—"}</td>
         <td class="text-muted">${formatDate(r.timestamp)}</td>
@@ -157,7 +159,8 @@
             ? `<button class="btn btn-danger btn-sm" onclick="removeCase(${r.caseId})">Remove</button>` : ''}
         </td>
       </tr>
-    `).join("");
+    `;
+    }).join("");
   }
 
   function renderPagination(page, pages) {
@@ -180,16 +183,19 @@
         document.getElementById("user-infraction-list").innerHTML = "<div class='empty-state'>No infractions for this user.</div>";
         return;
       }
-      document.getElementById("user-infraction-list").innerHTML = records.map(r => `
+      document.getElementById("user-infraction-list").innerHTML = records.map(r => {
+        const type = (r.type || "").toLowerCase();
+        return `
         <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;">
-          <span class="badge badge-${TYPE_COLORS[r.type] || 'gray'}" style="flex-shrink:0;">${r.type}</span>
+          <span class="badge badge-${TYPE_COLORS[type] || 'gray'}" style="flex-shrink:0;">${type}</span>
           <div style="flex:1;min-width:0;">
             <div style="font-size:13px;">${r.reason}</div>
             ${r.description ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${r.description}</div>` : ""}
           </div>
           <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${formatDate(r.timestamp)}</span>
         </div>
-      `).join("");
+      `;
+      }).join("");
 
       const actionsEl = document.getElementById("user-modal-actions");
       if (currentUser && ['management','owner'].includes(currentUser.accessLevel)) {
