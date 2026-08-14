@@ -247,9 +247,23 @@ window.formatDate = formatDate;
 window.formatTime = formatTime;
 window.formatDuration = formatDuration;
 
-// Close modals on overlay click
+// Close modals on overlay click, .modal-close button, or [data-close-modal] attribute
 document.addEventListener("click", e => {
+  // Click on overlay backdrop
   if (e.target.classList.contains("modal-overlay")) {
     e.target.classList.remove("open");
+    return;
+  }
+  // .modal-close X button
+  const closeBtn = e.target.closest(".modal-close");
+  if (closeBtn) {
+    closeBtn.closest(".modal-overlay")?.classList.remove("open");
+    return;
+  }
+  // [data-close-modal="id"] attribute
+  const dataClose = e.target.closest("[data-close-modal]");
+  if (dataClose) {
+    closeModal(dataClose.dataset.closeModal);
+    return;
   }
 });

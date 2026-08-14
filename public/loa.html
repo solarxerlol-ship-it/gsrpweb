@@ -66,7 +66,7 @@
         </div>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-loa')">Cancel</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="modal-loa">Cancel</button>
         <button type="submit" class="btn btn-primary">Submit</button>
       </div>
     </form>
@@ -96,8 +96,8 @@
         const canApprove = ['admin','management','owner'].includes(currentUser?.accessLevel);
         const actions = canApprove && l.status === "pending" ? `
           <td style="display:flex;gap:6px;">
-            <button class="btn btn-success btn-sm" onclick="setStatus('${l._id}','approved')">Approve</button>
-            <button class="btn btn-danger btn-sm" onclick="setStatus('${l._id}','denied')">Deny</button>
+            <button class="btn btn-success btn-sm" data-action="approve" data-id="${l._id}">Approve</button>
+            <button class="btn btn-danger btn-sm" data-action="deny" data-id="${l._id}">Deny</button>
           </td>` : `<td></td>`;
         return `<tr>
           <td>${l.username || l.discordId || "—"}</td>
@@ -124,6 +124,26 @@
   }
 
   document.getElementById("file-btn").addEventListener("click", () => openModal("modal-loa"));
+
+  // Event delegation for dynamically rendered approve/deny buttons
+  document.getElementById("table-body").addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    const id     = btn.dataset.id;
+    const action = btn.dataset.action;
+    if (action === "approve") await setStatus(id, "approved");
+    if (action === "deny")    await setStatus(id, "denied");
+  });
+
+  // Static modal close buttons
+  document.querySelectorAll(".modal-close").forEach(btn => {
+    btn.addEventListener("click", () => {
+      btn.closest(".modal-overlay")?.classList.remove("open");
+    });
+  });
+  document.querySelectorAll("[data-close-modal]").forEach(btn => {
+    btn.addEventListener("click", () => closeModal(btn.dataset.closeModal));
+  });
 
   document.getElementById("loa-form").addEventListener("submit", async (e) => {
     e.preventDefault();
