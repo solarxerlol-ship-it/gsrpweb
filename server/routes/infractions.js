@@ -121,9 +121,13 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
       moderatorName: actor.displayName,
     };
 
-    // ── Fire both Discord embed + bot notify concurrently (don't await) ───────
-    logInfractionToDiscord(botPayload);
-    notifyBot(botPayload);
+    // ── Notify bot — it handles the Discord embed in the same format as /infraction-add
+    // Only post our own embed as fallback if bot webhook isn't configured
+    if (process.env.PORTAL_BOT_URL && process.env.PORTAL_INTERNAL_SECRET) {
+      notifyBot(botPayload); // bot posts the formatted embed
+    } else {
+      logInfractionToDiscord(botPayload); // fallback plain embed
+    }
 
     res.json(record.toObject());
   } catch (err) {
