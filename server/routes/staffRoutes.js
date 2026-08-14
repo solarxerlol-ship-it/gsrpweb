@@ -182,7 +182,15 @@ router.get("/shift/active", requireAuth, async (req, res) => {
 router.get("/shifts/all", requireAuth, requireLevel("moderator"), async (req, res) => {
   try {
     const shifts = await Shift.find({ active: true }).lean();
-    res.json(shifts);
+    // Enrich with avatar from StaffUser
+    const ids   = shifts.map(s => s.discordId).filter(Boolean);
+    const users = await StaffUser.find({ discordId: { $in: ids } }).lean();
+    const uMap  = Object.fromEntries(users.map(u => [u.discordId, u]));
+    const enriched = shifts.map(s => ({
+      ...s,
+      discordAvatar: uMap[s.discordId]?.discordAvatar || null,
+    }));
+    res.json(enriched);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -192,15 +200,22 @@ router.get("/shifts/top", requireAuth, async (req, res) => {
   try {
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const shifts = await Shift.find({ startedAt: { $gte: sevenDaysAgo }, active: false })
-      .sort({ duration: -1 }).limit(10).lean();
-    // Group by discordId
+      .sort({ duration: -1 }).limit(50).lean();
     const map = {};
     for (const s of shifts) {
       if (!map[s.discordId]) map[s.discordId] = { discordId: s.discordId, username: s.username, total: 0 };
       map[s.discordId].total += s.duration || 0;
     }
     const sorted = Object.values(map).sort((a, b) => b.total - a.total).slice(0, 10);
-    res.json(sorted);
+    // Enrich with avatar
+    const ids   = sorted.map(u => u.discordId).filter(Boolean);
+    const users = await StaffUser.find({ discordId: { $in: ids } }).lean();
+    const uMap  = Object.fromEntries(users.map(u => [u.discordId, u]));
+    const enriched = sorted.map(u => ({
+      ...u,
+      discordAvatar: uMap[u.discordId]?.discordAvatar || null,
+    }));
+    res.json(enriched);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
