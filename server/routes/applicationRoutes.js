@@ -23,16 +23,13 @@ router.post("/", async (req, res) => {
       return res.status(429).json({ error: "You already submitted an application recently. Please wait 24 hours." });
     }
 
-    const { robloxUsername, discordUsername, discordId, age, department, experience, whyJoin, rpMeaning, extra } = req.body;
+    const { robloxUsername, discordUsername, discordId, age, department, experience, whyJoin, scenario1, scenario2, scenario3, mcAnswers, rpMeaning, extra } = req.body;
 
-    if (!robloxUsername || !discordUsername || !discordId || !age || !department || !experience || !whyJoin || !rpMeaning) {
+    if (!robloxUsername || !discordUsername || !discordId || !age || !department || !experience) {
       return res.status(400).json({ error: "Please fill in all required fields." });
     }
     if (!/^\d{17,19}$/.test(discordId)) {
       return res.status(400).json({ error: "Discord User ID must be a 17–19 digit number." });
-    }
-    if (whyJoin.trim().length < 30) {
-      return res.status(400).json({ error: "Please write at least 30 characters for why you want to join." });
     }
 
     // Check for duplicate pending application from same Discord ID
@@ -42,15 +39,19 @@ router.post("/", async (req, res) => {
     }
 
     const app = await Application.create({
-      robloxUsername: robloxUsername.trim(),
+      robloxUsername:  robloxUsername.trim(),
       discordUsername: discordUsername.trim(),
-      discordId: discordId.trim(),
+      discordId:       discordId.trim(),
       age,
       department,
       experience,
-      whyJoin: whyJoin.trim(),
-      rpMeaning: rpMeaning.trim(),
-      extra: (extra || "").trim(),
+      mcAnswers:  mcAnswers  || {},
+      scenario1:  (scenario1  || "").trim(),
+      scenario2:  (scenario2  || "").trim(),
+      scenario3:  (scenario3  || "").trim(),
+      whyJoin:    (whyJoin    || "").trim(),
+      rpMeaning:  (rpMeaning  || "").trim(),
+      extra:      (extra      || "").trim(),
     });
 
     submissionCooldown.set(ip, now);

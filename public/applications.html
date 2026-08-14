@@ -113,13 +113,15 @@
       return;
     }
 
-    el.innerHTML = list.map(a => `
-      <div class="card" style="padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;" onclick="openApp('${a._id}')">
+  el.innerHTML = list.map(a => `
+      <div class="card" style="padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;" data-app-id="${a._id}">
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
             <span style="font-weight:700;font-size:14px;">${escHtml(a.robloxUsername)}</span>
             <span class="badge badge-blue" style="font-size:10px;">${escHtml(a.department)}</span>
             ${statusBadge(a.status)}
+            ${a.mcAnswers?.allCorrect === false ? '<span class="badge badge-red" style="font-size:10px;">MC Errors</span>' : ''}
+            ${a.mcAnswers?.allCorrect === true  ? '<span class="badge badge-green" style="font-size:10px;">MC Passed</span>' : ''}
           </div>
           <div style="font-size:12px;color:var(--text-secondary);">
             Discord: ${escHtml(a.discordUsername)} &nbsp;·&nbsp; Age: ${escHtml(a.age)} &nbsp;·&nbsp; ${formatDate(a.createdAt)}
@@ -154,6 +156,40 @@
       ['Status', capitalize(a.status)],
     ];
 
+    const MC_LABELS = {
+      rdm:      'RDM answer',
+      vdm:      'VDM answer',
+      failrp:   'FailRP answer',
+      safezone: 'Safe zone answer',
+    };
+    const MC_CORRECT = { rdm:'a', vdm:'b', failrp:'c', safezone:'b' };
+    const MC_OPTIONS = {
+      rdm:      ['a','b','c','d'],
+      vdm:      ['a','b','c','d'],
+      failrp:   ['a','b','c','d'],
+      safezone: ['a','b','c','d'],
+    };
+
+    function answerRow(label, val, correct) {
+      const ok = val === correct;
+      const color = ok ? 'var(--success)' : 'var(--danger)';
+      const icon  = ok ? '✓' : '✗';
+      return `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:10px 14px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">${label}</div>
+        <div style="font-size:13px;font-weight:600;color:${color};">${icon} Option ${(val||'—').toUpperCase()}${ok ? '' : ` (correct: ${correct.toUpperCase()})`}</div>
+      </div>`;
+    }
+
+    function longAnswer(label, val) {
+      if (!val) return '';
+      return `<div style="margin-bottom:14px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">${label}</div>
+        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;white-space:pre-wrap;">${escHtml(val)}</div>
+      </div>`;
+    }
+
+    const mc = a.mcAnswers || {};
+
     document.getElementById('modal-body').innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
         ${fields.map(([k,v]) => `
@@ -163,18 +199,23 @@
           </div>
         `).join('')}
       </div>
-      <div style="margin-bottom:14px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Why do you want to join?</div>
-        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;">${escHtml(a.whyJoin || '—')}</div>
-      </div>
-      <div style="margin-bottom:14px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">What does serious RP mean to you?</div>
-        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;">${escHtml(a.rpMeaning || '—')}</div>
-      </div>
-      ${a.extra ? `<div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Additional Info</div>
-        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;">${escHtml(a.extra)}</div>
-      </div>` : ''}
+
+      ${Object.keys(MC_CORRECT).some(q => mc[q]) ? `
+        <div style="margin-bottom:20px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Knowledge Questions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            ${Object.entries(MC_CORRECT).map(([q,correct]) =>
+              answerRow(MC_LABELS[q], mc[q], correct)
+            ).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      ${longAnswer('Scenario 1 — VDM situation', a.scenario1)}
+      ${longAnswer('Scenario 2 — Safe zone pursuit', a.scenario2)}
+      ${longAnswer('Scenario 3 — Rulebreaking officer', a.scenario3)}
+      ${longAnswer('Why GSRP specifically?', a.whyJoin)}
+      ${longAnswer('Additional info / previous groups', a.extra)}
     `;
 
     // Action buttons — only show for pending

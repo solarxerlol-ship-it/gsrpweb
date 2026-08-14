@@ -122,9 +122,16 @@ const applicationSchema = new mongoose.Schema({
   age:             { type: String, required: true },
   department:      { type: String, required: true },
   experience:      { type: String, required: true },
-  whyJoin:         { type: String, required: true },
-  rpMeaning:       { type: String, required: true },
+  // Knowledge questions
+  mcAnswers:       { type: mongoose.Schema.Types.Mixed, default: {} },
+  // Scenario & short answer questions
+  scenario1:       { type: String, default: '' },
+  scenario2:       { type: String, default: '' },
+  scenario3:       { type: String, default: '' },
+  whyJoin:         { type: String, default: '' },
   extra:           { type: String, default: '' },
+  // Legacy / compat
+  rpMeaning:       { type: String, default: '' },
   status:          { type: String, enum: ['pending','accepted','denied'], default: 'pending' },
   reviewedBy:      { type: String, default: null },
   createdAt:       { type: Number, default: () => Date.now() },

@@ -561,7 +561,7 @@
             <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
               <span style="font-weight:600;">${escFeed(player)}</span>
               <span style="color:var(--text-muted);"> ${isPm ? 'sent a PM' : 'ran'} </span>
-              <span class="mono" style="font-size:11px;color:var(--accent);">${escFeed(cmd.length > 48 ? cmd.slice(0,48)+'…' : cmd)}</span>
+              <span style="font-size:12px;color:var(--accent);">${escFeed(cmd.length > 48 ? cmd.slice(0,48)+'…' : cmd)}</span>
             </span>
             <span class="feed-time">${formatTime(l.ts)}</span>
           </div>`;
