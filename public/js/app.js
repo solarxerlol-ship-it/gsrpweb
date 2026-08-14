@@ -234,8 +234,18 @@ function showToast(msg, type = "success") {
   setTimeout(() => el.remove(), 3500);
 }
 
-function openModal(id) { document.getElementById(id)?.classList.add("open"); }
+function openModal(id)  { document.getElementById(id)?.classList.add("open"); }
 function closeModal(id) { document.getElementById(id)?.classList.remove("open"); }
+
+// Expose to window so inline onclick="..." attributes in dynamic HTML can reach them
+window.openModal  = openModal;
+window.closeModal = closeModal;
+window.showToast  = showToast;
+window.capitalize = capitalize;
+window.timeAgo    = timeAgo;
+window.formatDate = formatDate;
+window.formatTime = formatTime;
+window.formatDuration = formatDuration;
 
 // Close modals on overlay click
 document.addEventListener("click", e => {
