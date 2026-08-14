@@ -1,28 +1,47 @@
 /**
- * db.js — Shared MongoDB connection + all models for the staff portal.
- * Reuses the same database as the Discord bot.
+ * db.js — MongoDB connection + all Mongoose models.
+ * Uses a cached connection so Vercel serverless functions
+ * don't open a new connection on every cold start.
  */
 
 const mongoose = require("mongoose");
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("[DB] Connected to MongoDB"))
-  .catch(err => console.error("[DB] Connection error:", err));
+// Cache connection across serverless invocations
+let _conn = null;
 
-// ── Infraction ────────────────────────────────────────────────────────────────
+async function connect() {
+  if (_conn && mongoose.connection.readyState === 1) return _conn;
+
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI environment variable is not set");
+  }
+
+  _conn = await mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+  });
+
+  console.log("[DB] Connected to MongoDB");
+  return _conn;
+}
+
+// Start connection immediately (non-blocking — errors logged, not thrown)
+connect().catch(err => console.error("[DB] Connection error:", err.message));
+
+// ── Schemas ───────────────────────────────────────────────────────────────────
+
 const infractionSchema = new mongoose.Schema({
   userId:      String,
   caseId:      Number,
   type:        String,
   reason:      String,
   description: String,
-  moderator:   String,    // Discord user ID
+  moderator:   String,
   guild:       String,
-  source:      { type: String, default: "bot" }, // "bot" | "web"
+  source:      { type: String, default: "bot" },
   timestamp:   { type: Number, default: () => Date.now() },
 });
 
-// ── Promotion ─────────────────────────────────────────────────────────────────
 const promotionSchema = new mongoose.Schema({
   userId:     String,
   fromRole:   String,
@@ -38,32 +57,29 @@ const promotionSchema = new mongoose.Schema({
   timestamp:  { type: Number, default: () => Date.now() },
 });
 
-// ── Staff Portal User ─────────────────────────────────────────────────────────
 const staffUserSchema = new mongoose.Schema({
-  discordId:     { type: String, unique: true, sparse: true },
-  username:      String,   // for password login
-  passwordHash:  String,
-  generatedBy:   String,   // Discord ID of whoever generated the password
-  accessLevel:   { type: String, enum: ["owner", "management", "admin", "moderator", "staff"], default: "staff" },
+  discordId:       { type: String, unique: true, sparse: true },
+  username:        String,
+  passwordHash:    String,
+  generatedBy:     String,
+  accessLevel:     { type: String, enum: ["owner","management","admin","moderator","staff"], default: "staff" },
   discordUsername: String,
   discordAvatar:   String,
   discordRoles:    [String],
-  authMethod:    { type: String, enum: ["discord", "password"] },
-  lastLogin:     Number,
-  createdAt:     { type: Number, default: () => Date.now() },
+  authMethod:      { type: String, enum: ["discord","password"] },
+  lastLogin:       Number,
+  createdAt:       { type: Number, default: () => Date.now() },
 });
 
-// ── Shift ─────────────────────────────────────────────────────────────────────
 const shiftSchema = new mongoose.Schema({
-  discordId:   String,
-  username:    String,
-  startedAt:   { type: Number, default: () => Date.now() },
-  endedAt:     { type: Number, default: null },
-  duration:    { type: Number, default: null }, // ms
-  active:      { type: Boolean, default: true },
+  discordId: String,
+  username:  String,
+  startedAt: { type: Number, default: () => Date.now() },
+  endedAt:   { type: Number, default: null },
+  duration:  { type: Number, default: null },
+  active:    { type: Boolean, default: true },
 });
 
-// ── LOA ───────────────────────────────────────────────────────────────────────
 const loaSchema = new mongoose.Schema({
   discordId:  String,
   username:   String,
@@ -72,21 +88,19 @@ const loaSchema = new mongoose.Schema({
   endDate:    Number,
   approved:   { type: Boolean, default: false },
   approvedBy: String,
-  status:     { type: String, enum: ["pending", "approved", "denied", "expired"], default: "pending" },
+  status:     { type: String, enum: ["pending","approved","denied","expired"], default: "pending" },
   createdAt:  { type: Number, default: () => Date.now() },
 });
 
-// ── Audit Log ─────────────────────────────────────────────────────────────────
 const auditSchema = new mongoose.Schema({
-  actorId:    String,
-  actorName:  String,
-  action:     String,
-  target:     String,
-  details:    mongoose.Schema.Types.Mixed,
-  timestamp:  { type: Number, default: () => Date.now() },
+  actorId:   String,
+  actorName: String,
+  action:    String,
+  target:    String,
+  details:   mongoose.Schema.Types.Mixed,
+  timestamp: { type: Number, default: () => Date.now() },
 });
 
-// ── Portal Announcement ───────────────────────────────────────────────────────
 const announcementSchema = new mongoose.Schema({
   title:      String,
   content:    String,
@@ -96,7 +110,7 @@ const announcementSchema = new mongoose.Schema({
   createdAt:  { type: Number, default: () => Date.now() },
 });
 
-// ── Models ────────────────────────────────────────────────────────────────────
+// ── Models (safe re-use across hot reloads) ───────────────────────────────────
 const Infraction   = mongoose.models.Infraction   || mongoose.model("Infraction",   infractionSchema);
 const Promotion    = mongoose.models.Promotion    || mongoose.model("Promotion",    promotionSchema);
 const StaffUser    = mongoose.models.StaffUser    || mongoose.model("StaffUser",    staffUserSchema);
@@ -105,4 +119,4 @@ const LOA          = mongoose.models.LOA          || mongoose.model("LOA",      
 const AuditLog     = mongoose.models.AuditLog     || mongoose.model("AuditLog",     auditSchema);
 const Announcement = mongoose.models.Announcement || mongoose.model("Announcement", announcementSchema);
 
-module.exports = { Infraction, Promotion, StaffUser, Shift, LOA, AuditLog, Announcement };
+module.exports = { connect, Infraction, Promotion, StaffUser, Shift, LOA, AuditLog, Announcement };

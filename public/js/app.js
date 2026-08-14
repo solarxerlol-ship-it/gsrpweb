@@ -58,11 +58,11 @@ function svgIcon(name) {
 }
 
 const RANK_COLORS = {
-  owner:      "#c9a227",
-  management: "#c0392b",
-  admin:      "#9b59b6",
-  moderator:  "#3498db",
-  staff:      "#57f287",
+  owner:      "#ffd166",
+  management: "#ff4d6d",
+  admin:      "#8b5cf6",
+  moderator:  "#4f6fff",
+  staff:      "#43e97b",
 };
 
 async function renderSidebar(activePage) {
