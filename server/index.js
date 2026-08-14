@@ -1,5 +1,5 @@
 /**
- * index.js — GSSRP Staff Portal server entry point.
+ * index.js — Georgia State Roleplay Staff Portal server entry point.
  */
 
 require("dotenv").config();
@@ -92,4 +92,4 @@ app.use((req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`[WEB] Staff portal running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`[WEB] Georgia State Roleplay staff portal running on http://localhost:${PORT}`));

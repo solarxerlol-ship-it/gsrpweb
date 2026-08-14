@@ -58,10 +58,10 @@ function svgIcon(name) {
 }
 
 const RANK_COLORS = {
-  owner:      "#fee75c",
-  management: "#ed4245",
+  owner:      "#c9a227",
+  management: "#c0392b",
   admin:      "#9b59b6",
-  moderator:  "#5865f2",
+  moderator:  "#3498db",
   staff:      "#57f287",
 };
 
@@ -101,10 +101,11 @@ async function renderSidebar(activePage) {
 
   sidebarEl.innerHTML = `
     <div class="sidebar-header">
-      <div class="sidebar-logo">G</div>
+      <img src="/img/logo.png" alt="GSRP" class="sidebar-logo-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" style="width:34px;height:34px;border-radius:6px;object-fit:cover;flex-shrink:0;">
+      <div class="sidebar-logo" style="display:none;">GA</div>
       <div>
-        <div class="sidebar-title">GSSRP</div>
-        <div class="sidebar-subtitle">Staff Portal</div>
+        <div class="sidebar-title">Georgia State</div>
+        <div class="sidebar-subtitle">Roleplay Portal</div>
       </div>
     </div>
     <div class="sidebar-user">

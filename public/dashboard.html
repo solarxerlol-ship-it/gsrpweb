@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Overview — GSSRP Staff Portal</title>
+  <title>Overview — Georgia State Roleplay Staff Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/css/style.css">
@@ -13,8 +13,7 @@
   <aside class="sidebar" id="sidebar"></aside>
   <div class="main">
     <header class="topbar">
-      <span class="topbar-title">Overview</span>
-      <div class="topbar-right">
+      <span class="topbar-title">Overview</span>      <div class="topbar-right">
         <button class="btn btn-primary btn-sm" id="log-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           Log Punishment
@@ -347,8 +346,7 @@
       showToast("Punishment logged!");
       e.target.reset();
     } catch (err) {
-      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
-    }
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;    }
   });
 
   init();

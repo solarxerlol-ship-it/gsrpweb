@@ -1,7 +1,7 @@
 {
-  "name": "gssrp-staff-portal",
+  "name": "gsrp-staff-portal",
   "version": "1.0.0",
-  "description": "GSSRP Staff Portal",
+  "description": "Georgia State Roleplay Staff Portal",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
