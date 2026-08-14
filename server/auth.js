@@ -3,17 +3,15 @@
  * Role definitions live in roles.js — edit that file to change access.
  */
 
-const passport = require("passport");
-const axios    = require("axios");
-const { StaffUser } = require("./db");
-const { resolveRole } = require("./roles");
+const passport         = require("passport");
+const axios            = require("axios");
+const DiscordStrategy  = require("passport-discord").Strategy;
+const { StaffUser }    = require("./db");
+const { resolveRole }  = require("./roles");
 
 /**
- * Fetch the Discord guild member object for a user.
- * Returns their role ID array, or [] on any failure.
- *
- * @param {string} discordId
- * @returns {Promise<string[]>}
+ * Fetch the Discord guild member's role ID array via the bot token.
+ * Returns [] on any failure — never throws.
  */
 async function getGuildRoles(discordId) {
   const guildId  = process.env.DISCORD_GUILD_ID;
@@ -37,7 +35,7 @@ async function getGuildRoles(discordId) {
     if (status === 404) {
       console.warn(`[Auth] User ${discordId} is not in guild ${guildId}`);
     } else if (status === 401 || status === 403) {
-      console.error(`[Auth] Bot token invalid (HTTP ${status}) — check DISCORD_BOT_TOKEN`);
+      console.error(`[Auth] Bot token rejected (HTTP ${status}) — check DISCORD_BOT_TOKEN`);
     } else {
       console.error(`[Auth] Guild member fetch failed (HTTP ${status}):`, err.response?.data || err.message);
     }
@@ -48,8 +46,6 @@ async function getGuildRoles(discordId) {
 // ── Passport Discord Strategy ─────────────────────────────────────────────────
 
 if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
-  const { Strategy: DiscordStrategy } = require("passport-discord");
-
   passport.use(new DiscordStrategy(
     {
       clientID:     process.env.DISCORD_CLIENT_ID,
@@ -69,7 +65,7 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
           return done(null, false, { message: "no_staff_role" });
         }
 
-        console.log(`[Auth] ${profile.username} → level="${resolved.level}" label="${resolved.label}" (numeric: ${resolved.numericLevel})`);
+        console.log(`[Auth] ${profile.username} → "${resolved.label}" (level ${resolved.numericLevel})`);
 
         const user = await StaffUser.findOneAndUpdate(
           { discordId: profile.id },
@@ -78,9 +74,9 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
             discordUsername: profile.username,
             discordAvatar:   profile.avatar,
             discordRoles:    guildRoles,
-            accessLevel:     resolved.level,        // string: "management"
-            numericLevel:    resolved.numericLevel,  // number: 80
-            roleLabel:       resolved.label,         // "Management Team"
+            accessLevel:     resolved.level,
+            numericLevel:    resolved.numericLevel,
+            roleLabel:       resolved.label,
             roleColor:       resolved.color,
             authMethod:      "discord",
             lastLogin:       Date.now(),

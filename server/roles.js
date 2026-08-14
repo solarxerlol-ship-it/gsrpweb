@@ -50,8 +50,10 @@ const ROLE_MAP = {
   },
 
   // ── STAFF ──────────────────────────────────────────────────────────────────
+  // ⚠️  Replace ROLE_ADMIN_ID below with your actual Administrator role ID
+  //    (currently using Director's ID as a placeholder — they must be different)
 
-  '1530375780075569152': {   // NOTE: same ID as Director above — update to real Admin ID
+  [process.env.ROLE_ADMIN || 'REPLACE_WITH_ADMIN_ROLE_ID']: {
     level:       60,
     displayRank: 60,
     label:       'Administrator',
