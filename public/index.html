@@ -17,433 +17,437 @@
 </head>
 <body>
 
-  <!-- ── Navbar ─────────────────────────────────────────────────────────── -->
-  <nav class="navbar" id="navbar">
-    <a href="#" class="nav-brand">
-      <img
-        src="https://cdn.discordapp.com/icons/1530375780012658918/a1de3f778cee54317a36cbe02e0169de.webp?size=128"
-        alt="Georgia State Roleplay logo"
-        loading="eager"
-      />
-      Georgia State
-    </a>
+<!-- Particle canvas (background) -->
+<canvas id="bg-canvas"></canvas>
 
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#" class="active">Home</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#departments">Departments</a></li>
-      <li><a href="#join">Apply</a></li>
-    </ul>
+<!-- ══ LIQUID GLASS NAVBAR ════════════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <a href="#home" class="nav-brand">
+    <img src="https://cdn.discordapp.com/icons/1530375780012658918/a1de3f778cee54317a36cbe02e0169de.webp?size=128" alt="GSRP" loading="eager" />
+    Georgia State
+  </a>
 
-    <div class="nav-actions">
-      <a href="https://staff.gssrp.xyz" class="btn btn-outline" target="_blank" rel="noopener">
-        Staff Panel
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#home" class="active">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#departments">Departments</a></li>
+    <li><a href="#join">Apply</a></li>
+  </ul>
+
+  <div class="nav-actions">
+    <a href="https://staff.gssrp.xyz" class="btn btn-glass" target="_blank" rel="noopener">Staff Panel</a>
+    <a href="#join" class="btn btn-primary">JOIN SERVER</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ HERO ═══════════════════════════════════════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      Now Recruiting — All Departments Open
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line1">GEORGIA STATE</span>
+      <span class="line2">ROLEPLAY</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      The premier Roblox law enforcement roleplay experience. Serious RP, active community, and a dedicated staff team.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#join" class="btn btn-primary btn-lg">GET STARTED →</a>
+      <a href="https://discord.gg/gssrp" class="btn btn-outline btn-lg" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        JOIN DISCORD
       </a>
-      <a href="#join" class="btn btn-primary">
-        JOIN SERVER
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" data-count="50">50</span>
+        <span class="stat-lbl">Max Players</span>
+      </div>
+      <div class="stat-div"></div>
+      <div class="stat-item">
+        <span class="stat-num">1,000+</span>
+        <span class="stat-lbl">Community Members</span>
+      </div>
+      <div class="stat-div"></div>
+      <div class="stat-item">
+        <span class="stat-num" data-count="6">6</span>
+        <span class="stat-lbl">Departments</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- ══ SERVER STATUS ══════════════════════════════════════════════════════ -->
+<section id="server-status">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-tag">Live Data</span>
+      <h2 class="section-title">Server Status</h2>
+      <p class="section-subtitle">Real-time information pulled directly from our ERLC server.</p>
+    </div>
+
+    <div class="status-grid">
+      <div class="card status-main-card reveal reveal-delay-1">
+        <div class="status-card-header">
+          <span class="status-card-title">ERLC Server</span>
+          <span class="status-badge online" id="statusBadge">
+            <span class="badge-dot"></span>
+            <span id="statusText">Online</span>
+          </span>
+        </div>
+        <div>
+          <div class="capacity-label">
+            <span>Player Capacity</span>
+            <span id="capacityText">0 / 50</span>
+          </div>
+          <div class="capacity-bar">
+            <div class="capacity-fill" id="capacityFill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="status-stats-row">
+          <div class="status-stat"><div class="status-stat-value" id="playerCount">—</div><div class="status-stat-label">Players</div></div>
+          <div class="status-stat"><div class="status-stat-value" id="accessType">—</div><div class="status-stat-label">Access</div></div>
+          <div class="status-stat"><div class="status-stat-value" id="teamBalance">—</div><div class="status-stat-label">Team Bal.</div></div>
+        </div>
+      </div>
+
+      <div class="card status-info-card reveal reveal-delay-2">
+        <div class="status-info-title">Server Information</div>
+        <div class="status-info-row"><span class="status-info-key">Server Name</span><span class="status-info-val" id="serverName">Georgia State RP</span></div>
+        <div class="status-info-row"><span class="status-info-key">Game</span><span class="status-info-val">Emergency Response: Liberty City</span></div>
+        <div class="status-info-row"><span class="status-info-key">Region</span><span class="status-info-val">United States</span></div>
+        <div class="status-info-row"><span class="status-info-key">Queue</span><span class="status-info-val" id="queueCount">—</span></div>
+        <div class="status-info-row"><span class="status-info-key">Last Updated</span><span class="status-info-val" id="lastUpdated">—</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DEPARTMENTS ════════════════════════════════════════════════════════ -->
+<section id="departments">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-tag">Organization</span>
+      <h2 class="section-title">Our Departments</h2>
+      <p class="section-subtitle">Six specialized divisions keeping the roleplay experience immersive and structured.</p>
+    </div>
+    <div class="dept-grid">
+      <div class="card dept-card reveal reveal-delay-1">
+        <div class="dept-icon">🏛️</div>
+        <div class="dept-name">Law Enforcement</div>
+        <div class="dept-desc">The backbone of public safety. Officers patrol the city, respond to calls, and maintain order across all districts.</div>
+        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">LSPD</span></div>
+      </div>
+      <div class="card dept-card reveal reveal-delay-2">
+        <div class="dept-icon">⭐</div>
+        <div class="dept-name">State Police</div>
+        <div class="dept-desc">Elite law enforcement operating statewide. Handles major incidents, highway patrol, and inter-agency cooperation.</div>
+        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">GSP</span></div>
+      </div>
+      <div class="card dept-card reveal reveal-delay-3">
+        <div class="dept-icon">🔥</div>
+        <div class="dept-name">Fire Department</div>
+        <div class="dept-desc">First responders to fires, hazmat incidents, and technical rescues. Keeping our community safe from every angle.</div>
+        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">GSFD</span></div>
+      </div>
+      <div class="card dept-card reveal reveal-delay-2">
+        <div class="dept-icon">🔰</div>
+        <div class="dept-name">Sheriff's Office</div>
+        <div class="dept-desc">County law enforcement responsible for rural areas, courthouse security, and detention operations.</div>
+        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">GCSO</span></div>
+      </div>
+      <div class="card dept-card reveal reveal-delay-3">
+        <div class="dept-icon">✚</div>
+        <div class="dept-name">Emergency Medical</div>
+        <div class="dept-desc">Highly trained paramedics providing on-scene medical care, transport, and critical trauma response.</div>
+        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">EMS</span></div>
+      </div>
+      <div class="card dept-card reveal reveal-delay-4">
+        <div class="dept-icon">👤</div>
+        <div class="dept-name">Civilian Operations</div>
+        <div class="dept-desc">Bringing the world to life. Civilian operators create the stories that make law enforcement roleplay meaningful.</div>
+        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">CIV</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FEATURES ═══════════════════════════════════════════════════════════ -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-tag">Why GSRP</span>
+      <h2 class="section-title">Built for Serious RP</h2>
+      <p class="section-subtitle">Everything you need for an immersive, well-run roleplay community.</p>
+    </div>
+    <div class="features-grid">
+      <div class="card feature-card reveal reveal-delay-1">
+        <div class="feature-icon">🎭</div>
+        <div class="feature-title">Serious Roleplay</div>
+        <div class="feature-desc">Strict standards and comprehensive SOPs ensure every session is immersive, realistic, and enjoyable for all participants.</div>
+      </div>
+      <div class="card feature-card reveal reveal-delay-2">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Active Staff</div>
+        <div class="feature-desc">A dedicated moderation and leadership team available around the clock to keep sessions running smoothly.</div>
+      </div>
+      <div class="card feature-card reveal reveal-delay-3">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">Regular Events</div>
+        <div class="feature-desc">Weekly sessions, department ride-alongs, training exercises, and community events keep things fresh and engaging.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ REVIEWS ════════════════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="section-tag">Testimonials</span>
+      <h2 class="section-title">Community Reviews</h2>
+      <p class="section-subtitle">Hear from members who've been part of the Georgia State family.</p>
+    </div>
+    <div class="reviews-summary reveal">
+      <div class="reviews-rating-big">
+        <div class="rating-number">4.5</div>
+        <div class="rating-info">
+          <div class="stars">
+            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star half">★</span>
+          </div>
+          <div class="reviews-count">Based on 6 community reviews</div>
+        </div>
+      </div>
+      <a href="https://discord.gg/gssrp" class="btn btn-outline" target="_blank" rel="noopener">Leave a Review →</a>
+    </div>
+    <div class="reviews-grid">
+      <div class="card review-card reveal reveal-delay-1">
+        <div class="review-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <div class="review-text">"Yeah, this is Ai"</div>
+        <div class="review-author"><span class="review-name">Someone</span><span class="review-role">Community Member</span></div>
+      </div>
+      <div class="card review-card reveal reveal-delay-2">
+        <div class="review-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <div class="review-text">"Amazing RP. Amazing Staff. Don't have much to say, everything is amazing."</div>
+        <div class="review-author"><span class="review-name">earthmovin_0</span><span class="review-role">Community Member</span></div>
+      </div>
+      <div class="card review-card reveal reveal-delay-3">
+        <div class="review-stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <div class="review-text">"5 Star, The guy Moderation is rly cool, kind and helpful always there when you need him"</div>
+        <div class="review-author"><span class="review-name">Jordan Adams</span><span class="review-role">Community Member</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ JOIN CTA ═══════════════════════════════════════════════════════════ -->
+<section id="join">
+  <div class="join-glow"></div>
+  <div class="section-inner">
+    <div class="join-inner reveal">
+      <h2 class="join-title">Ready to <span>Join?</span></h2>
+      <p class="join-sub">Become part of one of Roblox's most dedicated law enforcement roleplay communities. Applications are open — all departments are recruiting.</p>
+      <div class="join-actions">
+        <a href="https://discord.gg/gssrp" class="btn btn-primary btn-lg" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+          Join Our Discord
+        </a>
+        <a href="https://staff.gssrp.xyz" class="btn btn-outline btn-lg" target="_blank" rel="noopener">Staff Panel</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ═════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#home" class="footer-logo">
+        <img src="https://cdn.discordapp.com/icons/1530375780012658918/a1de3f778cee54317a36cbe02e0169de.webp?size=128" alt="GSRP" />
+        Georgia State Roleplay
       </a>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <p class="footer-tagline">The premier Roblox law enforcement roleplay experience. Serving the community since day one.</p>
     </div>
-  </nav>
-
-  <!-- ── Hero ───────────────────────────────────────────────────────────── -->
-  <section class="hero" id="home">
-    <div class="hero-glow"></div>
-    <div class="hero-content">
-      <div class="hero-eyebrow fade-in">
-        <span class="dot"></span>
-        Now Recruiting — All Departments Open
-      </div>
-
-      <h1 class="hero-title fade-in">
-        <span class="line1">GEORGIA STATE</span>
-        <span class="line2">ROLEPLAY</span>
-      </h1>
-
-      <p class="hero-subtitle fade-in">
-        The premier Roblox law enforcement roleplay experience. Serious RP, active community, and a dedicated staff team.
-      </p>
-
-      <div class="hero-actions fade-in">
-        <a href="#join" class="btn btn-primary btn-lg">GET STARTED →</a>
-        <a href="https://discord.gg/gssrp" class="btn btn-ghost btn-lg" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
-          </svg>
-          JOIN DISCORD
-        </a>
-      </div>
-
-      <div class="hero-stats fade-in">
-        <div class="stat-item">
-          <span class="stat-value">50</span>
-          <span class="stat-label">Max Players</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-value">1,000+</span>
-          <span class="stat-label">Community Members</span>
-        </div>
-        <div class="stat-divider"></div>
-        <div class="stat-item">
-          <span class="stat-value">6</span>
-          <span class="stat-label">Departments</span>
-        </div>
-      </div>
+    <div>
+      <div class="footer-col-title">Navigation</div>
+      <ul class="footer-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#departments">Departments</a></li>
+        <li><a href="#join">Apply</a></li>
+        <li><a href="https://staff.gssrp.xyz" target="_blank" rel="noopener">Staff Panel</a></li>
+      </ul>
     </div>
-  </section>
-
-  <!-- ── Server Status ──────────────────────────────────────────────────── -->
-  <section id="server-status">
-    <div class="section-inner">
-      <div class="section-header fade-in">
-        <span class="section-tag">Live Data</span>
-        <h2 class="section-title">Server Status</h2>
-        <p class="section-subtitle">Real-time information pulled directly from our ERLC server.</p>
-      </div>
-
-      <div class="status-grid fade-in">
-        <div class="card status-main-card">
-          <div class="status-card-header">
-            <span class="status-card-title">ERLC Server</span>
-            <span class="status-badge online" id="statusBadge">
-              <span class="badge-dot"></span>
-              <span id="statusText">Online</span>
-            </span>
-          </div>
-          <div>
-            <div class="capacity-label">
-              <span>Player Capacity</span>
-              <span id="capacityText">0 / 50</span>
-            </div>
-            <div class="capacity-bar">
-              <div class="capacity-fill" id="capacityFill" style="width: 0%"></div>
-            </div>
-          </div>
-          <div class="status-stats-row">
-            <div class="status-stat">
-              <div class="status-stat-value" id="playerCount">—</div>
-              <div class="status-stat-label">Players</div>
-            </div>
-            <div class="status-stat">
-              <div class="status-stat-value" id="accessType">—</div>
-              <div class="status-stat-label">Access</div>
-            </div>
-            <div class="status-stat">
-              <div class="status-stat-value" id="teamBalance">—</div>
-              <div class="status-stat-label">Team Bal.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card status-info-card">
-          <div class="status-info-title">Server Information</div>
-          <div class="status-info-row">
-            <span class="status-info-key">Server Name</span>
-            <span class="status-info-val" id="serverName">Georgia State RP</span>
-          </div>
-          <div class="status-info-row">
-            <span class="status-info-key">Game</span>
-            <span class="status-info-val">Emergency Response: Liberty City</span>
-          </div>
-          <div class="status-info-row">
-            <span class="status-info-key">Region</span>
-            <span class="status-info-val">United States</span>
-          </div>
-          <div class="status-info-row">
-            <span class="status-info-key">Queue</span>
-            <span class="status-info-val" id="queueCount">—</span>
-          </div>
-          <div class="status-info-row">
-            <span class="status-info-key">Last Updated</span>
-            <span class="status-info-val" id="lastUpdated">—</span>
-          </div>
-        </div>
-      </div>
+    <div>
+      <div class="footer-col-title">Community</div>
+      <ul class="footer-links">
+        <li><a href="https://discord.gg/gssrp" target="_blank" rel="noopener">Discord Server</a></li>
+        <li><a href="#server-status">Server Status</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#about">Reviews</a></li>
+      </ul>
     </div>
-  </section>
-
-  <!-- ── Departments ────────────────────────────────────────────────────── -->
-  <section id="departments">
-    <div class="section-inner">
-      <div class="section-header fade-in">
-        <span class="section-tag">Organization</span>
-        <h2 class="section-title">Our Departments</h2>
-        <p class="section-subtitle">Six specialized divisions keeping the roleplay experience immersive and structured.</p>
-      </div>
-
-      <div class="dept-grid">
-        <div class="card dept-card fade-in">
-          <div class="dept-icon">🏛️</div>
-          <div class="dept-name">Law Enforcement</div>
-          <div class="dept-desc">The backbone of public safety. Officers patrol the city, respond to calls, and maintain order across all districts.</div>
-          <div class="dept-footer">
-            <span class="dept-members">Members: —</span>
-            <span class="dept-tag">LSPD</span>
-          </div>
-        </div>
-        <div class="card dept-card fade-in">
-          <div class="dept-icon">⭐</div>
-          <div class="dept-name">State Police</div>
-          <div class="dept-desc">Elite law enforcement operating statewide. Handles major incidents, highway patrol, and inter-agency cooperation.</div>
-          <div class="dept-footer">
-            <span class="dept-members">Members: —</span>
-            <span class="dept-tag">GSP</span>
-          </div>
-        </div>
-        <div class="card dept-card fade-in">
-          <div class="dept-icon">🔥</div>
-          <div class="dept-name">Fire Department</div>
-          <div class="dept-desc">First responders to fires, hazmat incidents, and technical rescues. Keeping our community safe from every angle.</div>
-          <div class="dept-footer">
-            <span class="dept-members">Members: —</span>
-            <span class="dept-tag">GSFD</span>
-          </div>
-        </div>
-        <div class="card dept-card fade-in">
-          <div class="dept-icon">🔰</div>
-          <div class="dept-name">Sheriff's Office</div>
-          <div class="dept-desc">County law enforcement responsible for rural areas, courthouse security, and detention operations.</div>
-          <div class="dept-footer">
-            <span class="dept-members">Members: —</span>
-            <span class="dept-tag">GCSO</span>
-          </div>
-        </div>
-        <div class="card dept-card fade-in">
-          <div class="dept-icon">✚</div>
-          <div class="dept-name">Emergency Medical</div>
-          <div class="dept-desc">Highly trained paramedics providing on-scene medical care, transport, and critical trauma response.</div>
-          <div class="dept-footer">
-            <span class="dept-members">Members: —</span>
-            <span class="dept-tag">EMS</span>
-          </div>
-        </div>
-        <div class="card dept-card fade-in">
-          <div class="dept-icon">👤</div>
-          <div class="dept-name">Civilian Operations</div>
-          <div class="dept-desc">Bringing the world to life. Civilian operators create the stories that make law enforcement roleplay meaningful.</div>
-          <div class="dept-footer">
-            <span class="dept-members">Members: —</span>
-            <span class="dept-tag">CIV</span>
-          </div>
-        </div>
-      </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2026 <span>Georgia State Roleplay</span>. All rights reserved. Not affiliated with Roblox Corporation.</p>
+    <div class="footer-badges">
+      <span class="footer-badge">gssrp.xyz</span>
+      <span class="footer-badge">ERLC</span>
     </div>
-  </section>
+  </div>
+</footer>
 
-  <!-- ── Features ───────────────────────────────────────────────────────── -->
-  <section id="features">
-    <div class="section-inner">
-      <div class="section-header fade-in">
-        <span class="section-tag">Why GSRP</span>
-        <h2 class="section-title">Built for Serious RP</h2>
-        <p class="section-subtitle">Everything you need for an immersive, well-run roleplay community.</p>
-      </div>
-      <div class="features-grid">
-        <div class="card feature-card fade-in">
-          <div class="feature-icon">🎭</div>
-          <div class="feature-title">Serious Roleplay</div>
-          <div class="feature-desc">Strict standards and comprehensive SOPs ensure every session is immersive, realistic, and enjoyable for all participants.</div>
-        </div>
-        <div class="card feature-card fade-in">
-          <div class="feature-icon">🛡️</div>
-          <div class="feature-title">Active Staff</div>
-          <div class="feature-desc">A dedicated moderation and leadership team available around the clock to keep sessions running smoothly.</div>
-        </div>
-        <div class="card feature-card fade-in">
-          <div class="feature-icon">📅</div>
-          <div class="feature-title">Regular Events</div>
-          <div class="feature-desc">Weekly sessions, department ride-alongs, training exercises, and community events keep things fresh and engaging.</div>
-        </div>
-      </div>
-    </div>
-  </section>
+<script>
+/* ── Floating particle canvas ───────────────────────────────────────────── */
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
 
-  <!-- ── Reviews ────────────────────────────────────────────────────────── -->
-  <section id="about">
-    <div class="section-inner">
-      <div class="section-header fade-in">
-        <span class="section-tag">Testimonials</span>
-        <h2 class="section-title">Community Reviews</h2>
-        <p class="section-subtitle">Hear from members who've been part of the Georgia State family.</p>
-      </div>
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
 
-      <div class="reviews-summary fade-in">
-        <div class="reviews-rating-big">
-          <div class="rating-number">4.5</div>
-          <div class="rating-info">
-            <div class="stars">
-              <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star half">★</span>
-            </div>
-            <div class="reviews-count">Based on 6 community reviews</div>
-          </div>
-        </div>
-        <a href="https://discord.gg/gssrp" class="btn btn-outline" target="_blank" rel="noopener">Leave a Review →</a>
-      </div>
+  function rand(a, b) { return Math.random() * (b - a) + a; }
 
-      <div class="reviews-grid">
-        <div class="card review-card fade-in">
-          <div class="review-stars">
-            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-          </div>
-          <div class="review-text">"Yeah, this is Ai"</div>
-          <div class="review-author">
-            <span class="review-name">Someone</span>
-            <span class="review-role">Community Member</span>
-          </div>
-        </div>
-        <div class="card review-card fade-in">
-          <div class="review-stars">
-            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-          </div>
-          <div class="review-text">"Amazing RP. Amazing Staff. Don't have much to say, everything is amazing."</div>
-          <div class="review-author">
-            <span class="review-name">earthmovin_0</span>
-            <span class="review-role">Community Member</span>
-          </div>
-        </div>
-        <div class="card review-card fade-in">
-          <div class="review-stars">
-            <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-          </div>
-          <div class="review-text">"5 Star, The guy Moderation is rly cool, kind and helpful always there when you need him"</div>
-          <div class="review-author">
-            <span class="review-name">Jordan Adams</span>
-            <span class="review-role">Community Member</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Join / CTA ─────────────────────────────────────────────────────── -->
-  <section id="join">
-    <div class="section-inner">
-      <div class="join-inner fade-in">
-        <h2 class="join-title">Ready to <span>Join?</span></h2>
-        <p class="join-sub">
-          Become part of one of Roblox's most dedicated law enforcement roleplay communities. Applications are open — all departments are recruiting.
-        </p>
-        <div class="join-actions">
-          <a href="https://discord.gg/gssrp" class="btn btn-primary btn-lg" target="_blank" rel="noopener">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
-            </svg>
-            Join Our Discord
-          </a>
-          <a href="https://staff.gssrp.xyz" class="btn btn-ghost btn-lg" target="_blank" rel="noopener">
-            Staff Panel
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Footer ─────────────────────────────────────────────────────────── -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <a href="#" class="footer-logo">
-          <img src="https://cdn.discordapp.com/icons/1530375780012658918/a1de3f778cee54317a36cbe02e0169de.webp?size=128" alt="Georgia State Roleplay" />
-          Georgia State Roleplay
-        </a>
-        <p class="footer-tagline">The premier Roblox law enforcement roleplay experience. Serving the community since day one.</p>
-      </div>
-      <div>
-        <div class="footer-col-title">Navigation</div>
-        <ul class="footer-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#departments">Departments</a></li>
-          <li><a href="#join">Apply</a></li>
-          <li><a href="https://staff.gssrp.xyz" target="_blank" rel="noopener">Staff Panel</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-col-title">Community</div>
-        <ul class="footer-links">
-          <li><a href="https://discord.gg/gssrp" target="_blank" rel="noopener">Discord Server</a></li>
-          <li><a href="#server-status">Server Status</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#about">Reviews</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p class="footer-copy">© 2026 <span>Georgia State Roleplay</span>. All rights reserved. Not affiliated with Roblox Corporation.</p>
-      <div class="footer-badges">
-        <span class="footer-badge">gssrp.xyz</span>
-        <span class="footer-badge">ERLC</span>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      navbar.style.background = window.scrollY > 20 ? 'rgba(0,0,0,0.92)' : 'rgba(0,0,0,0.72)';
-      navbar.style.boxShadow  = window.scrollY > 20 ? '0 1px 32px rgba(0,0,0,0.8)' : 'none';
-    }, { passive: true });
-
-    const toggle = document.getElementById('navToggle');
-    const links  = document.getElementById('navLinks');
-    toggle.addEventListener('click', () => {
-      const open = links.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', open);
-      const spans = toggle.querySelectorAll('span');
-      if (open) {
-        spans[0].style.transform = 'translateY(7px) rotate(45deg)';
-        spans[1].style.opacity   = '0';
-        spans[2].style.transform = 'translateY(-7px) rotate(-45deg)';
-      } else {
-        spans[0].style.transform = spans[1].style.opacity = spans[2].style.transform = '';
-      }
-    });
-    links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-      links.classList.remove('open');
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.querySelectorAll('span').forEach(s => s.style.transform = s.style.opacity = '');
-    }));
-
-    const fadeObs = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); fadeObs.unobserve(e.target); } });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.fade-in').forEach(el => fadeObs.observe(el));
-
-    async function fetchServerStatus() {
-      try {
-        const res = await fetch('/api/erlc/server?Players=true', { signal: AbortSignal.timeout(8000) });
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        const players = Array.isArray(data.Players) ? data.Players.length : (data.CurrentPlayers ?? 0);
-        const max = data.MaxPlayers ?? 50;
-        document.getElementById('playerCount').textContent  = `${players}/${max}`;
-        document.getElementById('capacityText').textContent = `${players} / ${max}`;
-        document.getElementById('capacityFill').style.width = `${Math.min((players/max)*100,100)}%`;
-        document.getElementById('accessType').textContent   = data.JoinKey ? 'Private' : 'Public';
-        if (Array.isArray(data.Players)) {
-          const law = data.Players.filter(p => p.Team && /police|fire|ems|sheriff|state/i.test(p.Team)).length;
-          document.getElementById('teamBalance').textContent = `${law}L/${players-law}C`;
-        }
-        if (data.Queue !== undefined) document.getElementById('queueCount').textContent = data.Queue;
-        if (data.Name) document.getElementById('serverName').textContent = data.Name;
-        document.getElementById('lastUpdated').textContent  = new Date().toLocaleTimeString();
-        document.getElementById('statusBadge').className    = 'status-badge online';
-        document.getElementById('statusText').textContent   = 'Online';
-      } catch {
-        document.getElementById('statusBadge').className  = 'status-badge offline';
-        document.getElementById('statusText').textContent = 'Offline';
-        ['playerCount','accessType','teamBalance','queueCount'].forEach(id => document.getElementById(id).textContent = '—');
-        document.getElementById('capacityText').textContent = '— / 50';
-        document.getElementById('lastUpdated').textContent  = 'Unavailable';
-      }
+  class Particle {
+    constructor() { this.reset(); }
+    reset() {
+      this.x  = rand(0, W);
+      this.y  = rand(0, H);
+      this.r  = rand(0.6, 2.2);
+      this.vx = rand(-0.15, 0.15);
+      this.vy = rand(-0.25, -0.05);
+      this.a  = rand(0.1, 0.5);
+      this.da = rand(-0.001, 0.001);
     }
-    fetchServerStatus();
-    setInterval(fetchServerStatus, 60_000);
-  </script>
+    update() {
+      this.x += this.vx; this.y += this.vy;
+      this.a += this.da;
+      if (this.a <= 0.05 || this.a >= 0.55) this.da *= -1;
+      if (this.y < -10 || this.x < -10 || this.x > W + 10) this.reset();
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(79,111,255,${this.a})`;
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 90; i++) particles.push(new Particle());
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+/* ── Scroll reveal ──────────────────────────────────────────────────────── */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ── Liquid glass navbar scroll tint ───────────────────────────────────── */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 40) {
+    navbar.style.background    = 'rgba(0,0,0,0.55)';
+    navbar.style.backdropFilter = 'blur(36px) saturate(200%)';
+  } else {
+    navbar.style.background    = 'rgba(255,255,255,0.04)';
+    navbar.style.backdropFilter = 'blur(28px) saturate(180%)';
+  }
+}, { passive: true });
+
+/* ── Active nav link on scroll ──────────────────────────────────────────── */
+const sections   = document.querySelectorAll('section[id]');
+const navAnchors = document.querySelectorAll('.nav-links a');
+const sectionObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navAnchors.forEach(a => a.classList.remove('active'));
+      const a = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { threshold: 0.4 });
+sections.forEach(s => sectionObs.observe(s));
+
+/* ── Hamburger toggle ───────────────────────────────────────────────────── */
+const toggle = document.getElementById('navToggle');
+const links  = document.getElementById('navLinks');
+toggle.addEventListener('click', () => {
+  const open = links.classList.toggle('open');
+  toggle.setAttribute('aria-expanded', open);
+  const [s0, s1, s2] = toggle.querySelectorAll('span');
+  if (open) { s0.style.transform='translateY(7px) rotate(45deg)'; s1.style.opacity='0'; s2.style.transform='translateY(-7px) rotate(-45deg)'; }
+  else       { s0.style.transform=s1.style.opacity=s2.style.transform=''; }
+});
+links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  links.classList.remove('open');
+  toggle.setAttribute('aria-expanded','false');
+  toggle.querySelectorAll('span').forEach(s => s.style.transform = s.style.opacity = '');
+}));
+
+/* ── ERLC live status ───────────────────────────────────────────────────── */
+async function fetchStatus() {
+  try {
+    const res = await fetch('/api/erlc/server?Players=true', { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error();
+    const d = await res.json();
+    const players = Array.isArray(d.Players) ? d.Players.length : (d.CurrentPlayers ?? 0);
+    const max     = d.MaxPlayers ?? 50;
+    document.getElementById('playerCount').textContent  = `${players}/${max}`;
+    document.getElementById('capacityText').textContent = `${players} / ${max}`;
+    document.getElementById('capacityFill').style.width = `${Math.min((players/max)*100,100)}%`;
+    document.getElementById('accessType').textContent   = d.JoinKey ? 'Private' : 'Public';
+    if (Array.isArray(d.Players)) {
+      const law = d.Players.filter(p => p.Team && /police|fire|ems|sheriff|state/i.test(p.Team)).length;
+      document.getElementById('teamBalance').textContent = `${law}L/${players-law}C`;
+    }
+    if (d.Queue !== undefined) document.getElementById('queueCount').textContent = d.Queue;
+    if (d.Name)  document.getElementById('serverName').textContent   = d.Name;
+    document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+    document.getElementById('statusBadge').className   = 'status-badge online';
+    document.getElementById('statusText').textContent  = 'Online';
+  } catch {
+    document.getElementById('statusBadge').className  = 'status-badge offline';
+    document.getElementById('statusText').textContent = 'Offline';
+    ['playerCount','accessType','teamBalance','queueCount'].forEach(id => document.getElementById(id).textContent = '—');
+    document.getElementById('capacityText').textContent = '— / 50';
+    document.getElementById('lastUpdated').textContent  = 'Unavailable';
+  }
+}
+fetchStatus();
+setInterval(fetchStatus, 60_000);
+</script>
 </body>
 </html>
