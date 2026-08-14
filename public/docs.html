@@ -581,38 +581,51 @@
 
   async function saveDoc() {
     const alertEl = document.getElementById('save-alert');
-    const title   = document.getElementById('edit-title').value.trim();
-    const content = document.getElementById('doc-editor').innerHTML;
+    const titleEl = document.getElementById('edit-title');
+    const editorEl = document.getElementById('doc-editor');
+
+    if (!titleEl || !editorEl) {
+      showToast('Editor not ready.', 'error');
+      return;
+    }
+
+    const title   = titleEl.value.trim();
+    const content = editorEl.innerHTML;
 
     if (!title) {
-      alertEl.innerHTML = '<div class="alert alert-error show">Title is required.</div>';
+      if (alertEl) alertEl.innerHTML = '<div class="alert alert-error show">Title is required.</div>';
       return;
     }
 
     const payload = {
       title,
       category:    document.getElementById('edit-category').value,
-      url:         document.getElementById('edit-url').value.trim(),
+      url:         (document.getElementById('edit-url').value || '').trim(),
       content,
       description: content.replace(/<[^>]*>/g, '').slice(0, 160),
     };
 
+    const wasNew = isNew;
+
     try {
-      if (isNew) {
+      if (wasNew) {
         const doc = await api('POST', '/api/docs', payload);
         await loadDocs();
-        currentDoc = allDocs.find(d => d._id === doc._id) || { ...payload, _id: doc._id, authorName: currentUser.displayName, createdAt: Date.now(), updatedAt: Date.now() };
+        currentDoc = allDocs.find(d => d._id === doc._id)
+          || { ...payload, _id: doc._id, authorName: currentUser.displayName, createdAt: Date.now(), updatedAt: Date.now() };
       } else {
         await api('PATCH', `/api/docs/${currentDoc._id}`, payload);
         await loadDocs();
         currentDoc = allDocs.find(d => d._id === currentDoc._id);
       }
-      isEditing = false; isNew = false;
+      isEditing = false;
+      isNew     = false;
       renderList();
       renderViewer();
-      showToast(isNew ? 'Document created.' : 'Document saved.');
+      showToast(wasNew ? 'Document created.' : 'Document saved.');
     } catch (err) {
-      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+      if (alertEl) alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+      else showToast(err.message, 'error');
     }
   }
 
