@@ -1,5 +1,6 @@
 /**
  * promotions.js — REST API for promotion/demotion records.
+ * Saves to MongoDB AND posts a Discord embed via bot token.
  * Rank requirement: admin+ to log promotions.
  */
 
@@ -7,17 +8,7 @@ const express = require("express");
 const router  = express.Router();
 const { Promotion, AuditLog } = require("../db");
 const { requireAuth, requireLevel, apiWriteLimiter } = require("../middleware");
-
-// ── GET /api/promotions/:userId ───────────────────────────────────────────────
-router.get("/:userId", requireAuth, async (req, res) => {
-  try {
-    const records = await Promotion.find({ userId: req.params.userId })
-      .sort({ timestamp: -1 }).lean();
-    res.json(records);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+const { logPromotionToDiscord } = require("../discord");
 
 // ── GET /api/promotions (all, paginated) ──────────────────────────────────────
 router.get("/", requireAuth, requireLevel("admin"), async (req, res) => {
@@ -34,6 +25,17 @@ router.get("/", requireAuth, requireLevel("admin"), async (req, res) => {
   }
 });
 
+// ── GET /api/promotions/:userId ───────────────────────────────────────────────
+router.get("/:userId", requireAuth, async (req, res) => {
+  try {
+    const records = await Promotion.find({ userId: req.params.userId })
+      .sort({ timestamp: -1 }).lean();
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/promotions ──────────────────────────────────────────────────────
 router.post("/", requireAuth, requireLevel("admin"), apiWriteLimiter, async (req, res) => {
   try {
@@ -41,21 +43,34 @@ router.post("/", requireAuth, requireLevel("admin"), apiWriteLimiter, async (req
     if (!userId || !toRole || !type) {
       return res.status(400).json({ error: "userId, toRole, and type are required." });
     }
+
+    const actor = req.session.user;
+
     const record = await Promotion.create({
       userId, fromRole, toRole, type, reason, notes,
       fromDept, toDept,
-      executor:   req.session.user.discordId || req.session.user.displayName,
-      approvedBy: req.session.user.discordId || req.session.user.displayName,
+      executor:   actor.discordId || actor.displayName,
+      approvedBy: actor.discordId || actor.displayName,
       source:     "web",
       timestamp:  Date.now(),
     });
+
+    // ── Audit log ─────────────────────────────────────────────────────────────
     await AuditLog.create({
-      actorId:   req.session.user.discordId,
-      actorName: req.session.user.displayName,
+      actorId:   actor.discordId,
+      actorName: actor.displayName,
       action:    `promotion_${type}`,
       target:    userId,
       details:   { fromRole, toRole },
     });
+
+    // ── Discord embed ─────────────────────────────────────────────────────────
+    logPromotionToDiscord({
+      userId, type, fromRole, toRole, reason, notes,
+      executorId:   actor.discordId,
+      executorName: actor.displayName,
+    });
+
     res.json(record.toObject());
   } catch (err) {
     res.status(500).json({ error: err.message });

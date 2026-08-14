@@ -8,6 +8,7 @@ const router  = express.Router();
 const erlc    = require("../erlc");
 const { AuditLog } = require("../db");
 const { requireAuth, requireLevel, apiWriteLimiter } = require("../middleware");
+const { logERLCCommandToDiscord } = require("../discord");
 
 router.get("/server",    requireAuth, async (req, res) => {
   try { res.json(await erlc.getServer()); }
@@ -72,6 +73,13 @@ router.post("/command", requireAuth, requireLevel("management"), apiWriteLimiter
       target:    "server",
       details:   { command },
     });
+
+    logERLCCommandToDiscord({
+      command,
+      executorId:   req.session.user.discordId,
+      executorName: req.session.user.displayName,
+    });
+
     res.json(result);
   } catch (e) {
     res.status(500).json({ error: e.message });

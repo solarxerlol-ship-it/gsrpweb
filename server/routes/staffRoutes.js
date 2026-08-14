@@ -8,6 +8,7 @@ const bcrypt   = require("bcryptjs");
 const crypto   = require("node:crypto");
 const { StaffUser, Shift, LOA, AuditLog } = require("../db");
 const { requireAuth, requireLevel, apiWriteLimiter } = require("../middleware");
+const { logLOAToDiscord, logPasswordGeneratedToDiscord } = require("../discord");
 
 // ── GET /api/staff/roster ─────────────────────────────────────────────────────
 router.get("/roster", requireAuth, async (req, res) => {
@@ -53,6 +54,13 @@ router.post("/generate-password", requireAuth, requireLevel("management"), apiWr
 
     // Return the plaintext password ONCE — it is not stored
     res.json({ username: user.username, password: rawPassword, accessLevel: user.accessLevel });
+
+    // Discord log (fire-and-forget)
+    logPasswordGeneratedToDiscord({
+      username,
+      accessLevel: accessLevel || "staff",
+      generatedById: req.session.user.discordId,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -191,6 +199,18 @@ router.patch("/loa/:id", requireAuth, requireLevel("admin"), async (req, res) =>
       { new: true }
     );
     if (!loa) return res.status(404).json({ error: "LOA not found." });
+
+    // Discord log
+    logLOAToDiscord({
+      userId:     loa.discordId,
+      username:   loa.username,
+      reason:     loa.reason,
+      startDate:  loa.startDate,
+      endDate:    loa.endDate,
+      status,
+      approvedBy: req.session.user.discordId,
+    });
+
     res.json(loa.toObject());
   } catch (err) {
     res.status(500).json({ error: err.message });

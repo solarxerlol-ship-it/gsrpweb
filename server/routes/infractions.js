@@ -1,5 +1,6 @@
 /**
  * infractions.js — REST API for infraction CRUD.
+ * Saves to MongoDB AND posts a Discord embed via bot token.
  * Rank requirements: moderator+ to add/remove, management+ to clear all.
  */
 
@@ -7,19 +8,13 @@ const express = require("express");
 const router  = express.Router();
 const { Infraction, AuditLog } = require("../db");
 const { requireAuth, requireLevel, apiWriteLimiter } = require("../middleware");
+const {
+  logInfractionToDiscord,
+  logInfractionRemovedToDiscord,
+  logInfractionsClearedToDiscord,
+} = require("../discord");
 
-// ── GET /api/infractions/:userId ──────────────────────────────────────────────
-router.get("/:userId", requireAuth, async (req, res) => {
-  try {
-    const records = await Infraction.find({ userId: req.params.userId })
-      .sort({ timestamp: -1 }).lean();
-    res.json(records);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ── GET /api/infractions (all, paginated) ─────────────────────────────────────
+// ── GET /api/infractions (all, paginated) — must come before /:userId ─────────
 router.get("/", requireAuth, requireLevel("moderator"), async (req, res) => {
   try {
     const page  = parseInt(req.query.page)  || 1;
@@ -37,6 +32,17 @@ router.get("/", requireAuth, requireLevel("moderator"), async (req, res) => {
   }
 });
 
+// ── GET /api/infractions/:userId ──────────────────────────────────────────────
+router.get("/:userId", requireAuth, async (req, res) => {
+  try {
+    const records = await Infraction.find({ userId: req.params.userId })
+      .sort({ timestamp: -1 }).lean();
+    res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/infractions ─────────────────────────────────────────────────────
 router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async (req, res) => {
   try {
@@ -44,21 +50,69 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
     if (!userId || !type || !reason) {
       return res.status(400).json({ error: "userId, type, and reason are required." });
     }
+
     const count  = await Infraction.countDocuments();
     const caseId = count + 1;
+    const actor  = req.session.user;
+
     const record = await Infraction.create({
-      userId, type, reason, description: description || "",
-      moderator: req.session.user.discordId || req.session.user.displayName,
-      caseId, source: "web", timestamp: Date.now(),
+      userId, type, reason,
+      description: description || "",
+      moderator:   actor.discordId || actor.displayName,
+      caseId,
+      source:      "web",
+      timestamp:   Date.now(),
     });
+
+    // ── Log to audit DB ───────────────────────────────────────────────────────
     await AuditLog.create({
-      actorId:   req.session.user.discordId,
-      actorName: req.session.user.displayName,
+      actorId:   actor.discordId,
+      actorName: actor.displayName,
       action:    "infraction_add",
       target:    userId,
       details:   { type, reason, caseId },
     });
+
+    // ── Post Discord embed ────────────────────────────────────────────────────
+    // Fire-and-forget — don't await so a Discord issue never delays the response
+    logInfractionToDiscord({
+      caseId,
+      userId,
+      type,
+      reason,
+      description,
+      moderatorId:   actor.discordId,
+      moderatorName: actor.displayName,
+    });
+
     res.json(record.toObject());
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── DELETE /api/infractions/user/:userId/clear ───────────────────────────────
+// Must be registered before /:caseId so the path doesn't get swallowed
+router.delete("/user/:userId/clear", requireAuth, requireLevel("management"), apiWriteLimiter, async (req, res) => {
+  try {
+    const actor = req.session.user;
+    await Infraction.deleteMany({ userId: req.params.userId });
+
+    await AuditLog.create({
+      actorId:   actor.discordId,
+      actorName: actor.displayName,
+      action:    "infractions_clear",
+      target:    req.params.userId,
+      details:   {},
+    });
+
+    logInfractionsClearedToDiscord({
+      userId:        req.params.userId,
+      moderatorId:   actor.discordId,
+      moderatorName: actor.displayName,
+    });
+
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -68,32 +122,24 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
 router.delete("/:caseId", requireAuth, requireLevel("moderator"), apiWriteLimiter, async (req, res) => {
   try {
     const caseId = parseInt(req.params.caseId);
+    const actor  = req.session.user;
     const result = await Infraction.deleteOne({ caseId });
     if (!result.deletedCount) return res.status(404).json({ error: "Case not found." });
+
     await AuditLog.create({
-      actorId:   req.session.user.discordId,
-      actorName: req.session.user.displayName,
+      actorId:   actor.discordId,
+      actorName: actor.displayName,
       action:    "infraction_remove",
       target:    String(caseId),
       details:   {},
     });
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
-// ── DELETE /api/infractions/user/:userId/clear ───────────────────────────────
-router.delete("/user/:userId/clear", requireAuth, requireLevel("management"), apiWriteLimiter, async (req, res) => {
-  try {
-    await Infraction.deleteMany({ userId: req.params.userId });
-    await AuditLog.create({
-      actorId:   req.session.user.discordId,
-      actorName: req.session.user.displayName,
-      action:    "infractions_clear",
-      target:    req.params.userId,
-      details:   {},
+    logInfractionRemovedToDiscord({
+      caseId,
+      moderatorId:   actor.discordId,
+      moderatorName: actor.displayName,
     });
+
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -52,7 +52,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // ── Static files ──────────────────────────────────────────────────────────────
-app.use(express.static(path.join(__dirname, "../public")));
+// __dirname is server/ — public/ is one level up
+const PUBLIC = path.join(__dirname, "../public");
+app.use(express.static(PUBLIC));
 
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use("/auth",              require("./routes/authRoutes"));
@@ -63,8 +65,7 @@ app.use("/api/staff",         require("./routes/staffRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 
 // ── Page routes (serve HTML) ──────────────────────────────────────────────────
-const PUBLIC = path.join(__dirname, "../public");
-
+// PUBLIC is already defined above
 app.get("/",          (req, res) => res.redirect(req.session?.user ? "/dashboard" : "/login"));
 app.get("/login",     (req, res) => res.sendFile(path.join(PUBLIC, "login.html")));
 app.get("/dashboard", (req, res) => {
