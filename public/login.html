@@ -9,277 +9,255 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:        #0b0d12;
-      --card:      #141720;
-      --surface:   #0f1118;
-      --border:    rgba(79,111,255,0.12);
-      --border-md: rgba(79,111,255,0.22);
-      --input:     #161924;
-      --text:      #e8eaf6;
-      --muted:     #4e5478;
-      --muted2:    #7b82a8;
-      --accent:    #4f6fff;
-      --accent-h:  #3a5ce8;
-      --gold:      #c9a227;
-      --success:   #43e97b;
-      --danger:    #ff4d6d;
-      --radius:    14px;
-      --radius-sm: 8px;
-    }
-
-    html, body {
-      height: 100%;
+    body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #000000;
+      color: #e2e8f0;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
     }
 
-    /* Ambient blue glow in background */
+    /* Pure black bg with very subtle blue noise */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background:
-        radial-gradient(ellipse 70% 40% at 50% 0%, rgba(79,111,255,0.07) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 100% 100%, rgba(79,111,255,0.04) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    /* dot grid */
-    body::after {
-      content: '';
-      position: fixed; inset: 0; z-index: 0;
-      background-image: radial-gradient(rgba(79,111,255,0.04) 1px, transparent 1px);
-      background-size: 26px 26px;
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(88,101,242,0.06) 0%, transparent 60%);
       pointer-events: none;
     }
 
     .wrap {
       position: relative; z-index: 1;
-      width: 100%; max-width: 440px;
+      width: 100%;
+      max-width: 420px;
       padding: 20px;
     }
 
-    /* ── Card ─────────────────────────────────────────────────────────────── */
+    /* ── Card — dark slate, barely visible border ── */
     .card {
-      background: var(--card);
-      border: 1px solid var(--border-md);
-      border-radius: var(--radius);
-      padding: 36px 32px 30px;
+      background: #1a1d2e;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 40px 36px 34px;
       box-shadow:
-        0 16px 64px rgba(0,0,0,0.6),
-        0 0 0 1px rgba(79,111,255,0.06) inset,
-        0 0 80px rgba(79,111,255,0.04);
+        0 24px 80px rgba(0,0,0,0.8),
+        0 0 0 1px rgba(255,255,255,0.04) inset;
     }
 
-    /* ── Logo ─────────────────────────────────────────────────────────────── */
-    .logo-section {
-      display: flex; flex-direction: column;
-      align-items: center; margin-bottom: 20px;
+    /* ── Logo row ── */
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      margin-bottom: 30px;
     }
-    .logo-ring {
-      width: 90px; height: 90px;
-      border-radius: 50%;
-      border: 2px solid var(--gold);
-      box-shadow:
-        0 0 16px rgba(201,162,39,0.35),
-        0 0 32px rgba(201,162,39,0.12),
-        inset 0 0 16px rgba(0,0,0,0.4);
-      overflow: hidden;
-      margin-bottom: 14px;
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .logo-ring img {
-      width: 100%; height: 100%;
+    .logo-img {
+      width: 36px; height: 36px;
+      border-radius: 8px;
       object-fit: cover;
     }
-    .logo-ring .logo-fallback {
-      font-size: 24px; font-weight: 800;
-      color: var(--gold);
-      line-height: 1;
+    .logo-fallback {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: #5865f2;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px; color: #fff;
+      flex-shrink: 0;
     }
-    .logo-name {
-      font-size: 19px; font-weight: 800;
-      text-align: center; line-height: 1.2;
+    .logo-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
       letter-spacing: -0.01em;
     }
-    .logo-name .gold { color: var(--gold); }
-    .logo-sub {
-      font-size: 10px; color: var(--muted2);
-      text-transform: uppercase; letter-spacing: 0.15em;
-      margin-top: 5px;
-    }
 
-    /* Red divider */
-    .divider {
-      width: 44px; height: 2px;
-      background: linear-gradient(90deg, transparent, #c0392b, transparent);
-      margin: 16px auto 14px;
-      border-radius: 1px;
-      box-shadow: 0 0 8px rgba(192,57,43,0.5);
-    }
-
-    /* Stars */
-    .stars {
-      display: flex; justify-content: center; gap: 8px;
-      margin-bottom: 18px;
-    }
-    .stars span { color: var(--gold); font-size: 11px; opacity: 0.8; }
-
+    /* ── Heading ── */
     h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
       text-align: center;
-      font-size: 18px; font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
     .subtitle {
       text-align: center;
-      color: var(--muted2); font-size: 12.5px;
-      line-height: 1.65; margin-bottom: 22px;
+      color: #64748b;
+      font-size: 13.5px;
+      line-height: 1.65;
+      margin-bottom: 32px;
     }
 
-    /* ── Tabs ─────────────────────────────────────────────────────────────── */
+    /* ── Tabs ── */
     .tabs {
       display: flex;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 3px; gap: 2px;
-      margin-bottom: 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 3px;
+      margin-bottom: 24px;
     }
     .tab {
       flex: 1; text-align: center;
-      padding: 8px 6px;
-      border-radius: calc(var(--radius-sm) - 2px);
-      font-size: 12.5px; font-weight: 600;
-      color: var(--muted2);
+      padding: 9px 6px;
+      border-radius: 7px;
+      font-size: 13px; font-weight: 600;
+      color: #64748b;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+      transition: all 0.15s;
       user-select: none;
     }
     .tab.active {
-      background: #c0392b;
-      color: #fff;
-      box-shadow: 0 0 12px rgba(192,57,43,0.4);
-    }
-
-    /* ── Discord button ───────────────────────────────────────────────────── */
-    .btn-discord {
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      width: 100%; padding: 14px;
       background: #5865f2;
       color: #fff;
-      border: none; border-radius: var(--radius-sm);
-      font-size: 14px; font-weight: 700;
+      box-shadow: 0 0 16px rgba(88,101,242,0.5), 0 2px 8px rgba(88,101,242,0.3);
+    }
+
+    /* ── Discord button — the star of the page ── */
+    .btn-discord {
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      width: 100%; padding: 15px 20px;
+      background: #5865f2;
+      color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 700;
       cursor: pointer;
-      font-family: inherit; letter-spacing: 0.02em;
+      font-family: inherit;
+      letter-spacing: 0.01em;
       transition: background 0.15s, box-shadow 0.2s, transform 0.1s;
       box-shadow:
-        0 0 18px rgba(88,101,242,0.55),
-        0 4px 16px rgba(88,101,242,0.35);
+        0 0 20px rgba(88,101,242,0.6),
+        0 0 60px rgba(88,101,242,0.2),
+        0 4px 20px rgba(88,101,242,0.4);
     }
     .btn-discord:hover {
       background: #4752c4;
       box-shadow:
-        0 0 28px rgba(88,101,242,0.7),
-        0 6px 20px rgba(88,101,242,0.45);
+        0 0 30px rgba(88,101,242,0.8),
+        0 0 80px rgba(88,101,242,0.3),
+        0 6px 28px rgba(88,101,242,0.5);
     }
     .btn-discord:active { transform: scale(0.98); }
-    .btn-discord svg { width: 21px; height: 21px; flex-shrink: 0; }
+    .btn-discord svg { width: 22px; height: 22px; flex-shrink: 0; }
 
-    /* ── Form ─────────────────────────────────────────────────────────────── */
+    /* ── Submit button (password form) ── */
+    .btn-submit {
+      width: 100%; padding: 13px 20px;
+      background: #5865f2; color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      margin-top: 6px;
+      transition: background 0.15s, box-shadow 0.2s, transform 0.1s;
+      box-shadow:
+        0 0 16px rgba(88,101,242,0.5),
+        0 3px 14px rgba(88,101,242,0.35);
+    }
+    .btn-submit:hover {
+      background: #4752c4;
+      box-shadow:
+        0 0 26px rgba(88,101,242,0.7),
+        0 5px 20px rgba(88,101,242,0.45);
+    }
+    .btn-submit:active { transform: scale(0.98); }
+
+    /* ── Form ── */
     .form-panel { display: none; }
     .form-panel.active { display: block; }
 
-    .form-group { margin-bottom: 13px; }
+    .form-group { margin-bottom: 14px; }
     label {
-      display: block; font-size: 11px; font-weight: 600;
-      color: var(--muted2); margin-bottom: 6px; letter-spacing: 0.04em;
+      display: block;
+      font-size: 12px; font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 7px;
+      letter-spacing: 0.03em;
     }
     input {
       width: 100%;
-      background: var(--input);
-      border: 1px solid var(--border-md);
-      border-radius: var(--radius-sm);
-      color: var(--text); font-size: 13px;
-      padding: 10px 13px; outline: none;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      color: #e2e8f0; font-size: 13.5px;
+      padding: 11px 14px; outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
       font-family: inherit;
     }
     input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(79,111,255,0.18), 0 0 12px rgba(79,111,255,0.15);
+      border-color: #5865f2;
+      box-shadow: 0 0 0 3px rgba(88,101,242,0.2), 0 0 14px rgba(88,101,242,0.12);
     }
-    input::placeholder { color: var(--muted); }
+    input::placeholder { color: #334155; }
 
-    .btn-submit {
-      width: 100%; padding: 12px;
-      background: var(--accent); color: #fff;
-      border: none; border-radius: var(--radius-sm);
-      font-size: 13px; font-weight: 700;
-      cursor: pointer; font-family: inherit;
-      letter-spacing: 0.03em; margin-top: 4px;
-      transition: background 0.15s, box-shadow 0.2s, transform 0.1s;
-      box-shadow: 0 0 16px rgba(79,111,255,0.45), 0 3px 12px rgba(79,111,255,0.3);
-    }
-    .btn-submit:hover {
-      background: var(--accent-h);
-      box-shadow: 0 0 24px rgba(79,111,255,0.65), 0 5px 16px rgba(79,111,255,0.4);
-    }
-    .btn-submit:active { transform: scale(0.98); }
-
-    .footer-note {
-      margin-top: 16px; text-align: center;
-      font-size: 11.5px; color: var(--muted2); line-height: 1.7;
-    }
-    .footer-note code {
-      background: rgba(79,111,255,0.12);
-      padding: 1px 6px; border-radius: 4px;
-      font-size: 11px; color: var(--accent);
-    }
-
+    /* ── Footer notes ── */
     .discord-note {
-      text-align: center; font-size: 11.5px;
-      color: var(--muted2); margin-top: 14px; line-height: 1.65;
+      margin-top: 18px;
+      text-align: center;
+      font-size: 12px; color: #475569;
+      line-height: 1.7;
     }
-    .discord-note a { color: #c0392b; text-decoration: underline; }
+    .discord-note a {
+      color: #5865f2;
+      text-decoration: none;
+    }
+    .discord-note a:hover { text-decoration: underline; }
 
+    .pw-note {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 12px; color: #475569;
+      line-height: 1.7;
+    }
+    .pw-note code {
+      background: rgba(88,101,242,0.15);
+      color: #818cf8;
+      padding: 1px 6px; border-radius: 4px;
+      font-size: 11px;
+    }
+
+    /* ── Alert ── */
     .alert {
-      padding: 10px 13px; border-radius: var(--radius-sm);
-      font-size: 12px; margin-bottom: 13px; display: none;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      margin-bottom: 16px;
+      display: none;
     }
     .alert.show { display: block; }
-    .alert-error { background: rgba(255,77,109,0.1); color: var(--danger); border: 1px solid rgba(255,77,109,0.2); }
+    .alert-error {
+      background: rgba(239,68,68,0.1);
+      color: #f87171;
+      border: 1px solid rgba(239,68,68,0.2);
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
 
-      <!-- Logo -->
-      <div class="logo-section">
-        <div class="logo-ring">
-          <img
-            src="/img/logo.png"
-            alt="GSRP"
-            onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\'logo-fallback\'>GA</span>'"
-          >
-        </div>
-        <div class="logo-name">Georgia State <span class="gold">Roleplay</span></div>
-        <div class="logo-sub">Staff Portal</div>
+      <!-- Logo row -->
+      <div class="logo-row">
+        <img
+          class="logo-img"
+          src="/img/logo.png"
+          alt="GSRP"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+        >
+        <div class="logo-fallback" style="display:none;">G</div>
+        <span class="logo-text">Georgia State Roleplay</span>
       </div>
 
-      <div class="divider"></div>
-      <div class="stars"><span>★</span><span>★</span><span>★</span></div>
-
+      <!-- Heading -->
       <h1>Staff Portal Login</h1>
       <p class="subtitle">
-        Sign in to access the GSRP staff dashboard.<br>
-        A verified staff role is required.
+        Sign in with Discord to access the staff portal.<br>
+        You must have a verified staff role.
       </p>
 
       <!-- Tabs -->
@@ -311,16 +289,16 @@
         <form id="pw-form">
           <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="your username" autocomplete="username" required>
+            <input type="text" id="username" placeholder="your username" autocomplete="username" required>
           </div>
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="your password" autocomplete="current-password" required>
+            <input type="password" id="password" placeholder="your password" autocomplete="current-password" required>
           </div>
           <button type="submit" class="btn-submit">Sign In</button>
         </form>
-        <p class="footer-note">
-          Passwords are issued by management.<br>
+        <p class="pw-note">
+          Credentials are issued by management.<br>
           Lost access? Ask management to run <code>/password gen</code> in Discord.
         </p>
       </div>
@@ -329,6 +307,7 @@
   </div>
 
   <script>
+    // Tab switching
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
         document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
@@ -338,34 +317,32 @@
       });
     });
 
+    // Error from Discord OAuth redirect
     const params = new URLSearchParams(window.location.search);
     if (params.get("error") === "no_role") {
       const el = document.getElementById("discord-error");
-      el.textContent = "Access denied. You do not have a staff role in the GSRP Discord server.";
+      el.textContent = "Access denied. You do not have a verified staff role in the GSRP Discord.";
       el.classList.add("show");
-      // switch to discord tab
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".form-panel").forEach(p => p.classList.remove("active"));
-      document.querySelector('[data-tab="discord"]').classList.add("active");
-      document.getElementById("panel-discord").classList.add("active");
     }
 
-    document.getElementById("pw-form").addEventListener("submit", async (e) => {
+    // Password login
+    document.getElementById("pw-form").addEventListener("submit", async e => {
       e.preventDefault();
-      const errEl    = document.getElementById("pw-error");
-      const btn      = e.target.querySelector("button");
+      const errEl = document.getElementById("pw-error");
+      const btn   = e.target.querySelector("button[type=submit]");
       errEl.classList.remove("show");
       btn.textContent = "Signing in...";
-      btn.disabled    = true;
+      btn.disabled = true;
+
       try {
-        const res = await fetch("/auth/login", {
+        const res  = await fetch("/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             username: document.getElementById("username").value.trim(),
             password: document.getElementById("password").value,
           }),
-          credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Login failed");
@@ -374,7 +351,7 @@
         errEl.textContent = err.message;
         errEl.classList.add("show");
         btn.textContent = "Sign In";
-        btn.disabled    = false;
+        btn.disabled = false;
       }
     });
   </script>

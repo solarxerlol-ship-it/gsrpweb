@@ -22,8 +22,49 @@ router.get("/roster", requireAuth, async (req, res) => {
   }
 });
 
+// ── POST /api/staff/generate-password-bot (called by Discord bot) ─────────────
+// Authenticated by shared secret in x-bot-secret header instead of session
+router.post("/generate-password-bot", apiWriteLimiter, async (req, res) => {
+  try {
+    const secret = process.env.PORTAL_INTERNAL_SECRET;
+    if (!secret || req.headers["x-bot-secret"] !== secret) {
+      return res.status(401).json({ error: "Unauthorized — invalid bot secret." });
+    }
+
+    const { username, accessLevel } = req.body;
+    if (!username) return res.status(400).json({ error: "username is required." });
+
+    const rawPassword = crypto.randomBytes(8).toString("hex");
+    const hash        = await bcrypt.hash(rawPassword, 12);
+
+    const user = await StaffUser.findOneAndUpdate(
+      { username: username.toLowerCase() },
+      {
+        username:     username.toLowerCase(),
+        passwordHash: hash,
+        accessLevel:  accessLevel || "staff",
+        generatedBy:  "bot",
+        authMethod:   "password",
+      },
+      { upsert: true, new: true }
+    );
+
+    await AuditLog.create({
+      actorId:   "bot",
+      actorName: "Discord Bot",
+      action:    "password_generated",
+      target:    username,
+      details:   { accessLevel: user.accessLevel },
+    });
+
+    res.json({ username: user.username, password: rawPassword, accessLevel: user.accessLevel });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/staff/generate-password ─────────────────────────────────────────
-// Creates / resets a password-login user. Owner/Management only.
+// Creates / resets a password-login user. Owner/Management only (web session).
 router.post("/generate-password", requireAuth, requireLevel("management"), apiWriteLimiter, async (req, res) => {
   try {
     const { username, accessLevel } = req.body;
