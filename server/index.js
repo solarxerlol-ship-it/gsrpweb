@@ -135,6 +135,12 @@ app.get("/", (req, res) =>
   res.redirect(req.session?.user ? "/dashboard" : "/login")
 );
 
+// ── Public pages — no auth ────────────────────────────────────────────────────
+app.get("/home",      (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
+app.get("/map",       (req, res) => res.sendFile(path.join(PUBLIC, "map.html")));
+app.get("/shop",      (req, res) => res.sendFile(path.join(PUBLIC, "shop.html")));
+app.get("/apply",     (req, res) => res.sendFile(path.join(PUBLIC, "apply.html")));
+
 app.get("/login", (req, res) =>
   res.sendFile(path.join(PUBLIC, "login.html"))
 );
