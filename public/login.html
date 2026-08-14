@@ -15,26 +15,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0a0b0f;
-      color: #e2e8f0;
+      background: #000000;
+      color: #f0f0f0;
       -webkit-font-smoothing: antialiased;
       overflow: hidden;
     }
 
-    /* ── Subtle grid background ── */
+    /* ── Pure black grid + very faint blue center glow ── */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
       background-image:
-        linear-gradient(rgba(79,111,255,0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(79,111,255,0.04) 1px, transparent 1px);
-      background-size: 40px 40px;
+        linear-gradient(rgba(79,111,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,111,255,0.05) 1px, transparent 1px);
+      background-size: 44px 44px;
       pointer-events: none;
     }
     body::after {
       content: '';
       position: fixed; inset: 0; z-index: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(79,111,255,0.07) 0%, transparent 70%);
+      background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(79,111,255,0.08) 0%, transparent 70%);
       pointer-events: none;
     }
 
@@ -47,15 +47,14 @@
 
     /* ── Card ── */
     .card {
-      background: rgba(20, 23, 35, 0.9);
-      border: 1px solid rgba(79,111,255,0.12);
-      border-radius: 18px;
+      background: #0d0d0d;
+      border: 1px solid rgba(79,111,255,0.14);
+      border-radius: 16px;
       padding: 44px 40px 38px;
       box-shadow:
-        0 32px 80px rgba(0,0,0,0.6),
-        0 0 0 1px rgba(255,255,255,0.03) inset,
-        0 0 60px rgba(79,111,255,0.05);
-      backdrop-filter: blur(20px);
+        0 32px 80px rgba(0,0,0,0.95),
+        0 0 0 1px rgba(255,255,255,0.02) inset,
+        0 0 60px rgba(79,111,255,0.06);
     }
 
     /* ── Logo row ── */
@@ -99,7 +98,7 @@
     }
     .subtitle {
       text-align: center;
-      color: #5a6380;
+      color: #4b5563;
       font-size: 13.5px;
       line-height: 1.65;
       margin-bottom: 30px;
@@ -108,12 +107,11 @@
     /* ── Tabs ── */
     .tabs {
       display: flex;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(79,111,255,0.1);
-      border-radius: 10px;
-      padding: 4px;
-      gap: 3px;
-      margin-bottom: 24px;
+      background: #080808;
+      border: 1px solid rgba(79,111,255,0.12);
+      border-radius: 8px;
+      padding: 3px; gap: 2px;
+      margin-bottom: 22px;
     }
     .tab {
       flex: 1; text-align: center;
@@ -188,25 +186,25 @@
     }
     input {
       width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(79,111,255,0.12);
-      border-radius: 8px;
-      color: #e2e8f0; font-size: 13.5px;
+      background: #080808;
+      border: 1px solid rgba(79,111,255,0.14);
+      border-radius: 7px;
+      color: #f0f0f0; font-size: 13.5px;
       padding: 11px 14px; outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      transition: border-color 0.12s, box-shadow 0.12s;
       font-family: inherit;
     }
     input:focus {
       border-color: #4f6fff;
-      box-shadow: 0 0 0 3px rgba(79,111,255,0.2), 0 0 14px rgba(79,111,255,0.1);
+      box-shadow: 0 0 0 3px rgba(79,111,255,0.15), 0 0 14px rgba(79,111,255,0.1);
     }
-    input::placeholder { color: #2d3350; }
+    input::placeholder { color: #1f2937; }
 
     /* ── Footer notes ── */
     .discord-note {
       margin-top: 18px;
       text-align: center;
-      font-size: 11.5px; color: #3d4460;
+      font-size: 11.5px; color: #374151;
       line-height: 1.75;
     }
     .discord-note a { color: #4f6fff; text-decoration: none; }
@@ -214,12 +212,12 @@
     .pw-note {
       margin-top: 16px;
       text-align: center;
-      font-size: 11.5px; color: #3d4460;
+      font-size: 11.5px; color: #374151;
       line-height: 1.75;
     }
     .pw-note code {
-      background: rgba(79,111,255,0.15);
-      color: #818cf8;
+      background: rgba(79,111,255,0.12);
+      color: #7c91ff;
       padding: 1px 6px; border-radius: 4px;
       font-size: 11px;
     }
