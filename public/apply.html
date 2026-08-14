@@ -12,169 +12,65 @@
   <link rel="stylesheet" href="/css/home.css" />
   <style>
     body { animation: fadeIn 0.4s ease both; }
-
-    .apply-page {
-      min-height: 100vh;
-      padding: 120px 24px 80px;
-      position: relative; z-index: 1; overflow: hidden;
-    }
-
-    /* Background orbs */
-    .ap-orb {
-      position: fixed; border-radius: 50%; filter: blur(80px);
-      pointer-events: none; z-index: 0; animation: glowPulse 6s ease-in-out infinite;
-    }
+    .apply-page { min-height: 100vh; padding: 120px 24px 80px; position: relative; z-index: 1; overflow: hidden; }
+    .ap-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: glowPulse 6s ease-in-out infinite; }
     .ap-orb-1 { width: 600px; height: 500px; background: radial-gradient(ellipse, rgba(79,111,255,0.14) 0%, transparent 70%); top: 5%; left: 50%; transform: translateX(-50%); }
     .ap-orb-2 { width: 300px; height: 300px; background: radial-gradient(ellipse, rgba(124,93,255,0.08) 0%, transparent 70%); bottom: 20%; left: 5%; animation-delay: 2s; }
-
-    .apply-inner {
-      max-width: 680px;
-      margin: 0 auto;
-      position: relative; z-index: 1;
-    }
-
-    /* Header */
+    .apply-inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; }
     .apply-header { text-align: center; margin-bottom: 48px; }
-    .apply-tag {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-      color: #4f6fff; background: rgba(79,111,255,0.10);
-      border: 1px solid rgba(79,111,255,0.28); border-radius: 99px;
-      padding: 5px 16px; margin-bottom: 24px;
-      animation: fadeUp 0.6s 0.1s both;
-    }
+    .apply-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #4f6fff; background: rgba(79,111,255,0.10); border: 1px solid rgba(79,111,255,0.28); border-radius: 99px; padding: 5px 16px; margin-bottom: 24px; animation: fadeUp 0.6s 0.1s both; }
     .apply-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: #4f6fff; animation: pulseDot 2s infinite; }
-    .apply-title {
-      font-size: clamp(36px, 6vw, 62px); font-weight: 900;
-      line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 16px;
-      animation: fadeUp 0.7s 0.15s both;
-    }
+    .apply-title { font-size: clamp(36px, 6vw, 62px); font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 16px; animation: fadeUp 0.7s 0.15s both; }
     .apply-title .t1 { display: block; color: #f0f4ff; }
-    .apply-title .t2 {
-      display: block;
-      background: linear-gradient(135deg, #6b8aff 0%, #4f6fff 40%, #7c5dff 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      filter: drop-shadow(0 0 30px rgba(79,111,255,0.5));
-    }
+    .apply-title .t2 { display: block; background: linear-gradient(135deg, #6b8aff 0%, #4f6fff 40%, #7c5dff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 30px rgba(79,111,255,0.5)); }
     .apply-sub { font-size: 15px; color: #8892a4; line-height: 1.75; animation: fadeUp 0.7s 0.2s both; }
-
-    /* Card */
-    .apply-card {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid rgba(79,111,255,0.14);
-      border-radius: 16px; padding: 40px;
-      position: relative; overflow: hidden;
-      animation: fadeUp 0.7s 0.25s both;
-    }
-    .apply-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-      pointer-events: none;
-    }
-
-    /* Form groups */
+    .apply-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(79,111,255,0.14); border-radius: 16px; padding: 40px; position: relative; overflow: hidden; animation: fadeUp 0.7s 0.25s both; }
+    .apply-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); pointer-events: none; }
     .ap-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     .ap-group { margin-bottom: 22px; }
     .ap-group:last-child { margin-bottom: 0; }
-    .ap-label {
-      display: block; font-size: 12px; font-weight: 700;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      color: #8892a4; margin-bottom: 8px;
-    }
+    .ap-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #8892a4; margin-bottom: 8px; }
     .ap-label span { color: #ef4444; margin-left: 2px; }
-    .ap-input, .ap-select, .ap-textarea {
-      width: 100%; padding: 12px 14px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(79,111,255,0.18);
-      border-radius: 9px;
-      color: #f0f4ff; font-family: inherit; font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    }
-    .ap-input:focus, .ap-select:focus, .ap-textarea:focus {
-      border-color: #4f6fff;
-      box-shadow: 0 0 0 3px rgba(79,111,255,0.15);
-      background: rgba(79,111,255,0.04);
-    }
+    .ap-input, .ap-select, .ap-textarea { width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(79,111,255,0.18); border-radius: 9px; color: #f0f4ff; font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; }
+    .ap-input:focus, .ap-select:focus, .ap-textarea:focus { border-color: #4f6fff; box-shadow: 0 0 0 3px rgba(79,111,255,0.15); background: rgba(79,111,255,0.04); }
     .ap-input::placeholder, .ap-textarea::placeholder { color: #3a4255; }
-    .ap-textarea { resize: vertical; min-height: 100px; }
+    .ap-textarea { resize: vertical; min-height: 90px; }
     .ap-select { appearance: none; cursor: pointer; }
     .ap-select option { background: #0a0a0f; }
-
-    /* Section divider */
-    .ap-divider {
-      display: flex; align-items: center; gap: 14px;
-      margin: 28px 0 24px;
-    }
+    .ap-divider { display: flex; align-items: center; gap: 14px; margin: 28px 0 24px; }
     .ap-divider-line { flex: 1; height: 1px; background: rgba(79,111,255,0.12); }
     .ap-divider-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #3a4255; white-space: nowrap; }
-
-    /* Age selector row */
     .age-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .age-btn {
-      padding: 10px; border-radius: 8px; text-align: center;
-      font-size: 13px; font-weight: 600; font-family: inherit;
-      background: rgba(255,255,255,0.03); border: 1px solid rgba(79,111,255,0.14);
-      color: #5a6580; cursor: pointer; transition: all 0.2s;
-    }
+    .age-btn { padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 600; font-family: inherit; background: rgba(255,255,255,0.03); border: 1px solid rgba(79,111,255,0.14); color: #5a6580; cursor: pointer; transition: all 0.2s; }
     .age-btn:hover { border-color: rgba(79,111,255,0.35); color: #f0f4ff; background: rgba(79,111,255,0.06); }
     .age-btn.selected { background: rgba(79,111,255,0.15); border-color: rgba(79,111,255,0.5); color: #4f6fff; box-shadow: 0 0 12px rgba(79,111,255,0.2); }
-
-    /* Requirements notice */
-    .ap-reqs {
-      background: rgba(79,111,255,0.05); border: 1px solid rgba(79,111,255,0.15);
-      border-radius: 10px; padding: 18px 20px; margin-bottom: 28px;
-    }
+    .ap-reqs { background: rgba(79,111,255,0.05); border: 1px solid rgba(79,111,255,0.15); border-radius: 10px; padding: 18px 20px; margin-bottom: 28px; }
     .ap-reqs-title { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #4f6fff; margin-bottom: 12px; }
     .ap-reqs ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
     .ap-reqs li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #8892a4; line-height: 1.5; }
     .ap-reqs li svg { flex-shrink: 0; margin-top: 1px; color: #4f6fff; }
-
-    /* Submit btn */
-    .ap-submit {
-      width: 100%; padding: 14px; border-radius: 10px;
-      background: #4f6fff; color: #fff;
-      font-size: 15px; font-weight: 700; font-family: inherit;
-      border: none; cursor: pointer;
-      box-shadow: 0 0 24px rgba(79,111,255,0.5), 0 4px 16px rgba(79,111,255,0.3);
-      transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
+    .ap-submit { width: 100%; padding: 14px; border-radius: 10px; background: #4f6fff; color: #fff; font-size: 15px; font-weight: 700; font-family: inherit; border: none; cursor: pointer; box-shadow: 0 0 24px rgba(79,111,255,0.5), 0 4px 16px rgba(79,111,255,0.3); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .ap-submit:hover { background: #3a5ce8; box-shadow: 0 0 40px rgba(79,111,255,0.7); transform: translateY(-2px); }
     .ap-submit:active { transform: scale(0.98); }
     .ap-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* Alert */
-    .ap-alert {
-      padding: 12px 16px; border-radius: 9px;
-      font-size: 13px; margin-bottom: 20px; display: none;
-      align-items: center; gap: 10px;
-    }
+    .ap-alert { padding: 12px 16px; border-radius: 9px; font-size: 13px; margin-bottom: 20px; display: none; align-items: center; gap: 10px; }
     .ap-alert.show { display: flex; }
-    .ap-alert.error   { background: rgba(239,68,68,0.10);  border: 1px solid rgba(239,68,68,0.25);  color: #f87171; }
-    .ap-alert.success { background: rgba(34,197,94,0.10);  border: 1px solid rgba(34,197,94,0.25);  color: #4ade80; }
-
-    /* Success state */
-    .ap-success-screen {
-      display: none; text-align: center; padding: 40px 0;
-      flex-direction: column; align-items: center; gap: 18px;
-    }
+    .ap-alert.error { background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
+    .ap-success-screen { display: none; text-align: center; padding: 40px 0; flex-direction: column; align-items: center; gap: 18px; }
     .ap-success-screen.show { display: flex; }
-    .ap-success-icon {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: rgba(34,197,94,0.10); border: 1px solid rgba(34,197,94,0.3);
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 30px rgba(34,197,94,0.2);
-    }
+    .ap-success-icon { width: 72px; height: 72px; border-radius: 50%; background: rgba(34,197,94,0.10); border: 1px solid rgba(34,197,94,0.3); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(34,197,94,0.2); }
     .ap-success-icon svg { color: #22c55e; }
     .ap-success-title { font-size: 22px; font-weight: 800; color: #f0f4ff; }
     .ap-success-msg { font-size: 14px; color: #8892a4; line-height: 1.7; max-width: 380px; }
-
-    @media (max-width: 600px) {
-      .ap-row { grid-template-columns: 1fr; }
-      .apply-card { padding: 24px 20px; }
-      .age-grid { grid-template-columns: repeat(3, 1fr); }
-    }
+    /* MC option buttons for multiple choice questions */
+    .mc-grid { display: flex; flex-direction: column; gap: 8px; }
+    .mc-btn { padding: 11px 14px; border-radius: 8px; text-align: left; font-size: 13px; font-weight: 500; font-family: inherit; background: rgba(255,255,255,0.03); border: 1px solid rgba(79,111,255,0.14); color: #8892a4; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .mc-btn:hover { border-color: rgba(79,111,255,0.35); color: #f0f4ff; background: rgba(79,111,255,0.06); }
+    .mc-btn.selected { background: rgba(79,111,255,0.15); border-color: rgba(79,111,255,0.5); color: #f0f4ff; }
+    .mc-btn.correct  { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.4); color: #4ade80; }
+    .mc-btn.wrong    { background: rgba(239,68,68,0.10); border-color: rgba(239,68,68,0.35); color: #f87171; }
+    @media (max-width: 600px) { .ap-row { grid-template-columns: 1fr; } .apply-card { padding: 24px 20px; } .age-grid { grid-template-columns: repeat(2, 1fr); } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -213,50 +109,36 @@
         <span class="t1">JOIN</span>
         <span class="t2">GSRP</span>
       </h1>
-      <p class="apply-sub">Complete the form below to apply for a position in Georgia State Roleplay. Applications are reviewed by our leadership team.</p>
+      <p class="apply-sub">Fill this out honestly. We read every application. If something doesn't add up, it gets denied.</p>
     </div>
 
     <div class="apply-card">
 
-      <!-- Requirements -->
       <div class="ap-reqs">
-        <div class="ap-reqs-title">Requirements</div>
+        <div class="ap-reqs-title">Before you apply</div>
         <ul>
-          <li>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Must have a valid Roblox account in good standing
-          </li>
-          <li>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Must be in our Discord server before applying
-          </li>
-          <li>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Serious roleplay only — no trolling or failRP
-          </li>
-          <li>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Minimum age: 13+ (maturity is assessed by staff)
-          </li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>You need a Roblox account that's in good standing</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>You need to already be in our Discord server</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>We're a serious RP server — if you're here to minge, don't bother</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>You must be 13 or older</li>
         </ul>
       </div>
 
-      <!-- Alert -->
       <div class="ap-alert" id="apAlert"></div>
 
-      <!-- Success screen (hidden by default) -->
       <div class="ap-success-screen" id="apSuccess">
         <div class="ap-success-icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="ap-success-title">Application Submitted!</div>
-        <div class="ap-success-msg">Your application has been received and is pending review by our leadership team. You'll be contacted via Discord once a decision is made.</div>
+        <div class="ap-success-msg">We got it. Leadership will review your app and reach out through Discord. Usually takes 24–48 hours.</div>
         <a href="/" class="btn btn-outline" style="margin-top:8px;">Back to Home</a>
       </div>
 
-      <!-- Form -->
       <form id="apForm">
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Personal Info</span><div class="ap-divider-line"></div></div>
+
+        <!-- ── Section 1: Who are you ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Who are you</span><div class="ap-divider-line"></div></div>
 
         <div class="ap-row">
           <div class="ap-group">
@@ -265,14 +147,14 @@
           </div>
           <div class="ap-group">
             <label class="ap-label" for="ap-discord">Discord Username <span>*</span></label>
-            <input class="ap-input" id="ap-discord" type="text" placeholder="username or user#0000" required autocomplete="off" />
+            <input class="ap-input" id="ap-discord" type="text" placeholder="username" required autocomplete="off" />
           </div>
         </div>
 
         <div class="ap-group">
           <label class="ap-label" for="ap-discord-id">Discord User ID <span>*</span></label>
-          <input class="ap-input" id="ap-discord-id" type="text" placeholder="e.g. 123456789012345678" required autocomplete="off" pattern="[0-9]{17,19}" title="Discord IDs are 17–19 digit numbers" />
-          <div style="font-size:11px;color:#3a4255;margin-top:6px;">Enable Developer Mode in Discord → right-click your name → Copy User ID</div>
+          <input class="ap-input" id="ap-discord-id" type="text" placeholder="e.g. 123456789012345678" required autocomplete="off" pattern="[0-9]{17,19}" title="17–19 digit number" />
+          <div style="font-size:11px;color:#3a4255;margin-top:6px;">Discord → Settings → Advanced → Developer Mode on → right-click your name → Copy User ID</div>
         </div>
 
         <div class="ap-group">
@@ -283,16 +165,17 @@
             <button type="button" class="age-btn" data-age="17-18">17–18</button>
             <button type="button" class="age-btn" data-age="18+">18+</button>
           </div>
-          <input type="hidden" id="ap-age" required />
+          <input type="hidden" id="ap-age" />
         </div>
 
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Department & Experience</span><div class="ap-divider-line"></div></div>
+        <!-- ── Section 2: Your setup ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Your setup</span><div class="ap-divider-line"></div></div>
 
         <div class="ap-row">
           <div class="ap-group">
-            <label class="ap-label" for="ap-dept">Preferred Department <span>*</span></label>
+            <label class="ap-label" for="ap-dept">Department you're applying for <span>*</span></label>
             <select class="ap-select" id="ap-dept" required>
-              <option value="" disabled selected>Select a department</option>
+              <option value="" disabled selected>Pick one</option>
               <option value="Law Enforcement">Law Enforcement (LSPD)</option>
               <option value="State Police">State Police (GSP)</option>
               <option value="Fire Department">Fire Department (GSFD)</option>
@@ -302,32 +185,101 @@
             </select>
           </div>
           <div class="ap-group">
-            <label class="ap-label" for="ap-exp">ERLC Experience <span>*</span></label>
+            <label class="ap-label" for="ap-exp">How long have you been playing ERLC? <span>*</span></label>
             <select class="ap-select" id="ap-exp" required>
-              <option value="" disabled selected>Select your level</option>
-              <option value="None">None — brand new</option>
-              <option value="Beginner">Beginner (under 6 months)</option>
-              <option value="Intermediate">Intermediate (6–18 months)</option>
-              <option value="Experienced">Experienced (1.5+ years)</option>
+              <option value="" disabled selected>Pick one</option>
+              <option value="None">Never played it</option>
+              <option value="Beginner">Less than 6 months</option>
+              <option value="Intermediate">6 months – 1.5 years</option>
+              <option value="Experienced">Over 1.5 years</option>
             </select>
           </div>
         </div>
 
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Short Answer</span><div class="ap-divider-line"></div></div>
+        <!-- ── Section 3: ERLC knowledge ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">ERLC knowledge</span><div class="ap-divider-line"></div></div>
+
+        <!-- Q1: RDM -->
+        <div class="ap-group">
+          <label class="ap-label">What is RDM? <span>*</span></label>
+          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <div class="mc-grid" id="mc-rdm">
+            <button type="button" class="mc-btn" data-q="rdm" data-val="a">Random Deathmatch — killing someone with no roleplay reason behind it at all</button>
+            <button type="button" class="mc-btn" data-q="rdm" data-val="b">When a cop pulls someone over for speeding</button>
+            <button type="button" class="mc-btn" data-q="rdm" data-val="c">Crashing into someone's car by accident</button>
+            <button type="button" class="mc-btn" data-q="rdm" data-val="d">Shooting someone after a traffic stop goes wrong and they run</button>
+          </div>
+          <input type="hidden" id="ap-rdm" />
+        </div>
+
+        <!-- Q2: VDM -->
+        <div class="ap-group">
+          <label class="ap-label">What is VDM? <span>*</span></label>
+          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <div class="mc-grid" id="mc-vdm">
+            <button type="button" class="mc-btn" data-q="vdm" data-val="a">Speeding through a red light during a pursuit</button>
+            <button type="button" class="mc-btn" data-q="vdm" data-val="b">Vehicle Deathmatch — intentionally using your car as a weapon to kill or injure people</button>
+            <button type="button" class="mc-btn" data-q="vdm" data-val="c">Running a stop sign while responding to a call</button>
+            <button type="button" class="mc-btn" data-q="vdm" data-val="d">Accidentally tapping someone's bumper in traffic</button>
+          </div>
+          <input type="hidden" id="ap-vdm" />
+        </div>
+
+        <!-- Q3: FailRP -->
+        <div class="ap-group">
+          <label class="ap-label">Which one of these is FailRP? <span>*</span></label>
+          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <div class="mc-grid" id="mc-failrp">
+            <button type="button" class="mc-btn" data-q="failrp" data-val="a">A suspect tries to run on foot after being told to stop</button>
+            <button type="button" class="mc-btn" data-q="failrp" data-val="b">An officer uses their lights and sirens when responding to an emergency</button>
+            <button type="button" class="mc-btn" data-q="failrp" data-val="c">A player jumps off a 10-story building to escape police, then walks it off like nothing happened</button>
+            <button type="button" class="mc-btn" data-q="failrp" data-val="d">A civilian calls 911 to report a robbery</button>
+          </div>
+          <input type="hidden" id="ap-failrp" />
+        </div>
+
+        <!-- Q4: Safe zones -->
+        <div class="ap-group">
+          <label class="ap-label">Can you shoot or arrest someone inside a safe zone? <span>*</span></label>
+          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <div class="mc-grid" id="mc-safezone">
+            <button type="button" class="mc-btn" data-q="safezone" data-val="a">Yes, anywhere is fair game if they committed a crime</button>
+            <button type="button" class="mc-btn" data-q="safezone" data-val="b">No — safe zones are protected areas, you cannot engage in any hostile actions inside them</button>
+            <button type="button" class="mc-btn" data-q="safezone" data-val="c">Only if they shot at you first</button>
+            <button type="button" class="mc-btn" data-q="safezone" data-val="d">Only management can make that call</button>
+          </div>
+          <input type="hidden" id="ap-safezone" />
+        </div>
+
+        <!-- ── Section 4: Scenarios ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Scenarios</span><div class="ap-divider-line"></div></div>
 
         <div class="ap-group">
-          <label class="ap-label" for="ap-why">Why do you want to join GSRP? <span>*</span></label>
-          <textarea class="ap-textarea" id="ap-why" placeholder="Tell us why you'd be a great fit for Georgia State Roleplay..." required minlength="50"></textarea>
+          <label class="ap-label" for="ap-scenario1">You're on patrol and someone randomly drives into a group of players with their car, killing two of them. They say "it was an accident." What do you do? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-scenario1" placeholder="Walk us through what you'd do..." required minlength="40"></textarea>
         </div>
 
         <div class="ap-group">
-          <label class="ap-label" for="ap-rules">What does serious roleplay mean to you? <span>*</span></label>
-          <textarea class="ap-textarea" id="ap-rules" placeholder="Describe how you approach roleplay..." required minlength="30"></textarea>
+          <label class="ap-label" for="ap-scenario2">You get into a pursuit with a suspect. They pull into a spawn/safe zone and stop their car. How do you handle it? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-scenario2" placeholder="Walk us through what you'd do..." required minlength="40"></textarea>
         </div>
 
         <div class="ap-group">
-          <label class="ap-label" for="ap-extra">Anything else you want us to know?</label>
-          <textarea class="ap-textarea" id="ap-extra" placeholder="Previous groups, certifications, special skills... (optional)" style="min-height:80px;"></textarea>
+          <label class="ap-label" for="ap-scenario3">Another officer in the server is clearly breaking rules — shooting people for no reason, ignoring callouts, just messing around. What do you do? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-scenario3" placeholder="Walk us through what you'd do..." required minlength="40"></textarea>
+        </div>
+
+        <!-- ── Section 5: About you ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">About you</span><div class="ap-divider-line"></div></div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-why">Why GSRP specifically? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-why" placeholder="Don't just say 'I want to improve my RP skills' — tell us something real." required minlength="40"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-extra">Anything else? Previous groups, bans, anything we should know about.</label>
+          <textarea class="ap-textarea" id="ap-extra" placeholder="Optional — but if you've been banned somewhere before, be upfront about it." style="min-height:80px;"></textarea>
         </div>
 
         <button type="submit" class="ap-submit" id="apSubmit">
@@ -340,7 +292,7 @@
 </div>
 
 <script>
-/* Particles */
+/* ── Particles ── */
 (function() {
   const canvas = document.getElementById('bg-canvas');
   const ctx = canvas.getContext('2d');
@@ -358,7 +310,7 @@
   (function loop() { ctx.clearRect(0,0,W,H); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(loop); })();
 })();
 
-/* Navbar */
+/* ── Navbar ── */
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
   navbar.style.background = window.scrollY > 40 ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.04)';
@@ -374,7 +326,33 @@ toggle.addEventListener('click', () => {
   else { s0.style.transform=s1.style.opacity=s2.style.transform=''; }
 });
 
-/* Age buttons */
+/* ── Correct answers ── */
+const ANSWERS = { rdm: 'a', vdm: 'b', failrp: 'c', safezone: 'b' };
+const mcAnswers = {};
+
+/* ── MC buttons ── */
+document.querySelectorAll('.mc-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const q   = btn.dataset.q;
+    const val = btn.dataset.val;
+    // clear this question's selections
+    document.querySelectorAll(`.mc-btn[data-q="${q}"]`).forEach(b => {
+      b.classList.remove('selected','correct','wrong');
+    });
+    // mark correct/wrong immediately so applicant knows
+    if (val === ANSWERS[q]) {
+      btn.classList.add('correct');
+    } else {
+      btn.classList.add('wrong');
+      // show correct one
+      document.querySelector(`.mc-btn[data-q="${q}"][data-val="${ANSWERS[q]}"]`)?.classList.add('correct');
+    }
+    mcAnswers[q] = val;
+    document.getElementById(`ap-${q}`).value = val;
+  });
+});
+
+/* ── Age buttons ── */
 let selectedAge = '';
 document.querySelectorAll('.age-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -385,31 +363,51 @@ document.querySelectorAll('.age-btn').forEach(btn => {
   });
 });
 
-/* Form submit */
+/* ── Submit ── */
 document.getElementById('apForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const alertEl  = document.getElementById('apAlert');
+  const alertEl   = document.getElementById('apAlert');
   const submitBtn = document.getElementById('apSubmit');
-  alertEl.className = 'ap-alert'; alertEl.textContent = '';
+  alertEl.className = 'ap-alert';
+  alertEl.textContent = '';
 
   if (!selectedAge) {
-    alertEl.textContent = 'Please select an age range.';
+    alertEl.textContent = 'Pick an age range.';
+    alertEl.className = 'ap-alert error show'; return;
+  }
+  const missing = ['rdm','vdm','failrp','safezone'].filter(q => !mcAnswers[q]);
+  if (missing.length) {
+    alertEl.textContent = 'Answer all the knowledge questions.';
     alertEl.className = 'ap-alert error show'; return;
   }
 
   submitBtn.disabled = true;
-  submitBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Submitting…`;
+  submitBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Submitting…`;
 
   const payload = {
-    robloxUsername: document.getElementById('ap-roblox').value.trim(),
+    robloxUsername:  document.getElementById('ap-roblox').value.trim(),
     discordUsername: document.getElementById('ap-discord').value.trim(),
-    discordId:      document.getElementById('ap-discord-id').value.trim(),
-    age:            selectedAge,
-    department:     document.getElementById('ap-dept').value,
-    experience:     document.getElementById('ap-exp').value,
-    whyJoin:        document.getElementById('ap-why').value.trim(),
-    rpMeaning:      document.getElementById('ap-rules').value.trim(),
-    extra:          document.getElementById('ap-extra').value.trim(),
+    discordId:       document.getElementById('ap-discord-id').value.trim(),
+    age:             selectedAge,
+    department:      document.getElementById('ap-dept').value,
+    experience:      document.getElementById('ap-exp').value,
+    // MC answers
+    mcAnswers: {
+      rdm:      mcAnswers.rdm,
+      vdm:      mcAnswers.vdm,
+      failrp:   mcAnswers.failrp,
+      safezone: mcAnswers.safezone,
+      allCorrect: Object.entries(ANSWERS).every(([q,a]) => mcAnswers[q] === a),
+    },
+    // Scenarios & short answers
+    scenario1: document.getElementById('ap-scenario1').value.trim(),
+    scenario2: document.getElementById('ap-scenario2').value.trim(),
+    scenario3: document.getElementById('ap-scenario3').value.trim(),
+    whyJoin:   document.getElementById('ap-why').value.trim(),
+    extra:     document.getElementById('ap-extra').value.trim(),
+    // legacy fields the backend expects
+    rpMeaning: document.getElementById('ap-scenario1').value.trim(),
+    description: '',
   };
 
   try {
@@ -420,7 +418,6 @@ document.getElementById('apForm').addEventListener('submit', async (e) => {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Submission failed');
-
     document.getElementById('apForm').style.display = 'none';
     document.getElementById('apSuccess').classList.add('show');
   } catch (err) {
@@ -431,8 +428,5 @@ document.getElementById('apForm').addEventListener('submit', async (e) => {
   }
 });
 </script>
-<style>
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-</style>
 </body>
 </html>

@@ -522,19 +522,59 @@
   }
 
   async function loadErlcFeed() {
+    const el = document.getElementById('live-feed');
     try {
-      const logs = await api('GET', '/api/erlc/join-logs');
-      const el = document.getElementById('live-feed');
-      if (!logs.length) { el.innerHTML = '<div class="empty-state">No ERLC activity.</div>'; return; }
-      el.innerHTML = logs.slice(-10).reverse().map(l => `
-        <div class="feed-item">
-          <div class="feed-dot ${l.Join ? 'green' : 'red'}"></div>
-          <span>${l.Player || 'Unknown'} ${l.Join ? 'joined' : 'left'}</span>
-          <span class="feed-time">${formatTime(l.Timestamp * 1000)}</span>
-        </div>`).join('');
+      const [kills, cmds] = await Promise.all([
+        api('GET', '/api/erlc/kill-logs').catch(() => []),
+        api('GET', '/api/erlc/command-logs').catch(() => []),
+      ]);
+
+      // Merge and tag each entry
+      const feed = [
+        ...kills.map(l => ({ ...l, _type: 'kill',    ts: (l.Timestamp || 0) * 1000 })),
+        ...cmds.map(l  => ({ ...l, _type: 'command', ts: (l.Timestamp || 0) * 1000 })),
+      ].sort((a, b) => b.ts - a.ts).slice(0, 20);
+
+      if (!feed.length) { el.innerHTML = '<div class="empty-state">No ERLC activity.</div>'; return; }
+
+      el.innerHTML = feed.map(l => {
+        if (l._type === 'kill') {
+          const killer = (l.Killer || 'Unknown').split(':')[0];
+          const killed = (l.Killed || 'Unknown').split(':')[0];
+          return `<div class="feed-item">
+            <div class="feed-dot red"></div>
+            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <span style="font-weight:600;">${escFeed(killer)}</span>
+              <span style="color:var(--text-muted);"> killed </span>
+              <span style="font-weight:600;">${escFeed(killed)}</span>
+            </span>
+            <span class="feed-time">${formatTime(l.ts)}</span>
+          </div>`;
+        }
+        if (l._type === 'command') {
+          const player = (l.Player || 'Unknown').split(':')[0];
+          const cmd    = l.Command || '';
+          // Detect PMs — ERLC PM command is `:pm username message`
+          const isPm = /^:pm\b/i.test(cmd.trim());
+          return `<div class="feed-item">
+            <div class="feed-dot ${isPm ? 'yellow' : 'blue'}"></div>
+            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <span style="font-weight:600;">${escFeed(player)}</span>
+              <span style="color:var(--text-muted);"> ${isPm ? 'sent a PM' : 'ran'} </span>
+              <span class="mono" style="font-size:11px;color:var(--accent);">${escFeed(cmd.length > 48 ? cmd.slice(0,48)+'…' : cmd)}</span>
+            </span>
+            <span class="feed-time">${formatTime(l.ts)}</span>
+          </div>`;
+        }
+        return '';
+      }).join('');
     } catch {
-      document.getElementById('live-feed').innerHTML = '<div class="empty-state">ERLC data unavailable.</div>';
+      el.innerHTML = '<div class="empty-state">ERLC data unavailable.</div>';
     }
+  }
+
+  function escFeed(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   async function loadShiftStatus() {
