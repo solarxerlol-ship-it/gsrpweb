@@ -87,6 +87,7 @@ app.use("/api/staff",         require("./routes/staffRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 app.use("/api/docs",          require("./routes/docsRoutes"));
 app.use("/api/applications",  require("./routes/applicationRoutes"));
+app.use("/api/reviews",       require("./routes/reviewRoutes"));
 
 // ── Roblox proxy — resolves username → userId and fetches headshot ────────────
 app.get("/api/roblox/user", async (req, res) => {
