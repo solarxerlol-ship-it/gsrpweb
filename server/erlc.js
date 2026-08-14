@@ -43,13 +43,27 @@ async function getServer(opts = {}) {
     if (v) params.set(k, "true");
   }
   const query = params.toString() ? `?${params}` : "";
-  try {
-    const res = await axios.get(`${BASE}/server${query}`, {
+
+  const attempt = async (useProxy) => {
+    return axios.get(`${BASE}/server${query}`, {
       headers: headers(),
-      httpsAgent: proxyAgent(),
+      ...(useProxy && proxyAgent() ? { httpsAgent: proxyAgent() } : {}),
     });
+  };
+
+  try {
+    const res = await attempt(true);
     return res.data;
   } catch (err) {
+    // 407 = proxy auth failed — retry without proxy
+    if (err.response?.status === 407 || err.message?.includes('407')) {
+      try {
+        const res = await attempt(false);
+        return res.data;
+      } catch (err2) {
+        throw wrapErlcError(err2);
+      }
+    }
     throw wrapErlcError(err);
   }
 }
@@ -91,14 +105,28 @@ async function getEmergencyCalls() {
 }
 
 async function runCommand(command) {
-  try {
-    const res = await axios.post(
+  const attempt = async (useProxy) => {
+    return axios.post(
       `${BASE}/server/command`,
       { command },
-      { headers: { ...headers(), "Content-Type": "application/json" }, httpsAgent: proxyAgent() }
+      {
+        headers: { ...headers(), "Content-Type": "application/json" },
+        ...(useProxy && proxyAgent() ? { httpsAgent: proxyAgent() } : {}),
+      }
     );
+  };
+  try {
+    const res = await attempt(true);
     return res.data;
   } catch (err) {
+    if (err.response?.status === 407 || err.message?.includes('407')) {
+      try {
+        const res = await attempt(false);
+        return res.data;
+      } catch (err2) {
+        throw wrapErlcError(err2);
+      }
+    }
     throw wrapErlcError(err);
   }
 }
