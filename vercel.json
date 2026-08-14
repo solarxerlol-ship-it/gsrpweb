@@ -10,7 +10,11 @@
     }
   ],
   "rewrites": [
-    { "source": "/",      "destination": "/public/index.html" },
-    { "source": "/(.*)", "destination": "/server/index.js" }
+    { "source": "/",         "destination": "/public/index.html" },
+    { "source": "/map",      "destination": "/public/map.html" },
+    { "source": "/map.html", "destination": "/public/map.html" },
+    { "source": "/shop",     "destination": "/public/shop.html" },
+    { "source": "/shop.html","destination": "/public/shop.html" },
+    { "source": "/(.*)",     "destination": "/server/index.js" }
   ]
 }

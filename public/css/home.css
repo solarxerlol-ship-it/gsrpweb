@@ -111,7 +111,11 @@ img { display: block; }
    LIQUID GLASS NAVBAR
    ══════════════════════════════════════════════════════════════════════════ */
 .navbar {
-  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  /* ── Truly centered pill — NOT left:0, NOT margin:auto ── */
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
   width: calc(100% - 48px); max-width: 1100px;
   height: 58px;
@@ -665,4 +669,32 @@ footer { border-top: 1px solid var(--border); padding: 52px 24px 32px; position:
 @media (max-width: 480px) {
   .hero-actions, .join-actions { flex-direction: column; width: 100%; }
   .hero-actions .btn, .join-actions .btn { width: 100%; justify-content: center; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STATUS STAT ICON  (added for SVG icon inside stat boxes)
+   ══════════════════════════════════════════════════════════════════════════ */
+.status-stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  color: var(--blue);
+  opacity: 0.7;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FEATURE ICON SVG  (override font-size sizing for SVG children)
+   ══════════════════════════════════════════════════════════════════════════ */
+.feature-icon svg,
+.dept-icon svg {
+  display: block;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PAGE FADE-IN  (used on map / shop pages)
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

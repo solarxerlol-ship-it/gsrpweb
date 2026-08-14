@@ -29,8 +29,8 @@
 
   <ul class="nav-links" id="navLinks">
     <li><a href="#home" class="active">Home</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#departments">Departments</a></li>
+    <li><a href="/map.html">Map</a></li>
+    <li><a href="/shop.html" style="opacity:0.4;pointer-events:none;cursor:default;">Shop</a></li>
     <li><a href="#join">Apply</a></li>
   </ul>
 
@@ -67,7 +67,10 @@
     <div class="hero-actions">
       <a href="#join" class="btn btn-primary btn-lg">GET STARTED →</a>
       <a href="https://discord.gg/gssrp" class="btn btn-outline btn-lg" target="_blank" rel="noopener">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        <!-- Discord "Clyde" logo SVG -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+        </svg>
         JOIN DISCORD
       </a>
     </div>
@@ -124,9 +127,39 @@
           </div>
         </div>
         <div class="status-stats-row">
-          <div class="status-stat"><div class="status-stat-value" id="playerCount">—</div><div class="status-stat-label">Players</div></div>
-          <div class="status-stat"><div class="status-stat-value" id="accessType">—</div><div class="status-stat-label">Access</div></div>
-          <div class="status-stat"><div class="status-stat-value" id="teamBalance">—</div><div class="status-stat-label">Team Bal.</div></div>
+          <div class="status-stat">
+            <!-- Players icon -->
+            <div class="status-stat-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="status-stat-value" id="playerCount">—</div>
+            <div class="status-stat-label">Players</div>
+          </div>
+          <div class="status-stat">
+            <!-- Lock / access icon -->
+            <div class="status-stat-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div class="status-stat-value" id="accessType">—</div>
+            <div class="status-stat-label">Access</div>
+          </div>
+          <div class="status-stat">
+            <!-- Balance / scales icon -->
+            <div class="status-stat-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l4-4 4 4"/><path d="M17 15l4 4-4 4"/>
+                <path d="M3 15h18"/>
+              </svg>
+            </div>
+            <div class="status-stat-value" id="teamBalance">—</div>
+            <div class="status-stat-label">Team Bal.</div>
+          </div>
         </div>
       </div>
 
@@ -142,55 +175,6 @@
   </div>
 </section>
 
-<!-- ══ DEPARTMENTS ════════════════════════════════════════════════════════ -->
-<section id="departments">
-  <div class="section-inner">
-    <div class="section-header reveal">
-      <span class="section-tag">Organization</span>
-      <h2 class="section-title">Our Departments</h2>
-      <p class="section-subtitle">Six specialized divisions keeping the roleplay experience immersive and structured.</p>
-    </div>
-    <div class="dept-grid">
-      <div class="card dept-card reveal reveal-delay-1">
-        <div class="dept-icon">🏛️</div>
-        <div class="dept-name">Law Enforcement</div>
-        <div class="dept-desc">The backbone of public safety. Officers patrol the city, respond to calls, and maintain order across all districts.</div>
-        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">LSPD</span></div>
-      </div>
-      <div class="card dept-card reveal reveal-delay-2">
-        <div class="dept-icon">⭐</div>
-        <div class="dept-name">State Police</div>
-        <div class="dept-desc">Elite law enforcement operating statewide. Handles major incidents, highway patrol, and inter-agency cooperation.</div>
-        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">GSP</span></div>
-      </div>
-      <div class="card dept-card reveal reveal-delay-3">
-        <div class="dept-icon">🔥</div>
-        <div class="dept-name">Fire Department</div>
-        <div class="dept-desc">First responders to fires, hazmat incidents, and technical rescues. Keeping our community safe from every angle.</div>
-        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">GSFD</span></div>
-      </div>
-      <div class="card dept-card reveal reveal-delay-2">
-        <div class="dept-icon">🔰</div>
-        <div class="dept-name">Sheriff's Office</div>
-        <div class="dept-desc">County law enforcement responsible for rural areas, courthouse security, and detention operations.</div>
-        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">GCSO</span></div>
-      </div>
-      <div class="card dept-card reveal reveal-delay-3">
-        <div class="dept-icon">✚</div>
-        <div class="dept-name">Emergency Medical</div>
-        <div class="dept-desc">Highly trained paramedics providing on-scene medical care, transport, and critical trauma response.</div>
-        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">EMS</span></div>
-      </div>
-      <div class="card dept-card reveal reveal-delay-4">
-        <div class="dept-icon">👤</div>
-        <div class="dept-name">Civilian Operations</div>
-        <div class="dept-desc">Bringing the world to life. Civilian operators create the stories that make law enforcement roleplay meaningful.</div>
-        <div class="dept-footer"><span class="dept-members">Members: —</span><span class="dept-tag">CIV</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ══ FEATURES ═══════════════════════════════════════════════════════════ -->
 <section id="features">
   <div class="section-inner">
@@ -201,17 +185,39 @@
     </div>
     <div class="features-grid">
       <div class="card feature-card reveal reveal-delay-1">
-        <div class="feature-icon">🎭</div>
+        <!-- Theatre masks SVG -->
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 3h8a2 2 0 0 1 2 2v10a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V5a2 2 0 0 1 2-2z"/>
+            <path d="M5.5 8.5c.5-.5 1.5-.5 2 0"/><path d="M5.5 12c0 1 1 2 2 2s2-1 2-2"/>
+            <path d="M12 5h8a2 2 0 0 1 2 2v8a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4"/>
+            <path d="M16.5 9c.5-.5 1.5-.5 2 0"/><path d="M16 13c0-1 1-2 2.5-2s2.5 1 2.5 2"/>
+          </svg>
+        </div>
         <div class="feature-title">Serious Roleplay</div>
         <div class="feature-desc">Strict standards and comprehensive SOPs ensure every session is immersive, realistic, and enjoyable for all participants.</div>
       </div>
       <div class="card feature-card reveal reveal-delay-2">
-        <div class="feature-icon">🛡️</div>
+        <!-- Shield with checkmark SVG -->
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
         <div class="feature-title">Active Staff</div>
         <div class="feature-desc">A dedicated moderation and leadership team available around the clock to keep sessions running smoothly.</div>
       </div>
       <div class="card feature-card reveal reveal-delay-3">
-        <div class="feature-icon">📅</div>
+        <!-- Calendar with star SVG -->
+        <div class="feature-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+            <polygon points="12 14 13.1 16.5 15.9 16.9 13.9 18.8 14.4 21.6 12 20.2 9.6 21.6 10.1 18.8 8.1 16.9 10.9 16.5"/>
+          </svg>
+        </div>
         <div class="feature-title">Regular Events</div>
         <div class="feature-desc">Weekly sessions, department ride-alongs, training exercises, and community events keep things fresh and engaging.</div>
       </div>
@@ -268,7 +274,9 @@
       <p class="join-sub">Become part of one of Roblox's most dedicated law enforcement roleplay communities. Applications are open — all departments are recruiting.</p>
       <div class="join-actions">
         <a href="https://discord.gg/gssrp" class="btn btn-primary btn-lg" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.033.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
+          </svg>
           Join Our Discord
         </a>
         <a href="https://staff.gssrp.xyz" class="btn btn-outline btn-lg" target="_blank" rel="noopener">Staff Panel</a>
@@ -291,8 +299,8 @@
       <div class="footer-col-title">Navigation</div>
       <ul class="footer-links">
         <li><a href="#home">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#departments">Departments</a></li>
+        <li><a href="/map.html">Map</a></li>
+        <li><a href="/shop.html">Shop</a></li>
         <li><a href="#join">Apply</a></li>
         <li><a href="https://staff.gssrp.xyz" target="_blank" rel="noopener">Staff Panel</a></li>
       </ul>
@@ -379,10 +387,10 @@ document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
   if (window.scrollY > 40) {
-    navbar.style.background    = 'rgba(0,0,0,0.55)';
+    navbar.style.background     = 'rgba(0,0,0,0.55)';
     navbar.style.backdropFilter = 'blur(36px) saturate(200%)';
   } else {
-    navbar.style.background    = 'rgba(255,255,255,0.04)';
+    navbar.style.background     = 'rgba(255,255,255,0.04)';
     navbar.style.backdropFilter = 'blur(28px) saturate(180%)';
   }
 }, { passive: true });
