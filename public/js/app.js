@@ -52,7 +52,7 @@ const NAV = [
   // ── Admin+ ─────────────────────────────────────────────────────────────────
   { label: "Promotions",       icon: "arrow-up",  href: "/promotions",  minLevel: "admin"      },
   // ── Management+ ────────────────────────────────────────────────────────────
-  { label: "Applications",     icon: "clipboard", href: "#",              minLevel: "management" },
+  { label: "Applications",     icon: "clipboard", href: "/applications",   minLevel: "management" },
   { label: "Audit Log",        icon: "file-text", href: "/audit",         minLevel: "management" },
   { label: "Settings",         icon: "settings",  href: "/settings",      minLevel: "management" },
 ];

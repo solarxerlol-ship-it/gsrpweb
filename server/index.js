@@ -85,7 +85,8 @@ app.use("/api/promotions",    require("./routes/promotions"));
 app.use("/api/erlc",          require("./routes/erlcRoutes"));
 app.use("/api/staff",         require("./routes/staffRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
-app.use("/api/docs",         require("./routes/docsRoutes"));
+app.use("/api/docs",          require("./routes/docsRoutes"));
+app.use("/api/applications",  require("./routes/applicationRoutes"));
 
 // ── Page routes ───────────────────────────────────────────────────────────────
 const { requireAuth, requireLevel } = require("./middleware");
@@ -123,7 +124,7 @@ ADMIN_PAGES.forEach(p => {
 });
 
 // Pages accessible by management+
-const MANAGEMENT_PAGES = ["announcements", "audit", "settings"];
+const MANAGEMENT_PAGES = ["announcements", "audit", "settings", "applications"];
 MANAGEMENT_PAGES.forEach(p => {
   app.get(`/${p}`, requireLevel("management"), (req, res) =>
     res.sendFile(path.join(PUBLIC, `${p}.html`))

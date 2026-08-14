@@ -113,6 +113,22 @@ const announcementSchema = new mongoose.Schema({
   createdAt:  { type: Number, default: () => Date.now() },
 });
 
+const applicationSchema = new mongoose.Schema({
+  robloxUsername:  { type: String, required: true },
+  discordUsername: { type: String, required: true },
+  discordId:       { type: String, required: true },
+  age:             { type: String, required: true },
+  department:      { type: String, required: true },
+  experience:      { type: String, required: true },
+  whyJoin:         { type: String, required: true },
+  rpMeaning:       { type: String, required: true },
+  extra:           { type: String, default: '' },
+  status:          { type: String, enum: ['pending','accepted','denied'], default: 'pending' },
+  reviewedBy:      { type: String, default: null },
+  createdAt:       { type: Number, default: () => Date.now() },
+  reviewedAt:      { type: Number, default: null },
+});
+
 // ── Models (safe re-use across hot reloads) ───────────────────────────────────
 const Infraction   = mongoose.models.Infraction   || mongoose.model("Infraction",   infractionSchema);
 const Promotion    = mongoose.models.Promotion    || mongoose.model("Promotion",    promotionSchema);
@@ -121,5 +137,6 @@ const Shift        = mongoose.models.Shift        || mongoose.model("Shift",    
 const LOA          = mongoose.models.LOA          || mongoose.model("LOA",          loaSchema);
 const AuditLog     = mongoose.models.AuditLog     || mongoose.model("AuditLog",     auditSchema);
 const Announcement = mongoose.models.Announcement || mongoose.model("Announcement", announcementSchema);
+const Application  = mongoose.models.Application  || mongoose.model("Application",  applicationSchema);
 
-module.exports = { connect, Infraction, Promotion, StaffUser, Shift, LOA, AuditLog, Announcement };
+module.exports = { connect, Infraction, Promotion, StaffUser, Shift, LOA, AuditLog, Announcement, Application };

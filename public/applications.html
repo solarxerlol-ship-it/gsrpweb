@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Applications — Georgia State Roleplay Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Applications</span>
+      <div class="topbar-right">
+        <span class="badge badge-blue" id="pending-count">Loading...</span>
+        <button class="btn btn-ghost btn-sm" id="refresh-btn">↻ Refresh</button>
+      </div>
+    </header>
+    <div class="content">
+
+      <!-- Tabs -->
+      <div class="tabs" style="margin-bottom:18px;">
+        <div class="tab active" data-tab="pending">Pending</div>
+        <div class="tab" data-tab="accepted">Accepted</div>
+        <div class="tab" data-tab="denied">Denied</div>
+      </div>
+
+      <!-- Pending -->
+      <div id="panel-pending">
+        <div id="list-pending"><div class="empty-state">Loading applications...</div></div>
+      </div>
+
+      <!-- Accepted -->
+      <div id="panel-accepted" style="display:none;">
+        <div id="list-accepted"><div class="empty-state">No accepted applications yet.</div></div>
+      </div>
+
+      <!-- Denied -->
+      <div id="panel-denied" style="display:none;">
+        <div id="list-denied"><div class="empty-state">No denied applications yet.</div></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Review modal -->
+<div class="modal-overlay" id="modal-review">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Application Review</span>
+      <button class="modal-close" onclick="closeModal('modal-review')">&times;</button>
+    </div>
+    <div id="modal-body" style="margin-bottom:20px;"></div>
+    <div id="modal-alert"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;" id="modal-actions"></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  let apps = { pending: [], accepted: [], denied: [] };
+  let activeTab = 'pending';
+  let currentApp = null;
+
+  async function init() {
+    await getUser();
+    renderSidebar();
+    setupTabs();
+    loadApplications();
+  }
+
+  function setupTabs() {
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        ['pending','accepted','denied'].forEach(p => document.getElementById(`panel-${p}`).style.display = 'none');
+        tab.classList.add('active');
+        activeTab = tab.dataset.tab;
+        document.getElementById(`panel-${activeTab}`).style.display = '';
+      });
+    });
+  }
+
+  async function loadApplications() {
+    try {
+      const all = await api('GET', '/api/applications');
+      apps.pending  = all.filter(a => a.status === 'pending');
+      apps.accepted = all.filter(a => a.status === 'accepted');
+      apps.denied   = all.filter(a => a.status === 'denied');
+
+      const pc = document.getElementById('pending-count');
+      pc.textContent = `${apps.pending.length} Pending`;
+      pc.className = apps.pending.length > 0 ? 'badge badge-yellow' : 'badge badge-gray';
+
+      renderList('pending');
+      renderList('accepted');
+      renderList('denied');
+    } catch (err) {
+      document.getElementById('list-pending').innerHTML = `<div class="empty-state">${err.message}</div>`;
+    }
+  }
+
+  function renderList(tab) {
+    const el = document.getElementById(`list-${tab}`);
+    const list = apps[tab];
+    if (!list.length) {
+      const msgs = { pending: 'No pending applications.', accepted: 'No accepted applications.', denied: 'No denied applications.' };
+      el.innerHTML = `<div class="empty-state">${msgs[tab]}</div>`;
+      return;
+    }
+
+    el.innerHTML = list.map(a => `
+      <div class="card" style="padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;cursor:pointer;" onclick="openApp('${a._id}')">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span style="font-weight:700;font-size:14px;">${escHtml(a.robloxUsername)}</span>
+            <span class="badge badge-blue" style="font-size:10px;">${escHtml(a.department)}</span>
+            ${statusBadge(a.status)}
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);">
+            Discord: ${escHtml(a.discordUsername)} &nbsp;·&nbsp; Age: ${escHtml(a.age)} &nbsp;·&nbsp; ${formatDate(a.createdAt)}
+          </div>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-muted);flex-shrink:0;"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    `).join('');
+  }
+
+  function statusBadge(s) {
+    const map = { pending: 'badge-yellow', accepted: 'badge-green', denied: 'badge-red' };
+    return `<span class="badge ${map[s] || 'badge-gray'}">${capitalize(s)}</span>`;
+  }
+
+  function openApp(id) {
+    const a = [...apps.pending, ...apps.accepted, ...apps.denied].find(x => x._id === id);
+    if (!a) return;
+    currentApp = a;
+
+    document.getElementById('modal-title').textContent = `Application — ${a.robloxUsername}`;
+    document.getElementById('modal-alert').innerHTML = '';
+
+    const fields = [
+      ['Roblox Username', a.robloxUsername],
+      ['Discord Username', a.discordUsername],
+      ['Discord ID', a.discordId],
+      ['Age Range', a.age],
+      ['Department', a.department],
+      ['ERLC Experience', a.experience],
+      ['Submitted', formatDate(a.createdAt)],
+      ['Status', capitalize(a.status)],
+    ];
+
+    document.getElementById('modal-body').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+        ${fields.map(([k,v]) => `
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">
+            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">${k}</div>
+            <div style="font-size:13px;font-weight:600;">${escHtml(String(v || '—'))}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Why do you want to join?</div>
+        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;">${escHtml(a.whyJoin || '—')}</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">What does serious RP mean to you?</div>
+        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;">${escHtml(a.rpMeaning || '—')}</div>
+      </div>
+      ${a.extra ? `<div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Additional Info</div>
+        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;">${escHtml(a.extra)}</div>
+      </div>` : ''}
+    `;
+
+    // Action buttons — only show for pending
+    const actionsEl = document.getElementById('modal-actions');
+    if (a.status === 'pending') {
+      actionsEl.innerHTML = `
+        <button class="btn btn-ghost" onclick="closeModal('modal-review')">Close</button>
+        <button class="btn btn-danger" onclick="reviewApp('denied')">Deny</button>
+        <button class="btn btn-success" onclick="reviewApp('accepted')">Accept</button>
+      `;
+    } else {
+      actionsEl.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('modal-review')">Close</button>`;
+    }
+
+    openModal('modal-review');
+  }
+
+  async function reviewApp(decision) {
+    if (!currentApp) return;
+    const alertEl = document.getElementById('modal-alert');
+    alertEl.innerHTML = '';
+    try {
+      await api('PATCH', `/api/applications/${currentApp._id}`, { status: decision });
+      closeModal('modal-review');
+      showToast(decision === 'accepted' ? 'Application accepted — DM sent!' : 'Application denied.');
+      loadApplications();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('refresh-btn').addEventListener('click', loadApplications);
+
+  init();
+</script>
+</body>
+</html>
