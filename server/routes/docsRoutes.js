@@ -14,7 +14,8 @@ const docSchema = new mongoose.Schema({
   title:       { type: String, required: true },
   category:    { type: String, enum: ["policy","sop","training","forms","other"], default: "other" },
   url:         { type: String, default: "" },
-  description: { type: String, default: "" },
+  content:     { type: String, default: "" },  // full rich HTML content
+  description: { type: String, default: "" },  // auto-generated plaintext excerpt
   authorId:    String,
   authorName:  String,
   createdAt:   { type: Number, default: () => Date.now() },
@@ -40,7 +41,9 @@ router.post("/", requireAuth, requireLevel("management"), apiWriteLimiter, async
     const { title, category, url, description } = req.body;
     if (!title) return res.status(400).json({ error: "title is required." });
     const doc = await Doc.create({
-      title, category, url, description,
+      title, category, url,
+      content:     req.body.content     || "",
+      description: req.body.description || "",
       authorId:   req.session.user.discordId,
       authorName: req.session.user.displayName,
     });
@@ -63,7 +66,10 @@ router.patch("/:id", requireAuth, requireLevel("management"), apiWriteLimiter, a
     const { title, category, url, description } = req.body;
     const doc = await Doc.findByIdAndUpdate(
       req.params.id,
-      { title, category, url, description, updatedAt: Date.now() },
+      { title, category, url,
+        content:     req.body.content     || "",
+        description: req.body.description || "",
+        updatedAt: Date.now() },
       { new: true }
     );
     if (!doc) return res.status(404).json({ error: "Document not found." });

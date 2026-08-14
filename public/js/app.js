@@ -46,6 +46,7 @@ const NAV = [
   { label: "ERLC",             icon: "zap",       href: "/erlc"                            },
   { label: "Leave of Absence", icon: "calendar",  href: "/loa"                             },
   { label: "Statistics",       icon: "bar-chart", href: "/statistics"                      },
+  { label: "Docs",             icon: "book",      href: "/docs"                            },
   // ── Moderator+ ─────────────────────────────────────────────────────────────
   { label: "Infractions",      icon: "shield",    href: "/infractions", minLevel: "moderator"  },
   { label: "Roster",           icon: "users",     href: "/roster",      minLevel: "moderator"  },

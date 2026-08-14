@@ -136,7 +136,7 @@ app.get("/login", (req, res) =>
 );
 
 // Pages accessible by all staff
-const STAFF_PAGES = ["dashboard", "erlc", "shifts", "loa", "statistics"];
+const STAFF_PAGES = ["dashboard", "erlc", "shifts", "loa", "statistics", "docs"];
 STAFF_PAGES.forEach(p => {
   app.get(`/${p}`, requireAuth, (req, res) =>
     res.sendFile(path.join(PUBLIC, `${p}.html`))
