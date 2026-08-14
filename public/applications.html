@@ -52,7 +52,7 @@
   <div class="modal modal-lg">
     <div class="modal-header">
       <span class="modal-title" id="modal-title">Application Review</span>
-      <button class="modal-close" onclick="closeModal('modal-review')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-review">&times;</button>
     </div>
     <div id="modal-body" style="margin-bottom:20px;"></div>
     <div id="modal-alert"></div>
@@ -181,12 +181,12 @@
     const actionsEl = document.getElementById('modal-actions');
     if (a.status === 'pending') {
       actionsEl.innerHTML = `
-        <button class="btn btn-ghost" onclick="closeModal('modal-review')">Close</button>
-        <button class="btn btn-danger" onclick="reviewApp('denied')">Deny</button>
-        <button class="btn btn-success" onclick="reviewApp('accepted')">Accept</button>
+        <button class="btn btn-ghost" data-close-modal="modal-review">Close</button>
+        <button class="btn btn-danger" data-action="deny">Deny</button>
+        <button class="btn btn-success" data-action="accept">Accept</button>
       `;
     } else {
-      actionsEl.innerHTML = `<button class="btn btn-ghost" onclick="closeModal('modal-review')">Close</button>`;
+      actionsEl.innerHTML = `<button class="btn btn-ghost" data-close-modal="modal-review">Close</button>`;
     }
 
     openModal('modal-review');
@@ -211,6 +211,17 @@
   }
 
   document.getElementById('refresh-btn').addEventListener('click', loadApplications);
+
+  // Event delegation for modal action buttons (accept/deny/close rendered dynamically)
+  document.getElementById('modal-actions').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (btn) {
+      if (btn.dataset.action === 'accept') reviewApp('accepted');
+      if (btn.dataset.action === 'deny')   reviewApp('denied');
+    }
+  });
+
+  window.reviewApp = reviewApp;
 
   init();
 </script>

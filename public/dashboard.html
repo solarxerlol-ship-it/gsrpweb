@@ -203,7 +203,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title">Log Punishment</span>
-      <button class="modal-close" onclick="closeModal('modal-punishment')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-punishment">&times;</button>
     </div>
     <div id="log-alert"></div>
     <form id="form-log" class="log-form-grid">
@@ -233,7 +233,7 @@
         <textarea class="form-textarea" id="log-desc" placeholder="Additional details..." style="min-height:70px;"></textarea>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-punishment')">Cancel</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="modal-punishment">Cancel</button>
         <button type="submit" class="btn btn-primary" id="log-submit">Submit</button>
       </div>
     </form>
@@ -243,7 +243,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title">Player Profile</span>
-      <button class="modal-close" onclick="closeModal('modal-profile')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-profile">&times;</button>
     </div>
     <div id="profile-popup-content"></div>
   </div>
@@ -581,6 +581,7 @@
   });
 
   init();
+  window.viewUser = viewUser;
 </script>
 </body>
 </html>

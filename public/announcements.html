@@ -29,7 +29,7 @@
   <div class="modal modal-lg">
     <div class="modal-header">
       <span class="modal-title">Post Announcement</span>
-      <button class="modal-close" onclick="closeModal('modal-post')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-post">&times;</button>
     </div>
     <div id="post-alert"></div>
     <form id="post-form">
@@ -45,7 +45,7 @@
         <input type="checkbox" id="a-pinned"> Pin announcement
       </label>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-post')">Cancel</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="modal-post">Cancel</button>
         <button type="submit" class="btn btn-primary">Post</button>
       </div>
     </form>
@@ -106,6 +106,8 @@
   }
 
   document.getElementById("post-btn").addEventListener("click", () => openModal("modal-post"));
+
+  window.deleteAnnouncement = deleteAnnouncement;
 
   document.getElementById("post-form").addEventListener("submit", async (e) => {
     e.preventDefault();

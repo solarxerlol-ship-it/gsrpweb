@@ -46,7 +46,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title">Generate Password Login</span>
-      <button class="modal-close" onclick="closeModal('modal-gen')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-gen">&times;</button>
     </div>
     <div id="gen-alert"></div>
     <div id="gen-result" style="display:none;background:var(--bg-surface);border:1px solid var(--border-md);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;">
@@ -69,7 +69,7 @@
         </select>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-gen')">Close</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="modal-gen">Close</button>
         <button type="submit" class="btn btn-primary">Generate</button>
       </div>
     </form>
@@ -81,7 +81,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title">Change Access Level</span>
-      <button class="modal-close" onclick="closeModal('modal-level')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-level">&times;</button>
     </div>
     <div id="level-alert"></div>
     <input type="hidden" id="level-userid">
@@ -96,7 +96,7 @@
       </select>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-level')">Cancel</button>
+      <button class="btn btn-ghost" data-close-modal="modal-level">Cancel</button>
       <button class="btn btn-primary" id="level-save">Save</button>
     </div>
   </div>
@@ -135,7 +135,7 @@
         const name = u.discordUsername || u.username || "Unknown";
         const rankColor = RANK_COLORS[u.accessLevel] || "#aaa";
         const actionsCol = currentUser?.accessLevel === "owner"
-          ? `<td><button class="btn btn-ghost btn-sm" onclick="openLevelModal('${u._id}','${u.accessLevel}')">Edit Rank</button></td>`
+          ? `<td><button class="btn btn-ghost btn-sm" data-action="edit-rank" data-uid="${u._id}" data-level="${u.accessLevel}">Edit Rank</button></td>`
           : `<td></td>`;
         return `<tr>
           <td>${avatar}<span style="vertical-align:middle;">${name}</span></td>
@@ -178,6 +178,15 @@
     document.getElementById("gen-form").reset();
     openModal("modal-gen");
   });
+
+  // Event delegation for dynamically rendered "Edit Rank" buttons
+  document.getElementById("table-body").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action='edit-rank']");
+    if (!btn) return;
+    openLevelModal(btn.dataset.uid, btn.dataset.level);
+  });
+
+  window.openLevelModal = openLevelModal;
 
   document.getElementById("gen-form").addEventListener("submit", async (e) => {
     e.preventDefault();

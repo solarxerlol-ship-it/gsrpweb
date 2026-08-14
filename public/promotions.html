@@ -50,7 +50,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title">Log Promotion / Demotion</span>
-      <button class="modal-close" onclick="closeModal('modal-add')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-add">&times;</button>
     </div>
     <div id="add-alert"></div>
     <form id="add-form">
@@ -87,7 +87,7 @@
         <textarea class="form-textarea" id="p-notes" placeholder="Optional notes..."></textarea>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-add')">Cancel</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="modal-add">Cancel</button>
         <button type="submit" class="btn btn-primary">Submit</button>
       </div>
     </form>

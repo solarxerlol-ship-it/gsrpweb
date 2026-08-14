@@ -57,7 +57,7 @@
   <div class="modal">
     <div class="modal-header">
       <span class="modal-title">Add Infraction</span>
-      <button class="modal-close" onclick="closeModal('modal-add')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-add">&times;</button>
     </div>
     <div id="add-alert"></div>
     <form id="add-form">
@@ -85,7 +85,7 @@
         <textarea class="form-textarea" id="a-desc" placeholder="Additional details..."></textarea>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-add')">Cancel</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="modal-add">Cancel</button>
         <button type="submit" class="btn btn-primary">Add</button>
       </div>
     </form>
@@ -97,7 +97,7 @@
   <div class="modal modal-lg">
     <div class="modal-header">
       <span class="modal-title" id="user-modal-title">User Infractions</span>
-      <button class="modal-close" onclick="closeModal('modal-user')">&times;</button>
+      <button class="modal-close" data-close-modal="modal-user">&times;</button>
     </div>
     <div id="user-infraction-list"></div>
     <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;" id="user-modal-actions"></div>
@@ -154,9 +154,9 @@
         <td class="text-muted">${formatDate(r.timestamp)}</td>
         <td><span class="badge ${r.source === 'web' ? 'badge-blue' : 'badge-gray'}">${r.source || 'bot'}</span></td>
         <td>
-          <button class="btn btn-ghost btn-sm" onclick='viewUser("${r.userId}")'>View</button>
+          <button class="btn btn-ghost btn-sm" data-action="view" data-uid="${r.userId}">View</button>
           ${currentUser && ['management','owner'].includes(currentUser.accessLevel)
-            ? `<button class="btn btn-danger btn-sm" onclick="removeCase(${r.caseId})">Remove</button>` : ''}
+            ? `<button class="btn btn-danger btn-sm" data-action="remove" data-caseid="${r.caseId}">Remove</button>` : ''}
         </td>
       </tr>
     `;
@@ -199,7 +199,7 @@
 
       const actionsEl = document.getElementById("user-modal-actions");
       if (currentUser && ['management','owner'].includes(currentUser.accessLevel)) {
-        actionsEl.innerHTML = `<button class="btn btn-danger btn-sm" onclick="clearUser('${userId}')">Clear All</button>`;
+        actionsEl.innerHTML = `<button class="btn btn-danger btn-sm" data-action="clear" data-uid="${userId}">Clear All</button>`;
       }
     } catch (err) {
       document.getElementById("user-infraction-list").innerHTML = `<div class='empty-state'>${err.message}</div>`;
@@ -239,6 +239,20 @@
     if (e.key === "Enter") load(1, e.target.value.trim());
   });
 
+  // Event delegation for dynamically rendered View/Remove buttons in the table
+  document.getElementById("table-body").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    if (btn.dataset.action === "view")   viewUser(btn.dataset.uid);
+    if (btn.dataset.action === "remove") removeCase(Number(btn.dataset.caseid));
+  });
+
+  // Event delegation for Clear All button inside the user modal
+  document.getElementById("user-modal-actions").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action='clear']");
+    if (btn) clearUser(btn.dataset.uid);
+  });
+
   document.getElementById("add-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const alertEl = document.getElementById("add-alert");
@@ -258,6 +272,10 @@
       alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
     }
   });
+
+  window.viewUser = viewUser;
+  window.removeCase = removeCase;
+  window.clearUser = clearUser;
 
   init();
 </script>
