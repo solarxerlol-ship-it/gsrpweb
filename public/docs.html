@@ -649,6 +649,18 @@
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // Expose functions called from dynamically injected onclick attributes
+  window.saveDoc    = saveDoc;
+  window.cancelEdit = cancelEdit;
+  window.startEdit  = startEdit;
+  window.deleteDoc  = deleteDoc;
+  window.openDoc    = openDoc;
+  window.fmt        = fmt;
+  window.fmtBlock   = fmtBlock;
+  window.insertHr   = insertHr;
+  window.insertLink = insertLink;
+  window.insertCode = insertCode;
+
   init();
 </script>
 </body>
