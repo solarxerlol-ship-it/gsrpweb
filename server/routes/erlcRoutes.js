@@ -82,7 +82,8 @@ router.post("/command", requireAuth, requireLevel("management"), apiWriteLimiter
 
     res.json(result);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    const status = e.statusCode || 500;
+    res.status(status).json({ error: e.message });
   }
 });
 

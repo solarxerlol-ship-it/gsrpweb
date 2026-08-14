@@ -11,14 +11,38 @@ function headers() {
   return { "server-key": process.env.ERLC_SERVER_KEY };
 }
 
+/**
+ * Wraps an axios error so the real ERLC response body is surfaced.
+ * Attaches a `statusCode` property so callers can forward the right HTTP status.
+ */
+function wrapErlcError(err) {
+  if (err.response) {
+    // ERLC returned a response with an error status
+    const body    = err.response.data;
+    const message = (body && (body.message || body.error)) || `ERLC API error (${err.response.status})`;
+    const wrapped = new Error(message);
+    wrapped.statusCode = err.response.status;
+    wrapped.erlcBody   = body;
+    return wrapped;
+  }
+  // Network-level error (no response at all)
+  const wrapped = new Error(err.message || "Failed to reach ERLC API");
+  wrapped.statusCode = 502;
+  return wrapped;
+}
+
 async function getServer(opts = {}) {
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(opts)) {
     if (v) params.set(k, "true");
   }
   const query = params.toString() ? `?${params}` : "";
-  const res = await axios.get(`${BASE}/server${query}`, { headers: headers() });
-  return res.data;
+  try {
+    const res = await axios.get(`${BASE}/server${query}`, { headers: headers() });
+    return res.data;
+  } catch (err) {
+    throw wrapErlcError(err);
+  }
 }
 
 async function getPlayers() {
@@ -58,12 +82,16 @@ async function getEmergencyCalls() {
 }
 
 async function runCommand(command) {
-  const res = await axios.post(
-    `${BASE}/server/command`,
-    { command },
-    { headers: { ...headers(), "Content-Type": "application/json" } }
-  );
-  return res.data;
+  try {
+    const res = await axios.post(
+      `${BASE}/server/command`,
+      { command },
+      { headers: { ...headers(), "Content-Type": "application/json" } }
+    );
+    return res.data;
+  } catch (err) {
+    throw wrapErlcError(err);
+  }
 }
 
 module.exports = {
