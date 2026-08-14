@@ -61,7 +61,6 @@ a { color: inherit; text-decoration: none; }
 /* ── Layout ────────────────────────────────────────────────────────────────── */
 .app-layout {
   display: flex;
-  flex-direction: row-reverse;
   height: 100vh;
   overflow: hidden;
 }
@@ -70,8 +69,8 @@ a { color: inherit; text-decoration: none; }
 .sidebar {
   width: var(--sidebar-w);
   background: var(--bg-surface);
-  border-left: 1px solid var(--border);
-  border-right: none;
+  border-right: 1px solid var(--border);
+  border-left: none;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
