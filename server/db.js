@@ -63,6 +63,7 @@ const staffUserSchema = new mongoose.Schema({
   passwordHash:    String,
   generatedBy:     String,
   accessLevel:     { type: String, enum: ["owner","management","admin","moderator","staff"], default: "staff" },
+  roleLabel:       { type: String, default: "" },   // human label e.g. "Director", "Management Team"
   discordUsername: String,
   discordAvatar:   String,
   discordRoles:    [String],

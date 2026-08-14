@@ -27,32 +27,37 @@ async function getUser() {
   }
 }
 
-/* ── Nav definition — minLevel controls visibility per role ──────────────────*/
-// minLevel: minimum access level required to see this item
-// If omitted, all staff can see it.
+/* ── Nav definition ──────────────────────────────────────────────────────────
+ *
+ * minLevel: minimum access level required to see this item.
+ * Hierarchy (low→high): staff < moderator < admin < management < owner
+ *
+ *  staff      — Overview, Shifts, ERLC, LOA, Statistics
+ *  moderator  — + Infractions, Roster
+ *  admin      — + Promotions, Internal Affairs
+ *  management — + Announcements, Applications, Training, Audit Log, Settings
+ *  owner      — everything
+ *
+ * ─────────────────────────────────────────────────────────────────────────── */
 const NAV = [
-  // Main
-  { label: "Overview",      icon: "grid",       href: "/dashboard",     section: "main" },
-  { label: "Shifts",        icon: "clock",      href: "/shifts",        section: "main" },
-  { label: "Punishment Logs", icon: "shield",   href: "/infractions",   section: "main" },
-  { label: "ERLC Commands", icon: "zap",        href: "/erlc",          section: "main" },
-  { label: "Leave of Absence", icon: "calendar", href: "/loa",          section: "main" },
-  // Staff
-  { label: "Sessions",      icon: "monitor",    href: "/erlc",          section: "staff" },
-  { label: "Docs",          icon: "book",       href: "#",              section: "staff" },
-  { label: "Statistics",    icon: "bar-chart",  href: "/statistics",    section: "staff" },
-  { label: "Leaderboard",   icon: "award",      href: "/statistics",    section: "staff" },
-  // Management & above
-  { label: "Roster",        icon: "users",      href: "/roster",        section: "management", minLevel: "moderator" },
-  { label: "Infractions",   icon: "alert-circle", href: "/infractions", section: "management", minLevel: "moderator" },
-  { label: "Promotions",    icon: "arrow-up",   href: "/promotions",    section: "management", minLevel: "admin" },
-  { label: "Internal Affairs", icon: "eye",     href: "#",              section: "management", minLevel: "admin" },
-  { label: "Applications",  icon: "clipboard",  href: "#",              section: "management", minLevel: "management" },
-  { label: "Announcements", icon: "megaphone",  href: "/announcements", section: "management", minLevel: "management" },
-  { label: "Training",      icon: "book-open",  href: "#",              section: "management", minLevel: "management" },
-  { label: "Partners",      icon: "link",       href: "#",              section: "management", minLevel: "management" },
-  // Settings — management+
-  { label: "Settings",      icon: "settings",   href: "/settings",      section: "settings",   minLevel: "management" },
+  // ── All staff ──────────────────────────────────────────────────────────────
+  { label: "Overview",         icon: "grid",      href: "/dashboard"                       },
+  { label: "Shifts",           icon: "clock",     href: "/shifts"                          },
+  { label: "ERLC",             icon: "zap",       href: "/erlc"                            },
+  { label: "Leave of Absence", icon: "calendar",  href: "/loa"                             },
+  { label: "Statistics",       icon: "bar-chart", href: "/statistics"                      },
+  // ── Moderator+ ─────────────────────────────────────────────────────────────
+  { label: "Infractions",      icon: "shield",    href: "/infractions", minLevel: "moderator"  },
+  { label: "Roster",           icon: "users",     href: "/roster",      minLevel: "moderator"  },
+  // ── Admin+ ─────────────────────────────────────────────────────────────────
+  { label: "Promotions",       icon: "arrow-up",  href: "/promotions",  minLevel: "admin"      },
+  { label: "Internal Affairs", icon: "eye",       href: "#",            minLevel: "admin"      },
+  // ── Management+ ────────────────────────────────────────────────────────────
+  { label: "Announcements",    icon: "megaphone", href: "/announcements", minLevel: "management" },
+  { label: "Applications",     icon: "clipboard", href: "#",              minLevel: "management" },
+  { label: "Training",         icon: "book-open", href: "#",              minLevel: "management" },
+  { label: "Audit Log",        icon: "file-text", href: "/audit",         minLevel: "management" },
+  { label: "Settings",         icon: "settings",  href: "/settings",      minLevel: "management" },
 ];
 
 /* ── Icon SVGs ───────────────────────────────────────────────────────────────*/
@@ -85,18 +90,11 @@ function svgIcon(name) {
 
 /* ── Role color map ──────────────────────────────────────────────────────────*/
 const RANK_COLORS = {
-  owner:      "#ffd166",
-  management: "#ff4d6d",
+  owner:      "#f59e0b",
+  management: "#ef4444",
   admin:      "#8b5cf6",
   moderator:  "#4f6fff",
-  staff:      "#43e97b",
-};
-
-const SECTION_LABELS = {
-  main:       "Main",
-  staff:      "Staff",
-  management: "Management",
-  settings:   "Settings",
+  staff:      "#22c55e",
 };
 
 /* ── Sidebar render ──────────────────────────────────────────────────────────*/
@@ -108,26 +106,34 @@ async function renderSidebar() {
     ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=64`
     : `https://cdn.discordapp.com/embed/avatars/0.png`;
 
-  // Group visible nav items by section
-  const sections = {};
+  // Filter nav to what this role can see, then split into two sections:
+  // "General" (all staff) and "Management" (moderator+)
+  const general    = [];
+  const management = [];
+
   NAV.forEach(item => {
     if (item.minLevel && !hasLevel(user.accessLevel, item.minLevel)) return;
-    if (!sections[item.section]) sections[item.section] = [];
-    sections[item.section].push(item);
+    if (item.minLevel) {
+      management.push(item);
+    } else {
+      general.push(item);
+    }
   });
 
-  let navHtml = "";
-  for (const [key, items] of Object.entries(sections)) {
-    if (!items.length) continue;
-    navHtml += `<div class="nav-section-label">${SECTION_LABELS[key] || key}</div>`;
-    items.forEach(item => {
+  function renderItems(items) {
+    return items.map(item => {
       const active = window.location.pathname === item.href ? " active" : "";
-      navHtml += `
-        <a class="nav-item${active}" href="${item.href}">
-          ${svgIcon(item.icon)}
-          <span>${item.label}</span>
-        </a>`;
-    });
+      return `<a class="nav-item${active}" href="${item.href}">
+        ${svgIcon(item.icon)}
+        <span>${item.label}</span>
+      </a>`;
+    }).join("");
+  }
+
+  let navHtml = renderItems(general);
+  if (management.length) {
+    navHtml += `<div class="nav-section-label">Management</div>`;
+    navHtml += renderItems(management);
   }
 
   const sidebarEl = document.getElementById("sidebar");
@@ -153,12 +159,12 @@ async function renderSidebar() {
       <img
         class="sidebar-user-avatar"
         src="${avatarUrl}"
-        alt="Avatar"
+        alt=""
         onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'"
       >
       <div class="sidebar-user-info">
         <div class="sidebar-user-name truncate">${user.displayName}</div>
-        <div class="sidebar-user-rank" style="color:${RANK_COLORS[user.accessLevel] || '#4f6fff'}">${capitalize(user.accessLevel)}</div>
+        <div class="sidebar-user-rank" style="color:${RANK_COLORS[user.accessLevel] || '#4f6fff'}">${user.roleLabel || capitalize(user.accessLevel)}</div>
       </div>
     </div>
 

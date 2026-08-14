@@ -1,79 +1,45 @@
 /**
  * auth.js — Passport Discord OAuth2 setup + role resolution.
+ * Role definitions live in roles.js — edit that file to change access.
  */
 
 const passport = require("passport");
 const axios    = require("axios");
 const { StaffUser } = require("./db");
-
-// Role ID → access level map (read fresh from env each call so hot-reload works)
-const ROLE_MAP = () => ({
-  owner:      process.env.ROLE_OWNER,
-  management: process.env.ROLE_MANAGEMENT,
-  admin:      process.env.ROLE_ADMIN,
-  moderator:  process.env.ROLE_MODERATOR,
-  staff:      process.env.ROLE_STAFF,
-});
+const { resolveRole } = require("./roles");
 
 /**
- * Given an array of role ID strings, return the highest access level or null.
- * Checks from highest → lowest so an owner doesn't just get "staff".
- */
-function resolveAccessLevel(roleIds) {
-  const map = ROLE_MAP();
-
-  // Validate that role IDs are actually configured
-  const configured = Object.entries(map).filter(([, id]) => id && id.trim());
-  if (!configured.length) {
-    console.error("[Auth] No ROLE_* env vars are set — cannot resolve access level");
-    return null;
-  }
-
-  // Check highest → lowest
-  const order = ["owner", "management", "admin", "moderator", "staff"];
-  for (const level of order) {
-    const roleId = map[level];
-    if (roleId && roleIds.includes(roleId)) {
-      return level;
-    }
-  }
-  return null;
-}
-
-/**
- * Fetch the guild member's role IDs via the bot token.
- * Returns an empty array on failure with a clear console error.
+ * Fetch the Discord guild member object for a user.
+ * Returns their role ID array, or [] on any failure.
+ *
+ * @param {string} discordId
+ * @returns {Promise<string[]>}
  */
 async function getGuildRoles(discordId) {
   const guildId  = process.env.DISCORD_GUILD_ID;
   const botToken = process.env.DISCORD_BOT_TOKEN;
 
   if (!guildId || !botToken) {
-    console.error("[Auth] DISCORD_GUILD_ID or DISCORD_BOT_TOKEN not set — cannot fetch guild roles");
+    console.error("[Auth] DISCORD_GUILD_ID or DISCORD_BOT_TOKEN not set");
     return [];
   }
 
   try {
     const res = await axios.get(
       `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}`,
-      {
-        headers: { Authorization: `Bot ${botToken}` },
-        timeout: 5000,
-      }
+      { headers: { Authorization: `Bot ${botToken}` }, timeout: 6000 }
     );
     const roles = res.data.roles || [];
-    console.log(`[Auth] Fetched ${roles.length} roles for Discord user ${discordId}:`, roles);
+    console.log(`[Auth] ${discordId} has ${roles.length} roles: [${roles.join(", ")}]`);
     return roles;
   } catch (err) {
     const status = err.response?.status;
-    const body   = err.response?.data;
     if (status === 404) {
-      // User is not in the guild at all
-      console.warn(`[Auth] Discord user ${discordId} is not a member of guild ${guildId}`);
+      console.warn(`[Auth] User ${discordId} is not in guild ${guildId}`);
     } else if (status === 401 || status === 403) {
-      console.error(`[Auth] Bot token rejected by Discord (${status}) — check DISCORD_BOT_TOKEN`);
+      console.error(`[Auth] Bot token invalid (HTTP ${status}) — check DISCORD_BOT_TOKEN`);
     } else {
-      console.error(`[Auth] Failed to fetch guild roles for ${discordId}: HTTP ${status}`, body);
+      console.error(`[Auth] Guild member fetch failed (HTTP ${status}):`, err.response?.data || err.message);
     }
     return [];
   }
@@ -93,19 +59,17 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log(`[Auth] Discord OAuth callback for user: ${profile.username} (${profile.id})`);
+        console.log(`[Auth] OAuth callback: ${profile.username} (${profile.id})`);
 
-        const guildRoles  = await getGuildRoles(profile.id);
-        const accessLevel = resolveAccessLevel(guildRoles);
+        const guildRoles = await getGuildRoles(profile.id);
+        const resolved   = resolveRole(guildRoles);
 
-        if (!accessLevel) {
-          console.warn(`[Auth] No matching staff role found for ${profile.username} (${profile.id})`);
-          console.warn(`[Auth] Their roles: [${guildRoles.join(", ")}]`);
-          console.warn(`[Auth] Configured role IDs:`, ROLE_MAP());
+        if (!resolved) {
+          console.warn(`[Auth] No staff role for ${profile.username} — roles: [${guildRoles.join(", ")}]`);
           return done(null, false, { message: "no_staff_role" });
         }
 
-        console.log(`[Auth] Granting "${accessLevel}" access to ${profile.username}`);
+        console.log(`[Auth] ${profile.username} → level="${resolved.level}" label="${resolved.label}"`);
 
         const user = await StaffUser.findOneAndUpdate(
           { discordId: profile.id },
@@ -114,7 +78,8 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
             discordUsername: profile.username,
             discordAvatar:   profile.avatar,
             discordRoles:    guildRoles,
-            accessLevel,
+            accessLevel:     resolved.level,
+            roleLabel:       resolved.label,
             authMethod:      "discord",
             lastLogin:       Date.now(),
           },
@@ -143,4 +108,4 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-module.exports = { passport, resolveAccessLevel, getGuildRoles };
+module.exports = { passport, getGuildRoles, resolveRole };

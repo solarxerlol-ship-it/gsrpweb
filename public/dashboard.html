@@ -88,40 +88,7 @@
         <!-- Quick actions -->
         <div class="card">
           <div class="card-header"><span class="card-title">Quick Actions</span></div>
-          <div class="quick-actions">
-            <div class="quick-action" onclick="location.href='/infractions'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Log Punishment
-            </div>
-            <div class="quick-action" onclick="location.href='/infractions'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              View Logs
-            </div>
-            <div class="quick-action" onclick="location.href='/erlc'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              Sessions
-            </div>
-            <div class="quick-action" onclick="location.href='/roster'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              Staff Roster
-            </div>
-            <div class="quick-action" onclick="location.href='/loa'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              File LOA
-            </div>
-            <div class="quick-action" onclick="location.href='/promotions'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-              Promotions
-            </div>
-            <div class="quick-action" onclick="location.href='/statistics'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              Statistics
-            </div>
-            <div class="quick-action" onclick="location.href='/erlc'">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-              ERLC Commands
-            </div>
-          </div>
+          <div class="quick-actions" id="quick-actions"></div>
         </div>
       </div>
 
@@ -213,21 +180,65 @@
     document.getElementById("chip-name").textContent = user.displayName;
     const rankEl = document.getElementById("chip-rank");
     if (rankEl) {
-      rankEl.textContent = capitalize(user.accessLevel);
-      const colors = { owner:"#ffd166", management:"#ff4d6d", admin:"#8b5cf6", moderator:"#4f6fff", staff:"#43e97b" };
+      rankEl.textContent = user.roleLabel || capitalize(user.accessLevel);
+      const colors = { owner:"#f59e0b", management:"#ef4444", admin:"#8b5cf6", moderator:"#4f6fff", staff:"#22c55e" };
       rankEl.style.color = colors[user.accessLevel] || "#4f6fff";
     }
 
     // Profile card
     document.getElementById("profile-avatar").src = avatarUrl;
     document.getElementById("profile-name").textContent = user.displayName;
-    document.getElementById("profile-rank").textContent = capitalize(user.accessLevel);
+    document.getElementById("profile-rank").textContent = user.roleLabel || capitalize(user.accessLevel);
+    // Color the rank label
+    const colors = { owner:"#f59e0b", management:"#ef4444", admin:"#8b5cf6", moderator:"#4f6fff", staff:"#22c55e" };
+    const rankEl2 = document.getElementById("profile-rank");
+    if (rankEl2) rankEl2.style.color = colors[user.accessLevel] || "#4f6fff";
+
+    // Quick actions — filtered by role
+    buildQuickActions(user.accessLevel);
 
     loadStats();
     loadActiveShifts();
     loadTopHours();
     loadErlcFeed();
     loadShiftStatus();
+  }
+
+  // All possible quick actions with minLevel gate
+  const QUICK_ACTIONS = [
+    { label: "Log Punishment", href: "/infractions", minLevel: "moderator",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>` },
+    { label: "View Logs",      href: "/infractions", minLevel: "moderator",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>` },
+    { label: "Sessions",       href: "/erlc",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>` },
+    { label: "Staff Roster",   href: "/roster",      minLevel: "moderator",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>` },
+    { label: "File LOA",       href: "/loa",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>` },
+    { label: "Promotions",     href: "/promotions",  minLevel: "admin",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>` },
+    { label: "Statistics",     href: "/statistics",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>` },
+    { label: "Announcements",  href: "/announcements", minLevel: "management",
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>` },
+  ];
+
+  const LEVELS_ORDER = ["staff","moderator","admin","management","owner"];
+  function canAccess(userLevel, minLevel) {
+    if (!minLevel) return true;
+    return LEVELS_ORDER.indexOf(userLevel) >= LEVELS_ORDER.indexOf(minLevel);
+  }
+
+  function buildQuickActions(accessLevel) {
+    const el = document.getElementById("quick-actions");
+    const visible = QUICK_ACTIONS.filter(a => canAccess(accessLevel, a.minLevel));
+    el.innerHTML = visible.map(a => `
+      <div class="quick-action" onclick="location.href='${a.href}'">
+        ${a.icon}
+        ${a.label}
+      </div>
+    `).join("");
   }
 
   async function loadStats() {

@@ -1,10 +1,22 @@
 /**
- * infractions.js — REST API for infraction CRUD.
- * Saves to MongoDB AND posts a Discord embed via bot token.
- * Rank requirements: moderator+ to add/remove, management+ to clear all.
+ * infractions.js — Infraction CRUD API.
+ *
+ * When adding an infraction via the web portal, we:
+ *   1. Save to MongoDB
+ *   2. Post a Discord embed directly (discord.js)
+ *   3. Notify the bot via its internal webhook so it can run /infraction-add
+ *      logic (e.g. DM the user, post in the bot's own format)
+ *
+ * Access:
+ *   GET    /api/infractions          — moderator+
+ *   GET    /api/infractions/:userId  — any staff
+ *   POST   /api/infractions          — moderator+  (add)
+ *   DELETE /api/infractions/:caseId  — moderator+  (remove one)
+ *   DELETE /api/infractions/user/:userId/clear — management+ (clear all)
  */
 
 const express = require("express");
+const axios   = require("axios");
 const router  = express.Router();
 const { Infraction, AuditLog } = require("../db");
 const { requireAuth, requireLevel, apiWriteLimiter } = require("../middleware");
@@ -14,13 +26,39 @@ const {
   logInfractionsClearedToDiscord,
 } = require("../discord");
 
-// ── GET /api/infractions (all, paginated) — must come before /:userId ─────────
+// ── Notify bot to run /infraction-add equivalent ──────────────────────────────
+// The bot exposes a tiny internal HTTP endpoint on PORTAL_BOT_URL.
+// Fire-and-forget — a bot being offline never blocks the web portal.
+async function notifyBot(payload) {
+  const botUrl = process.env.PORTAL_BOT_URL;
+  const secret = process.env.PORTAL_INTERNAL_SECRET;
+  if (!botUrl || !secret) return; // bot webhook not configured — skip silently
+
+  try {
+    await axios.post(`${botUrl}/internal/infraction`, payload, {
+      headers: {
+        "x-portal-secret": secret,
+        "Content-Type": "application/json",
+      },
+      timeout: 4000,
+    });
+    console.log(`[Infractions] Bot notified for case #${payload.caseId}`);
+  } catch (err) {
+    // Bot offline or misconfigured — log and move on
+    console.warn(`[Infractions] Bot notify failed (case #${payload.caseId}):`, err.message);
+  }
+}
+
+// ── GET /api/infractions — paginated list, moderator+ ─────────────────────────
 router.get("/", requireAuth, requireLevel("moderator"), async (req, res) => {
   try {
-    const page  = parseInt(req.query.page)  || 1;
-    const limit = parseInt(req.query.limit) || 25;
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 25);
     const query = req.query.search
-      ? { $or: [{ userId: req.query.search }, { reason: { $regex: req.query.search, $options: "i" } }] }
+      ? { $or: [
+          { userId: req.query.search },
+          { reason: { $regex: req.query.search, $options: "i" } },
+        ]}
       : {};
     const [records, total] = await Promise.all([
       Infraction.find(query).sort({ timestamp: -1 }).skip((page - 1) * limit).limit(limit).lean(),
@@ -32,7 +70,7 @@ router.get("/", requireAuth, requireLevel("moderator"), async (req, res) => {
   }
 });
 
-// ── GET /api/infractions/:userId ──────────────────────────────────────────────
+// ── GET /api/infractions/:userId — any staff can look up a user ───────────────
 router.get("/:userId", requireAuth, async (req, res) => {
   try {
     const records = await Infraction.find({ userId: req.params.userId })
@@ -43,20 +81,20 @@ router.get("/:userId", requireAuth, async (req, res) => {
   }
 });
 
-// ── POST /api/infractions ─────────────────────────────────────────────────────
+// ── POST /api/infractions — add infraction, moderator+ ────────────────────────
 router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async (req, res) => {
   try {
     const { userId, type, reason, description } = req.body;
-    if (!userId || !type || !reason) {
+    if (!userId || !type || !reason)
       return res.status(400).json({ error: "userId, type, and reason are required." });
-    }
 
-    const count  = await Infraction.countDocuments();
-    const caseId = count + 1;
     const actor  = req.session.user;
+    const caseId = (await Infraction.countDocuments()) + 1;
 
     const record = await Infraction.create({
-      userId, type, reason,
+      userId,
+      type:        type.toUpperCase(),
+      reason,
       description: description || "",
       moderator:   actor.discordId || actor.displayName,
       caseId,
@@ -64,7 +102,7 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
       timestamp:   Date.now(),
     });
 
-    // ── Log to audit DB ───────────────────────────────────────────────────────
+    // ── Audit log ─────────────────────────────────────────────────────────────
     await AuditLog.create({
       actorId:   actor.discordId,
       actorName: actor.displayName,
@@ -73,26 +111,29 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
       details:   { type, reason, caseId },
     });
 
-    // ── Post Discord embed ────────────────────────────────────────────────────
-    // Fire-and-forget — don't await so a Discord issue never delays the response
-    logInfractionToDiscord({
+    const botPayload = {
       caseId,
       userId,
-      type,
+      type:          type.toUpperCase(),
       reason,
-      description,
+      description:   description || "",
       moderatorId:   actor.discordId,
       moderatorName: actor.displayName,
-    });
+    };
+
+    // ── Fire both Discord embed + bot notify concurrently (don't await) ───────
+    logInfractionToDiscord(botPayload);
+    notifyBot(botPayload);
 
     res.json(record.toObject());
   } catch (err) {
+    console.error("[Infractions] POST error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── DELETE /api/infractions/user/:userId/clear ───────────────────────────────
-// Must be registered before /:caseId so the path doesn't get swallowed
+// ── DELETE /api/infractions/user/:userId/clear — management+ ─────────────────
+// Must be registered BEFORE /:caseId so the path isn't swallowed
 router.delete("/user/:userId/clear", requireAuth, requireLevel("management"), apiWriteLimiter, async (req, res) => {
   try {
     const actor = req.session.user;
@@ -118,7 +159,7 @@ router.delete("/user/:userId/clear", requireAuth, requireLevel("management"), ap
   }
 });
 
-// ── DELETE /api/infractions/:caseId ──────────────────────────────────────────
+// ── DELETE /api/infractions/:caseId — moderator+ ─────────────────────────────
 router.delete("/:caseId", requireAuth, requireLevel("moderator"), apiWriteLimiter, async (req, res) => {
   try {
     const caseId = parseInt(req.params.caseId);
