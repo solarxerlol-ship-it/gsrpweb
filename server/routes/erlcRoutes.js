@@ -27,7 +27,12 @@ router.get("/server-public", async (req, res) => {
       Queue:          Array.isArray(data.Queue) ? data.Queue.length : (data.Queue ?? 0),
       JoinKey:        data.JoinKey ? true : false,
       Players:        Array.isArray(data.Players)
-        ? data.Players.map(p => ({ Team: p.Team, Callsign: p.Callsign, Player: p.Player?.split(':')[0] }))
+        ? data.Players.map(p => ({
+            Team:       p.Team,
+            Callsign:   p.Callsign,
+            Player:     p.Player?.split(':')[0],
+            Permission: p.Permission,
+          }))
         : [],
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
