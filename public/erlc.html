@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERLC — GSSRP Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">ERLC Integration</span>
+      <div class="topbar-right">
+        <span id="server-status" class="badge badge-gray">Connecting...</span>
+        <button class="btn btn-ghost btn-sm" id="refresh-btn">↻ Refresh</button>
+      </div>
+    </header>
+    <div class="content">
+
+      <!-- Server stats -->
+      <div class="stats-grid mb-16">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div><div class="stat-value" id="s-players">—</div><div class="stat-label">Players</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </div>
+          <div><div class="stat-value" id="s-queue">—</div><div class="stat-label">Queue</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 9.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8 7.91a16 16 0 0 0 6.07 6.07l.79-.79a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div><div class="stat-value" id="s-modcalls">—</div><div class="stat-label">Mod Calls</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div><div class="stat-value" id="s-emergency">—</div><div class="stat-label">Emergency Calls</div></div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="players">Players</div>
+        <div class="tab" data-tab="staff">Staff</div>
+        <div class="tab" data-tab="vehicles">Vehicles</div>
+        <div class="tab" data-tab="killlogs">Kill Logs</div>
+        <div class="tab" data-tab="cmdlogs">Command Logs</div>
+        <div class="tab" data-tab="joinlogs">Join Logs</div>
+        <div class="tab" data-tab="commands" id="tab-commands">Run Command</div>
+      </div>
+
+      <!-- Players -->
+      <div class="tab-panel active" id="panel-players">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Player</th><th>Team</th><th>Callsign</th><th>Location</th><th>Permission</th><th>Wanted</th></tr></thead>
+              <tbody id="t-players"><tr><td colspan="6" class="empty-state">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Staff -->
+      <div class="tab-panel" id="panel-staff" style="display:none;">
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Admins</span></div>
+            <div id="staff-admins" class="empty-state">Loading...</div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Moderators</span></div>
+            <div id="staff-mods" class="empty-state">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vehicles -->
+      <div class="tab-panel" id="panel-vehicles" style="display:none;">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Vehicle</th><th>Owner</th><th>Plate</th><th>Livery</th><th>Color</th></tr></thead>
+              <tbody id="t-vehicles"><tr><td colspan="5" class="empty-state">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kill logs -->
+      <div class="tab-panel" id="panel-killlogs" style="display:none;">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Killer</th><th>Victim</th><th>Time</th></tr></thead>
+              <tbody id="t-kills"><tr><td colspan="3" class="empty-state">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Command logs -->
+      <div class="tab-panel" id="panel-cmdlogs" style="display:none;">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Player</th><th>Command</th><th>Time</th></tr></thead>
+              <tbody id="t-cmds"><tr><td colspan="3" class="empty-state">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Join logs -->
+      <div class="tab-panel" id="panel-joinlogs" style="display:none;">
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Player</th><th>Action</th><th>Time</th></tr></thead>
+              <tbody id="t-joins"><tr><td colspan="3" class="empty-state">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Run command -->
+      <div class="tab-panel" id="panel-commands" style="display:none;">
+        <div class="card" style="max-width:600px;">
+          <div class="card-header"><span class="card-title">Run In-Game Command</span></div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+            Runs a command as virtual server management. Requires management access.
+          </p>
+          <div id="cmd-alert"></div>
+          <div style="display:flex;gap:8px;">
+            <input class="form-input" id="cmd-input" placeholder=":h Hello everyone!" style="font-family:monospace;">
+            <button class="btn btn-primary" id="cmd-run">Run</button>
+          </div>
+          <div style="margin-top:12px;" id="cmd-history"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  const cmdHistory = [];
+
+  async function init() {
+    const user = await getUser();
+    await renderSidebar();
+
+    // Hide run command tab if not management+
+    if (!['management','owner'].includes(user?.accessLevel)) {
+      document.getElementById("tab-commands")?.remove();
+    }
+
+    setupTabs();
+    loadAll();
+  }
+
+  function setupTabs() {
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(p => p.style.display = "none");
+        tab.classList.add("active");
+        document.getElementById(`panel-${tab.dataset.tab}`).style.display = "";
+      });
+    });
+  }
+
+  async function loadAll() {
+    loadServer();
+    loadPlayers();
+    loadStaff();
+    loadVehicles();
+    loadKillLogs();
+    loadCmdLogs();
+    loadJoinLogs();
+  }
+
+  async function loadServer() {
+    try {
+      const s = await api("GET", "/api/erlc/server");
+      document.getElementById("server-status").textContent  = s.Name || "Online";
+      document.getElementById("server-status").className    = "badge badge-green";
+      document.getElementById("s-players").textContent      = `${s.CurrentPlayers}/${s.MaxPlayers}`;
+    } catch {
+      document.getElementById("server-status").textContent = "Offline";
+      document.getElementById("server-status").className   = "badge badge-red";
+    }
+
+    try {
+      const [q, mc, ec] = await Promise.all([
+        api("GET", "/api/erlc/queue"),
+        api("GET", "/api/erlc/mod-calls"),
+        api("GET", "/api/erlc/emergency-calls"),
+      ]);
+      document.getElementById("s-queue").textContent     = q.length;
+      document.getElementById("s-modcalls").textContent  = mc.length;
+      document.getElementById("s-emergency").textContent = ec.length;
+    } catch {}
+  }
+
+  async function loadPlayers() {
+    try {
+      const players = await api("GET", "/api/erlc/players");
+      const tbody = document.getElementById("t-players");
+      if (!players.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No players in server.</td></tr>'; return; }
+      tbody.innerHTML = players.map(p => {
+        const [name] = (p.Player || "Unknown:0").split(":");
+        const loc = p.Location ? `${p.Location.StreetName || ""} ${p.Location.PostalCode || ""}`.trim() : "—";
+        const permBadge = p.Permission !== "Normal"
+          ? `<span class="badge badge-yellow">${p.Permission}</span>` : "";
+        return `<tr>
+          <td>${name}</td>
+          <td>${p.Team || "—"}</td>
+          <td class="mono">${p.Callsign || "—"}</td>
+          <td class="text-muted" style="font-size:12px;">${loc}</td>
+          <td>${permBadge || '<span class="text-muted">Normal</span>'}</td>
+          <td>${p.WantedStars ? '⭐'.repeat(Math.min(p.WantedStars,5)) : '—'}</td>
+        </tr>`;
+      }).join("");
+    } catch (err) {
+      document.getElementById("t-players").innerHTML = `<tr><td colspan="6" class="empty-state">${err.message}</td></tr>`;
+    }
+  }
+
+  async function loadStaff() {
+    try {
+      const staff = await api("GET", "/api/erlc/staff");
+      renderStaffList("staff-admins", staff.Admins || {});
+      renderStaffList("staff-mods",   staff.Mods   || {});
+    } catch {}
+  }
+
+  function renderStaffList(id, obj) {
+    const el = document.getElementById(id);
+    const entries = Object.entries(obj);
+    if (!entries.length) { el.innerHTML = '<div class="empty-state">None in server.</div>'; return; }
+    el.innerHTML = entries.map(([rid, name]) => `
+      <div class="feed-item">
+        <div class="feed-dot green"></div>
+        <span>${name}</span>
+        <span class="text-muted feed-time mono">${rid}</span>
+      </div>
+    `).join("");
+  }
+
+  async function loadVehicles() {
+    try {
+      const v = await api("GET", "/api/erlc/vehicles");
+      const tbody = document.getElementById("t-vehicles");
+      if (!v.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No vehicles.</td></tr>'; return; }
+      tbody.innerHTML = v.map(veh => `
+        <tr>
+          <td>${veh.Name || "—"}</td>
+          <td>${veh.Owner || "—"}</td>
+          <td class="mono">${veh.Plate || "—"}</td>
+          <td>${veh.Texture || "—"}</td>
+          <td>
+            ${veh.ColorHex ? `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:2px;background:${veh.ColorHex};display:inline-block;"></span>${veh.ColorName || veh.ColorHex}</span>` : "—"}
+          </td>
+        </tr>
+      `).join("");
+    } catch {}
+  }
+
+  async function loadKillLogs() {
+    try {
+      const logs = await api("GET", "/api/erlc/kill-logs");
+      const tbody = document.getElementById("t-kills");
+      if (!logs.length) { tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No kill logs.</td></tr>'; return; }
+      tbody.innerHTML = logs.slice(-50).reverse().map(l => {
+        const killer = (l.Killer||"").split(":")[0];
+        const killed = (l.Killed||"").split(":")[0];
+        return `<tr><td>${killer}</td><td>${killed}</td><td class="text-muted">${formatTime(l.Timestamp*1000)}</td></tr>`;
+      }).join("");
+    } catch {}
+  }
+
+  async function loadCmdLogs() {
+    try {
+      const logs = await api("GET", "/api/erlc/command-logs");
+      const tbody = document.getElementById("t-cmds");
+      if (!logs.length) { tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No command logs.</td></tr>'; return; }
+      tbody.innerHTML = logs.slice(-50).reverse().map(l => {
+        const player = (l.Player||"").split(":")[0];
+        return `<tr><td>${player}</td><td class="mono" style="font-size:12px;">${l.Command}</td><td class="text-muted">${formatTime(l.Timestamp*1000)}</td></tr>`;
+      }).join("");
+    } catch {}
+  }
+
+  async function loadJoinLogs() {
+    try {
+      const logs = await api("GET", "/api/erlc/join-logs");
+      const tbody = document.getElementById("t-joins");
+      if (!logs.length) { tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No join logs.</td></tr>'; return; }
+      tbody.innerHTML = logs.slice(-50).reverse().map(l => {
+        const player = (l.Player||"").split(":")[0];
+        return `<tr>
+          <td>${player}</td>
+          <td><span class="badge ${l.Join ? 'badge-green' : 'badge-red'}">${l.Join ? 'Joined' : 'Left'}</span></td>
+          <td class="text-muted">${formatTime(l.Timestamp*1000)}</td>
+        </tr>`;
+      }).join("");
+    } catch {}
+  }
+
+  document.getElementById("cmd-run")?.addEventListener("click", async () => {
+    const input = document.getElementById("cmd-input");
+    const cmd   = input.value.trim();
+    const alertEl = document.getElementById("cmd-alert");
+    if (!cmd) return;
+    try {
+      await api("POST", "/api/erlc/command", { command: cmd });
+      cmdHistory.unshift({ cmd, ts: Date.now(), ok: true });
+      input.value = "";
+      alertEl.innerHTML = "";
+      showToast("Command executed.");
+      renderCmdHistory();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  function renderCmdHistory() {
+    const el = document.getElementById("cmd-history");
+    if (!cmdHistory.length) { el.innerHTML = ""; return; }
+    el.innerHTML = `
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Recent</div>
+      ${cmdHistory.slice(0,6).map(h => `
+        <div class="feed-item">
+          <div class="feed-dot ${h.ok ? 'green' : 'red'}"></div>
+          <span class="mono" style="font-size:12px;">${h.cmd}</span>
+          <span class="feed-time">${timeAgo(h.ts)}</span>
+        </div>
+      `).join("")}
+    `;
+  }
+
+  document.getElementById("refresh-btn").addEventListener("click", loadAll);
+
+  init();
+</script>
+</body>
+</html>

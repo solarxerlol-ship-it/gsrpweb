@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — GSSRP Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Settings</span>
+    </header>
+    <div class="content">
+      <div style="max-width:600px;">
+
+        <!-- Profile -->
+        <div class="card mb-16">
+          <div class="card-header"><span class="card-title">My Profile</span></div>
+          <div id="profile-info"><div class="empty-state">Loading...</div></div>
+        </div>
+
+        <!-- Access info -->
+        <div class="card mb-16">
+          <div class="card-header"><span class="card-title">Access Information</span></div>
+          <div id="access-info"><div class="empty-state">Loading...</div></div>
+        </div>
+
+        <!-- Change password (password-login users only) -->
+        <div class="card" id="pw-card" style="display:none;">
+          <div class="card-header"><span class="card-title">Change Password</span></div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+            If you want to reset your password, ask management to run the bot command.
+          </p>
+          <div class="alert alert-info">
+            Password resets are done by management via <span class="mono">/password gen</span> in Discord.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  const RANK_COLORS = { owner:"#fee75c", management:"#ed4245", admin:"#9b59b6", moderator:"#5865f2", staff:"#57f287" };
+
+  async function init() {
+    await renderSidebar();
+    const user = await getUser();
+    if (!user) return;
+
+    const avatarUrl = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=128`
+      : `https://cdn.discordapp.com/embed/avatars/0.png`;
+
+    document.getElementById("profile-info").innerHTML = `
+      <div style="display:flex;align-items:center;gap:16px;">
+        <img src="${avatarUrl}" style="width:56px;height:56px;border-radius:50%;background:var(--bg-hover);" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" alt="">
+        <div>
+          <div style="font-size:16px;font-weight:700;">${user.displayName}</div>
+          <div style="font-size:12px;color:var(--text-muted);">Auth: ${user.authMethod === 'discord' ? 'Discord OAuth' : 'Password Login'}</div>
+          ${user.discordId ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Discord ID: ${user.discordId}</div>` : ''}
+        </div>
+      </div>
+    `;
+
+    const rankColor = RANK_COLORS[user.accessLevel] || "#aaa";
+    document.getElementById("access-info").innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span class="text-muted">Access Level</span>
+        <span style="font-weight:700;color:${rankColor};">${capitalize(user.accessLevel)}</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+        <span class="text-muted">Portal Access</span>
+        <span>${getAccessDescription(user.accessLevel)}</span>
+      </div>
+    `;
+
+    if (user.authMethod === "password") {
+      document.getElementById("pw-card").style.display = "";
+    }
+  }
+
+  function getAccessDescription(level) {
+    const map = {
+      owner:      "Full access — all features + ownership controls",
+      management: "Management — all features + generate passwords",
+      admin:      "Admin — log promotions, approve LOAs, view audit",
+      moderator:  "Moderator — log infractions, view all shifts",
+      staff:      "Staff — basic access, shifts, LOAs",
+    };
+    return map[level] || "Unknown";
+  }
+
+  init();
+</script>
+</body>
+</html>

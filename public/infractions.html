@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infractions — GSSRP Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Infractions</span>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="add-btn">+ Add Infraction</button>
+      </div>
+    </header>
+    <div class="content">
+      <!-- Search bar -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <input class="form-input" id="search-input" placeholder="Search by User ID or reason..." style="max-width:340px;">
+        <button class="btn btn-ghost" id="search-btn">Search</button>
+        <button class="btn btn-ghost" id="clear-btn">Clear</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Case</th>
+                <th>User ID</th>
+                <th>Type</th>
+                <th>Reason</th>
+                <th>Moderator</th>
+                <th>Date</th>
+                <th>Source</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr><td colspan="8" class="empty-state">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Infraction Modal -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Infraction</span>
+      <button class="modal-close" onclick="closeModal('modal-add')">&times;</button>
+    </div>
+    <div id="add-alert"></div>
+    <form id="add-form">
+      <div class="form-group">
+        <label class="form-label">Discord User ID</label>
+        <input class="form-input" id="a-userid" placeholder="123456789012345678" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="a-type">
+          <option value="verbal">Verbal Warning</option>
+          <option value="warn">Warning</option>
+          <option value="strike">Strike</option>
+          <option value="mute">Mute</option>
+          <option value="kick">Kick</option>
+          <option value="ban">Ban</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason</label>
+        <input class="form-input" id="a-reason" placeholder="Reason" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <textarea class="form-textarea" id="a-desc" placeholder="Additional details..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-add')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Add</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- View User Infractions Modal -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title" id="user-modal-title">User Infractions</span>
+      <button class="modal-close" onclick="closeModal('modal-user')">&times;</button>
+    </div>
+    <div id="user-infraction-list"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end;" id="user-modal-actions"></div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  const TYPE_COLORS = {
+    verbal: "gray", warn: "yellow", strike: "yellow",
+    mute: "blue", kick: "purple", ban: "red",
+  };
+
+  let currentPage = 1;
+  let currentSearch = "";
+  let currentUser = null;
+
+  async function init() {
+    await renderSidebar();
+    currentUser = await getUser();
+    load(1);
+  }
+
+  async function load(page, search = "") {
+    currentPage  = page;
+    currentSearch = search;
+    const params = new URLSearchParams({ page, limit: 25 });
+    if (search) params.set("search", search);
+    try {
+      const data = await api("GET", `/api/infractions?${params}`);
+      renderTable(data.records);
+      renderPagination(data.page, data.pages);
+    } catch (err) {
+      document.getElementById("table-body").innerHTML =
+        `<tr><td colspan="8" class="empty-state">${err.message}</td></tr>`;
+    }
+  }
+
+  function renderTable(records) {
+    const tbody = document.getElementById("table-body");
+    if (!records.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No infractions found.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = records.map(r => `
+      <tr>
+        <td><span class="mono text-muted">#${r.caseId}</span></td>
+        <td><span class="mono">${r.userId}</span></td>
+        <td><span class="badge badge-${TYPE_COLORS[r.type] || 'gray'}">${r.type}</span></td>
+        <td class="truncate" style="max-width:200px;">${r.reason}</td>
+        <td class="text-muted">${r.moderator || "—"}</td>
+        <td class="text-muted">${formatDate(r.timestamp)}</td>
+        <td><span class="badge ${r.source === 'web' ? 'badge-blue' : 'badge-gray'}">${r.source || 'bot'}</span></td>
+        <td>
+          <button class="btn btn-ghost btn-sm" onclick='viewUser("${r.userId}")'>View</button>
+          ${currentUser && ['management','owner'].includes(currentUser.accessLevel)
+            ? `<button class="btn btn-danger btn-sm" onclick="removeCase(${r.caseId})">Remove</button>` : ''}
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  function renderPagination(page, pages) {
+    const el = document.getElementById("pagination");
+    if (pages <= 1) { el.innerHTML = ""; return; }
+    let html = "";
+    for (let i = 1; i <= pages; i++) {
+      html += `<button class="page-btn${i === page ? " active" : ""}" onclick="load(${i},'${currentSearch}')">${i}</button>`;
+    }
+    el.innerHTML = html;
+  }
+
+  async function viewUser(userId) {
+    document.getElementById("user-modal-title").textContent = `Infractions — ${userId}`;
+    document.getElementById("user-infraction-list").innerHTML = "<div class='empty-state'>Loading...</div>";
+    openModal("modal-user");
+    try {
+      const records = await api("GET", `/api/infractions/${userId}`);
+      if (!records.length) {
+        document.getElementById("user-infraction-list").innerHTML = "<div class='empty-state'>No infractions for this user.</div>";
+        return;
+      }
+      document.getElementById("user-infraction-list").innerHTML = records.map(r => `
+        <div style="padding:10px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;">
+          <span class="badge badge-${TYPE_COLORS[r.type] || 'gray'}" style="flex-shrink:0;">${r.type}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;">${r.reason}</div>
+            ${r.description ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${r.description}</div>` : ""}
+          </div>
+          <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;">${formatDate(r.timestamp)}</span>
+        </div>
+      `).join("");
+
+      const actionsEl = document.getElementById("user-modal-actions");
+      if (currentUser && ['management','owner'].includes(currentUser.accessLevel)) {
+        actionsEl.innerHTML = `<button class="btn btn-danger btn-sm" onclick="clearUser('${userId}')">Clear All</button>`;
+      }
+    } catch (err) {
+      document.getElementById("user-infraction-list").innerHTML = `<div class='empty-state'>${err.message}</div>`;
+    }
+  }
+
+  async function removeCase(caseId) {
+    if (!confirm(`Remove case #${caseId}?`)) return;
+    try {
+      await api("DELETE", `/api/infractions/${caseId}`);
+      showToast("Case removed.");
+      load(currentPage, currentSearch);
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  async function clearUser(userId) {
+    if (!confirm(`Clear ALL infractions for ${userId}? This cannot be undone.`)) return;
+    try {
+      await api("DELETE", `/api/infractions/user/${userId}/clear`);
+      closeModal("modal-user");
+      showToast("Infractions cleared.");
+      load(currentPage, currentSearch);
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  document.getElementById("add-btn").addEventListener("click", () => openModal("modal-add"));
+  document.getElementById("search-btn").addEventListener("click", () => load(1, document.getElementById("search-input").value.trim()));
+  document.getElementById("clear-btn").addEventListener("click", () => {
+    document.getElementById("search-input").value = "";
+    load(1, "");
+  });
+  document.getElementById("search-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") load(1, e.target.value.trim());
+  });
+
+  document.getElementById("add-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById("add-alert");
+    alertEl.innerHTML = "";
+    try {
+      await api("POST", "/api/infractions", {
+        userId:      document.getElementById("a-userid").value.trim(),
+        type:        document.getElementById("a-type").value,
+        reason:      document.getElementById("a-reason").value.trim(),
+        description: document.getElementById("a-desc").value.trim(),
+      });
+      closeModal("modal-add");
+      e.target.reset();
+      showToast("Infraction added.");
+      load(currentPage, currentSearch);
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

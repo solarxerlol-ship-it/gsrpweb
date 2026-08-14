@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Announcements — GSSRP Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Announcements</span>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="post-btn" style="display:none;">+ Post</button>
+      </div>
+    </header>
+    <div class="content">
+      <div id="announcements-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Post Modal -->
+<div class="modal-overlay" id="modal-post">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">Post Announcement</span>
+      <button class="modal-close" onclick="closeModal('modal-post')">&times;</button>
+    </div>
+    <div id="post-alert"></div>
+    <form id="post-form">
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input class="form-input" id="a-title" placeholder="Announcement title" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Content</label>
+        <textarea class="form-textarea" id="a-content" placeholder="Announcement content..." style="min-height:120px;" required></textarea>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+        <input type="checkbox" id="a-pinned"> Pin announcement
+      </label>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-post')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Post</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  let currentUser = null;
+
+  async function init() {
+    await renderSidebar();
+    currentUser = await getUser();
+    if (['management','owner'].includes(currentUser?.accessLevel)) {
+      document.getElementById("post-btn").style.display = "";
+    }
+    load();
+  }
+
+  async function load() {
+    const el = document.getElementById("announcements-list");
+    try {
+      const items = await api("GET", "/api/announcements");
+      if (!items.length) {
+        el.innerHTML = '<div class="empty-state" style="padding:60px;">No announcements yet.</div>';
+        return;
+      }
+      el.innerHTML = items.map(a => `
+        <div class="card mb-16" style="${a.pinned ? 'border-color:var(--accent);' : ''}">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div>
+              ${a.pinned ? '<span class="badge badge-blue" style="margin-bottom:8px;">📌 Pinned</span>' : ''}
+              <h3 style="font-size:16px;font-weight:700;margin-bottom:6px;">${a.title}</h3>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+                Posted by <strong>${a.authorName || "Unknown"}</strong> · ${formatDate(a.createdAt)}
+              </div>
+              <div style="font-size:14px;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;">${a.content}</div>
+            </div>
+            ${currentUser && ['management','owner'].includes(currentUser.accessLevel)
+              ? `<button class="btn btn-danger btn-sm" onclick="deleteAnnouncement('${a._id}')">Delete</button>` : ''}
+          </div>
+        </div>
+      `).join("");
+    } catch (err) {
+      el.innerHTML = `<div class="empty-state">${err.message}</div>`;
+    }
+  }
+
+  async function deleteAnnouncement(id) {
+    if (!confirm("Delete this announcement?")) return;
+    try {
+      await api("DELETE", `/api/announcements/${id}`);
+      showToast("Announcement deleted.");
+      load();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  document.getElementById("post-btn").addEventListener("click", () => openModal("modal-post"));
+
+  document.getElementById("post-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById("post-alert");
+    alertEl.innerHTML = "";
+    try {
+      await api("POST", "/api/announcements", {
+        title:   document.getElementById("a-title").value.trim(),
+        content: document.getElementById("a-content").value.trim(),
+        pinned:  document.getElementById("a-pinned").checked,
+      });
+      closeModal("modal-post");
+      e.target.reset();
+      showToast("Announcement posted.");
+      load();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

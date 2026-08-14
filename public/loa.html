@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leave of Absence — GSSRP Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Leave of Absence</span>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="file-btn">+ File LOA</button>
+      </div>
+    </header>
+    <div class="content">
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Staff</th>
+                <th>Reason</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Status</th>
+                <th id="actions-header"></th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr><td colspan="6" class="empty-state">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- File LOA Modal -->
+<div class="modal-overlay" id="modal-loa">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">File Leave of Absence</span>
+      <button class="modal-close" onclick="closeModal('modal-loa')">&times;</button>
+    </div>
+    <div id="loa-alert"></div>
+    <form id="loa-form">
+      <div class="form-group">
+        <label class="form-label">Reason</label>
+        <textarea class="form-textarea" id="l-reason" placeholder="Reason for your leave..." required></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Start Date</label>
+          <input class="form-input" id="l-start" type="date" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Date</label>
+          <input class="form-input" id="l-end" type="date" required>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-loa')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  const STATUS_COLORS = { pending: "yellow", approved: "green", denied: "red", expired: "gray" };
+  let currentUser = null;
+
+  async function init() {
+    await renderSidebar();
+    currentUser = await getUser();
+    if (['admin','management','owner'].includes(currentUser?.accessLevel)) {
+      document.getElementById("actions-header").textContent = "Actions";
+    }
+    load();
+  }
+
+  async function load() {
+    try {
+      const loas = await api("GET", "/api/staff/loa/all");
+      const tbody = document.getElementById("table-body");
+      if (!loas.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No LOAs filed.</td></tr>'; return; }
+      tbody.innerHTML = loas.map(l => {
+        const canApprove = ['admin','management','owner'].includes(currentUser?.accessLevel);
+        const actions = canApprove && l.status === "pending" ? `
+          <td style="display:flex;gap:6px;">
+            <button class="btn btn-success btn-sm" onclick="setStatus('${l._id}','approved')">Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="setStatus('${l._id}','denied')">Deny</button>
+          </td>` : `<td></td>`;
+        return `<tr>
+          <td>${l.username || l.discordId || "—"}</td>
+          <td class="truncate" style="max-width:200px;">${l.reason}</td>
+          <td class="text-muted">${formatDate(l.startDate)}</td>
+          <td class="text-muted">${formatDate(l.endDate)}</td>
+          <td><span class="badge badge-${STATUS_COLORS[l.status]||'gray'}">${l.status}</span></td>
+          ${actions}
+        </tr>`;
+      }).join("");
+    } catch (err) {
+      document.getElementById("table-body").innerHTML = `<tr><td colspan="6" class="empty-state">${err.message}</td></tr>`;
+    }
+  }
+
+  async function setStatus(id, status) {
+    try {
+      await api("PATCH", `/api/staff/loa/${id}`, { status });
+      showToast(`LOA ${status}.`);
+      load();
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  }
+
+  document.getElementById("file-btn").addEventListener("click", () => openModal("modal-loa"));
+
+  document.getElementById("loa-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById("loa-alert");
+    alertEl.innerHTML = "";
+    const start = new Date(document.getElementById("l-start").value).getTime();
+    const end   = new Date(document.getElementById("l-end").value).getTime();
+    if (end <= start) {
+      alertEl.innerHTML = '<div class="alert alert-error show">End date must be after start date.</div>';
+      return;
+    }
+    try {
+      await api("POST", "/api/staff/loa", {
+        reason:    document.getElementById("l-reason").value.trim(),
+        startDate: start,
+        endDate:   end,
+      });
+      closeModal("modal-loa");
+      e.target.reset();
+      showToast("LOA submitted.");
+      load();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overview — GSSRP Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Overview</span>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="log-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Log Punishment
+        </button>
+        <div id="user-chip" style="display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 12px 5px 8px;">
+          <img id="chip-avatar" src="" style="width:22px;height:22px;border-radius:50%;" alt="">
+          <span id="chip-name" style="font-size:12px;font-weight:600;"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Stats row -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div><div class="stat-value" id="stat-onduty">—</div><div class="stat-label">On Duty</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div><div class="stat-value" id="stat-inserver">—</div><div class="stat-label">In Server</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+          <div><div class="stat-value" id="stat-queue">—</div><div class="stat-label">In Queue</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div><div class="stat-value" id="stat-infractions">—</div><div class="stat-label">Active LOAs</div></div>
+        </div>
+      </div>
+
+      <!-- Profile + shift -->
+      <div class="card mb-16" id="profile-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <img id="profile-avatar" src="" style="width:48px;height:48px;border-radius:50%;background:var(--bg-hover);" alt="">
+            <div>
+              <div style="font-size:16px;font-weight:700;" id="profile-name"></div>
+              <div style="font-size:12px;color:var(--text-muted);" id="profile-rank"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="shift-timer" id="shift-timer">00:00:00</div>
+            <button class="btn btn-success" id="shift-btn">Go On Duty</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two column section -->
+      <div class="two-col mb-16">
+        <!-- Active shifts -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Active Shifts</span>
+            <a href="/shifts" class="btn btn-ghost btn-sm">View All</a>
+          </div>
+          <div id="active-shifts">
+            <div class="empty-state">No one is on duty.</div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Quick Actions</span></div>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="location.href='/infractions'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Log Punishment
+            </div>
+            <div class="quick-action" onclick="location.href='/infractions'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              View Logs
+            </div>
+            <div class="quick-action" onclick="location.href='/erlc'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Sessions
+            </div>
+            <div class="quick-action" onclick="location.href='/roster'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Staff Roster
+            </div>
+            <div class="quick-action" onclick="location.href='/loa'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              File LOA
+            </div>
+            <div class="quick-action" onclick="location.href='/promotions'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              Promotions
+            </div>
+            <div class="quick-action" onclick="location.href='/statistics'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Statistics
+            </div>
+            <div class="quick-action" onclick="location.href='/erlc'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              ERLC Commands
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom two col -->
+      <div class="two-col">
+        <!-- Live feed -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Live Feed</span>
+            <span class="badge badge-blue">ERLC</span>
+          </div>
+          <div id="live-feed">
+            <div class="empty-state">No activity yet.</div>
+          </div>
+        </div>
+
+        <!-- Top hours -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Top Hours (7 Days)</span>
+            <a href="/statistics" class="btn btn-ghost btn-sm">Full Board</a>
+          </div>
+          <div id="top-hours">
+            <div class="empty-state">No shift data this week.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Log punishment modal -->
+<div class="modal-overlay" id="modal-punishment">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Log Punishment</span>
+      <button class="modal-close" onclick="closeModal('modal-punishment')">&times;</button>
+    </div>
+    <div id="modal-alert"></div>
+    <form id="form-punishment">
+      <div class="form-group">
+        <label class="form-label">Discord User ID</label>
+        <input class="form-input" id="p-userid" placeholder="e.g. 123456789012345678" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="p-type">
+          <option value="warn">Warn</option>
+          <option value="mute">Mute</option>
+          <option value="kick">Kick</option>
+          <option value="ban">Ban</option>
+          <option value="strike">Strike</option>
+          <option value="verbal">Verbal Warning</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason</label>
+        <input class="form-input" id="p-reason" placeholder="Reason for punishment" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Notes</label>
+        <textarea class="form-textarea" id="p-desc" placeholder="Optional details..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-punishment')">Cancel</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  let shiftActive = false;
+  let shiftStart  = null;
+  let timerInterval = null;
+
+  async function init() {
+    const user = await getUser();
+    if (!user) return;
+
+    renderSidebar();
+
+    // Chip
+    const avatarUrl = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png?size=64`
+      : `https://cdn.discordapp.com/embed/avatars/0.png`;
+    document.getElementById("chip-avatar").src = avatarUrl;
+    document.getElementById("chip-name").textContent = user.displayName;
+
+    // Profile card
+    document.getElementById("profile-avatar").src = avatarUrl;
+    document.getElementById("profile-name").textContent = user.displayName;
+    document.getElementById("profile-rank").textContent = capitalize(user.accessLevel);
+
+    loadStats();
+    loadActiveShifts();
+    loadTopHours();
+    loadErlcFeed();
+    loadShiftStatus();
+  }
+
+  async function loadStats() {
+    try {
+      const [shifts, server] = await Promise.all([
+        api("GET", "/api/staff/shifts/all"),
+        api("GET", "/api/erlc/server?Players=true&Queue=true").catch(() => null),
+      ]);
+      document.getElementById("stat-onduty").textContent    = shifts.length;
+      document.getElementById("stat-inserver").textContent  = server ? server.CurrentPlayers : "—";
+      document.getElementById("stat-queue").textContent     = server && server.Queue ? server.Queue.length : "—";
+
+      const loas = await api("GET", "/api/staff/loa/all").catch(() => []);
+      const activeLoas = loas.filter(l => l.status === "approved").length;
+      document.getElementById("stat-infractions").textContent = activeLoas;
+    } catch {}
+  }
+
+  async function loadActiveShifts() {
+    try {
+      const shifts = await api("GET", "/api/staff/shifts/all");
+      const el = document.getElementById("active-shifts");
+      if (!shifts.length) { el.innerHTML = '<div class="empty-state">No one is on duty.</div>'; return; }
+      el.innerHTML = shifts.slice(0, 8).map(s => `
+        <div class="feed-item">
+          <div class="feed-dot green"></div>
+          <span>${s.username || s.discordId}</span>
+          <span class="feed-time">${formatDuration(Date.now() - s.startedAt)}</span>
+        </div>
+      `).join("");
+    } catch {}
+  }
+
+  async function loadTopHours() {
+    try {
+      const top = await api("GET", "/api/staff/shifts/top");
+      const el  = document.getElementById("top-hours");
+      if (!top.length) { el.innerHTML = '<div class="empty-state">No shift data this week.</div>'; return; }
+      el.innerHTML = top.map((u, i) => `
+        <div class="feed-item">
+          <span style="color:var(--text-muted);min-width:18px;">#${i+1}</span>
+          <span>${u.username || u.discordId}</span>
+          <span class="feed-time">${formatDuration(u.total)}</span>
+        </div>
+      `).join("");
+    } catch {}
+  }
+
+  async function loadErlcFeed() {
+    try {
+      const logs = await api("GET", "/api/erlc/join-logs");
+      const el   = document.getElementById("live-feed");
+      if (!logs.length) { el.innerHTML = '<div class="empty-state">No ERLC activity.</div>'; return; }
+      el.innerHTML = logs.slice(-10).reverse().map(l => `
+        <div class="feed-item">
+          <div class="feed-dot ${l.Join ? 'green' : 'red'}"></div>
+          <span>${l.Player || "Unknown"} ${l.Join ? "joined" : "left"}</span>
+          <span class="feed-time">${formatTime(l.Timestamp * 1000)}</span>
+        </div>
+      `).join("");
+    } catch {
+      document.getElementById("live-feed").innerHTML = '<div class="empty-state">ERLC data unavailable.</div>';
+    }
+  }
+
+  async function loadShiftStatus() {
+    try {
+      const shift = await api("GET", "/api/staff/shift/active");
+      if (shift) {
+        shiftActive = true;
+        shiftStart  = shift.startedAt;
+        document.getElementById("shift-btn").textContent = "Go Off Duty";
+        document.getElementById("shift-btn").className = "btn btn-danger";
+        startTimer();
+      }
+    } catch {}
+  }
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const elapsed = Date.now() - shiftStart;
+      const s = Math.floor(elapsed / 1000);
+      const h = Math.floor(s / 3600).toString().padStart(2, "0");
+      const m = Math.floor((s % 3600) / 60).toString().padStart(2, "0");
+      const sec = (s % 60).toString().padStart(2, "0");
+      document.getElementById("shift-timer").textContent = `${h}:${m}:${sec}`;
+    }, 1000);
+  }
+
+  document.getElementById("shift-btn").addEventListener("click", async () => {
+    try {
+      if (!shiftActive) {
+        const shift = await api("POST", "/api/staff/shift/start");
+        shiftActive = true;
+        shiftStart  = shift.startedAt;
+        document.getElementById("shift-btn").textContent = "Go Off Duty";
+        document.getElementById("shift-btn").className = "btn btn-danger";
+        startTimer();
+        showToast("Shift started!");
+        loadActiveShifts();
+      } else {
+        const result = await api("POST", "/api/staff/shift/end");
+        shiftActive = false;
+        clearInterval(timerInterval);
+        document.getElementById("shift-timer").textContent = "00:00:00";
+        document.getElementById("shift-btn").textContent = "Go On Duty";
+        document.getElementById("shift-btn").className = "btn btn-success";
+        showToast(`Shift ended. Duration: ${formatDuration(result.duration)}`);
+        loadActiveShifts();
+      }
+    } catch (err) {
+      showToast(err.message, "error");
+    }
+  });
+
+  document.getElementById("log-btn").addEventListener("click", () => openModal("modal-punishment"));
+
+  document.getElementById("form-punishment").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById("modal-alert");
+    alertEl.innerHTML = "";
+    try {
+      await api("POST", "/api/infractions", {
+        userId:      document.getElementById("p-userid").value.trim(),
+        type:        document.getElementById("p-type").value,
+        reason:      document.getElementById("p-reason").value.trim(),
+        description: document.getElementById("p-desc").value.trim(),
+      });
+      closeModal("modal-punishment");
+      showToast("Punishment logged!");
+      e.target.reset();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>

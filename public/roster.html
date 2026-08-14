@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Roster — GSSRP Staff Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar">
+      <span class="topbar-title">Staff Roster</span>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" id="gen-pw-btn">Generate Password</button>
+      </div>
+    </header>
+    <div class="content">
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Access Level</th>
+                <th>Auth Method</th>
+                <th>Last Login</th>
+                <th id="actions-header"></th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Password Modal -->
+<div class="modal-overlay" id="modal-gen">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Generate Password Login</span>
+      <button class="modal-close" onclick="closeModal('modal-gen')">&times;</button>
+    </div>
+    <div id="gen-alert"></div>
+    <div id="gen-result" style="display:none;background:var(--bg-surface);border:1px solid var(--border-md);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Generated credentials — copy now, not shown again</div>
+      <div><span class="text-muted">Username:</span> <span id="res-user" class="mono"></span></div>
+      <div style="margin-top:4px;"><span class="text-muted">Password:</span> <span id="res-pass" class="mono" style="color:var(--accent);"></span></div>
+    </div>
+    <form id="gen-form">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input class="form-input" id="g-username" placeholder="e.g. john.doe" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Access Level</label>
+        <select class="form-select" id="g-level">
+          <option value="staff">Staff</option>
+          <option value="moderator">Moderator</option>
+          <option value="admin">Admin</option>
+          <option value="management">Management</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-gen')">Close</button>
+        <button type="submit" class="btn btn-primary">Generate</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Change Access Level Modal -->
+<div class="modal-overlay" id="modal-level">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Change Access Level</span>
+      <button class="modal-close" onclick="closeModal('modal-level')">&times;</button>
+    </div>
+    <div id="level-alert"></div>
+    <input type="hidden" id="level-userid">
+    <div class="form-group">
+      <label class="form-label">New Access Level</label>
+      <select class="form-select" id="level-select">
+        <option value="staff">Staff</option>
+        <option value="moderator">Moderator</option>
+        <option value="admin">Admin</option>
+        <option value="management">Management</option>
+        <option value="owner">Owner</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-level')">Cancel</button>
+      <button class="btn btn-primary" id="level-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  const RANK_COLORS = { owner:"#fee75c", management:"#ed4245", admin:"#9b59b6", moderator:"#5865f2", staff:"#57f287" };
+  let currentUser = null;
+
+  async function init() {
+    await renderSidebar();
+    currentUser = await getUser();
+
+    // Show generate password button only to management+
+    if (!['management','owner'].includes(currentUser?.accessLevel)) {
+      document.getElementById("gen-pw-btn").style.display = "none";
+    }
+    // Show actions column to owners only
+    if (currentUser?.accessLevel === "owner") {
+      document.getElementById("actions-header").textContent = "Actions";
+    }
+
+    loadRoster();
+  }
+
+  async function loadRoster() {
+    try {
+      const users = await api("GET", "/api/staff/roster");
+      const tbody = document.getElementById("table-body");
+      if (!users.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No staff found.</td></tr>'; return; }
+      tbody.innerHTML = users.map(u => {
+        const avatar = u.discordAvatar
+          ? `<img src="https://cdn.discordapp.com/avatars/${u.discordId}/${u.discordAvatar}.png?size=32" style="width:26px;height:26px;border-radius:50%;margin-right:8px;vertical-align:middle;" alt="">`
+          : `<span style="width:26px;height:26px;border-radius:50%;background:var(--bg-hover);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:8px;vertical-align:middle;">${(u.discordUsername||u.username||"?")[0].toUpperCase()}</span>`;
+        const name = u.discordUsername || u.username || "Unknown";
+        const rankColor = RANK_COLORS[u.accessLevel] || "#aaa";
+        const actionsCol = currentUser?.accessLevel === "owner"
+          ? `<td><button class="btn btn-ghost btn-sm" onclick="openLevelModal('${u._id}','${u.accessLevel}')">Edit Rank</button></td>`
+          : `<td></td>`;
+        return `<tr>
+          <td>${avatar}<span style="vertical-align:middle;">${name}</span></td>
+          <td><span style="color:${rankColor};font-size:13px;font-weight:600;">${capitalize(u.accessLevel)}</span></td>
+          <td><span class="badge ${u.authMethod === 'discord' ? 'badge-blue' : 'badge-gray'}">${u.authMethod || '—'}</span></td>
+          <td class="text-muted">${u.lastLogin ? formatDate(u.lastLogin) : 'Never'}</td>
+          ${actionsCol}
+        </tr>`;
+      }).join("");
+    } catch (err) {
+      document.getElementById("table-body").innerHTML = `<tr><td colspan="5" class="empty-state">${err.message}</td></tr>`;
+    }
+  }
+
+  function openLevelModal(userId, currentLevel) {
+    document.getElementById("level-userid").value = userId;
+    document.getElementById("level-select").value = currentLevel;
+    document.getElementById("level-alert").innerHTML = "";
+    openModal("modal-level");
+  }
+
+  document.getElementById("level-save").addEventListener("click", async () => {
+    const userId      = document.getElementById("level-userid").value;
+    const accessLevel = document.getElementById("level-select").value;
+    const alertEl     = document.getElementById("level-alert");
+    alertEl.innerHTML = "";
+    try {
+      await api("PATCH", `/api/staff/${userId}/access-level`, { accessLevel });
+      closeModal("modal-level");
+      showToast("Access level updated.");
+      loadRoster();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  document.getElementById("gen-pw-btn").addEventListener("click", () => {
+    document.getElementById("gen-result").style.display = "none";
+    document.getElementById("gen-alert").innerHTML = "";
+    document.getElementById("gen-form").reset();
+    openModal("modal-gen");
+  });
+
+  document.getElementById("gen-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const alertEl = document.getElementById("gen-alert");
+    alertEl.innerHTML = "";
+    try {
+      const result = await api("POST", "/api/staff/generate-password", {
+        username:    document.getElementById("g-username").value.trim(),
+        accessLevel: document.getElementById("g-level").value,
+      });
+      document.getElementById("res-user").textContent = result.username;
+      document.getElementById("res-pass").textContent = result.password;
+      document.getElementById("gen-result").style.display = "block";
+      document.getElementById("gen-form").reset();
+      loadRoster();
+    } catch (err) {
+      alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>
