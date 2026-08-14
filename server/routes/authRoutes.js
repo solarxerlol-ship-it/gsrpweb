@@ -25,8 +25,10 @@ router.get("/discord/callback",
       discordId:      req.user.discordId,
       displayName:    req.user.discordUsername,
       avatar:         req.user.discordAvatar,
-      accessLevel:    req.user.accessLevel,
-      roleLabel:      req.user.roleLabel,   // ← "Director", "Management Team", etc.
+      accessLevel:    req.user.accessLevel,       // string "management"
+      numericLevel:   req.user.numericLevel,      // number 80
+      roleLabel:      req.user.roleLabel,          // "Management Team"
+      roleColor:      req.user.roleColor,          // "#ef4444"
       authMethod:     "discord",
       rolesCheckedAt: Date.now(),
     };
@@ -101,13 +103,21 @@ router.get("/me", async (req, res) => {
 
         // Patch session in place
         req.session.user.accessLevel    = resolved.level;
+        req.session.user.numericLevel   = resolved.numericLevel;
         req.session.user.roleLabel      = resolved.label;
+        req.session.user.roleColor      = resolved.color;
         req.session.user.rolesCheckedAt = Date.now();
 
         // Keep DB in sync
         await StaffUser.updateOne(
           { discordId: u.discordId },
-          { accessLevel: resolved.level, roleLabel: resolved.label, discordRoles: guildRoles }
+          {
+            accessLevel:  resolved.level,
+            numericLevel: resolved.numericLevel,
+            roleLabel:    resolved.label,
+            roleColor:    resolved.color,
+            discordRoles: guildRoles,
+          }
         );
 
         if (resolved.level !== u.accessLevel || resolved.label !== u.roleLabel) {

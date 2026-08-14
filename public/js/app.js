@@ -164,7 +164,7 @@ async function renderSidebar() {
       >
       <div class="sidebar-user-info">
         <div class="sidebar-user-name truncate">${user.displayName}</div>
-        <div class="sidebar-user-rank" style="color:${RANK_COLORS[user.accessLevel] || '#4f6fff'}">${user.roleLabel || capitalize(user.accessLevel)}</div>
+        <div class="sidebar-user-rank" style="color:${user.roleColor || RANK_COLORS[user.accessLevel] || '#4f6fff'}">${user.roleLabel || capitalize(user.accessLevel)}</div>
       </div>
     </div>
 

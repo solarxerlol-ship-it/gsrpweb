@@ -189,10 +189,8 @@
     document.getElementById("profile-avatar").src = avatarUrl;
     document.getElementById("profile-name").textContent = user.displayName;
     document.getElementById("profile-rank").textContent = user.roleLabel || capitalize(user.accessLevel);
-    // Color the rank label
-    const colors = { owner:"#f59e0b", management:"#ef4444", admin:"#8b5cf6", moderator:"#4f6fff", staff:"#22c55e" };
     const rankEl2 = document.getElementById("profile-rank");
-    if (rankEl2) rankEl2.style.color = colors[user.accessLevel] || "#4f6fff";
+    if (rankEl2) rankEl2.style.color = user.roleColor || colors[user.accessLevel] || "#4f6fff";
 
     // Quick actions — filtered by role
     buildQuickActions(user.accessLevel);

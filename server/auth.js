@@ -69,7 +69,7 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
           return done(null, false, { message: "no_staff_role" });
         }
 
-        console.log(`[Auth] ${profile.username} → level="${resolved.level}" label="${resolved.label}"`);
+        console.log(`[Auth] ${profile.username} → level="${resolved.level}" label="${resolved.label}" (numeric: ${resolved.numericLevel})`);
 
         const user = await StaffUser.findOneAndUpdate(
           { discordId: profile.id },
@@ -78,8 +78,10 @@ if (process.env.DISCORD_CLIENT_ID && process.env.DISCORD_CLIENT_SECRET) {
             discordUsername: profile.username,
             discordAvatar:   profile.avatar,
             discordRoles:    guildRoles,
-            accessLevel:     resolved.level,
-            roleLabel:       resolved.label,
+            accessLevel:     resolved.level,        // string: "management"
+            numericLevel:    resolved.numericLevel,  // number: 80
+            roleLabel:       resolved.label,         // "Management Team"
+            roleColor:       resolved.color,
             authMethod:      "discord",
             lastLogin:       Date.now(),
           },
