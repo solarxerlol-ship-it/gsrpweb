@@ -217,11 +217,13 @@ if (process.env.NODE_ENV !== "production") {
 
     function ping(url) {
       const lib = url.startsWith("https") ? https : http;
-      lib.get(`${url}/health`, res => {
+      const req = lib.get(url + "/health", { rejectUnauthorized: false }, res => {
         console.log(`[Ping] ${new Date().toISOString()} ${url} — ${res.statusCode}`);
-      }).on("error", err => {
-        console.warn(`[Ping] ${url} failed: ${err.message}`);
       });
+      req.on("error", err => {
+        console.warn(`[Ping] ${url} failed: ${err.code || err.message}`);
+      });
+      req.end();
     }
 
     setInterval(() => URLS.forEach(ping), 5 * 60 * 1000); // every 5 minutes
