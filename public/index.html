@@ -128,37 +128,25 @@
         </div>
         <div class="status-stats-row">
           <div class="status-stat">
-            <!-- Players icon -->
             <div class="status-stat-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-              </svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div class="status-stat-value" id="playerCount">—</div>
             <div class="status-stat-label">Players</div>
           </div>
           <div class="status-stat">
-            <!-- Lock / access icon -->
             <div class="status-stat-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
             </div>
-            <div class="status-stat-value" id="accessType">—</div>
-            <div class="status-stat-label">Access</div>
+            <div class="status-stat-value" id="staffCount">—</div>
+            <div class="status-stat-label">Staff Online</div>
           </div>
           <div class="status-stat">
-            <!-- Balance / scales icon -->
             <div class="status-stat-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="12" y1="3" x2="12" y2="21"/><path d="M3 9l4-4 4 4"/><path d="M17 15l4 4-4 4"/>
-                <path d="M3 15h18"/>
-              </svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             </div>
-            <div class="status-stat-value" id="teamBalance">—</div>
-            <div class="status-stat-label">Team Bal.</div>
+            <div class="status-stat-value" id="queueCount2">0</div>
+            <div class="status-stat-label">Queue</div>
           </div>
         </div>
       </div>
@@ -471,23 +459,29 @@ async function fetchStatus() {
     const d = await res.json();
     const players = Array.isArray(d.Players) ? d.Players.length : (d.CurrentPlayers ?? 0);
     const max     = d.MaxPlayers ?? 50;
+    // Staff = players with admin/mod permission
+    const staffCount = Array.isArray(d.Players)
+      ? d.Players.filter(p => p.Permission && p.Permission !== 'Normal').length
+      : 0;
+    const queue = typeof d.Queue === 'number' ? d.Queue : 0;
+
     document.getElementById('playerCount').textContent  = `${players}/${max}`;
     document.getElementById('capacityText').textContent = `${players} / ${max}`;
     document.getElementById('capacityFill').style.width = `${Math.min((players/max)*100,100)}%`;
-    document.getElementById('accessType').textContent   = d.JoinKey ? 'Private' : 'Public';
-    if (Array.isArray(d.Players)) {
-      const law = d.Players.filter(p => p.Team && /police|fire|ems|sheriff|state/i.test(p.Team)).length;
-      document.getElementById('teamBalance').textContent = `${law}L/${players-law}C`;
-    }
-    if (d.Queue !== undefined) document.getElementById('queueCount').textContent = d.Queue;
-    if (d.Name)  document.getElementById('serverName').textContent   = d.Name;
+    document.getElementById('staffCount').textContent   = staffCount;
+    document.getElementById('queueCount2').textContent  = queue;
+    if (d.Name) document.getElementById('serverName').textContent = d.Name;
+    document.getElementById('queueCount').textContent   = queue;
     document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
     document.getElementById('statusBadge').className   = 'status-badge online';
     document.getElementById('statusText').textContent  = 'Online';
   } catch {
     document.getElementById('statusBadge').className  = 'status-badge offline';
     document.getElementById('statusText').textContent = 'Offline';
-    ['playerCount','accessType','teamBalance','queueCount'].forEach(id => document.getElementById(id).textContent = '—');
+    ['playerCount','staffCount','queueCount2','queueCount'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = id.includes('queue') || id.includes('Count') ? '0' : '—';
+    });
     document.getElementById('capacityText').textContent = '— / 50';
     document.getElementById('lastUpdated').textContent  = 'Unavailable';
   }
