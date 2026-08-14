@@ -47,7 +47,8 @@ app.use(session({
   saveUninitialized: false,
   store:             MongoStore.create({
     mongoUrl:         process.env.MONGO_URI,
-    ttl:              7 * 24 * 60 * 60, // 7 days in seconds
+    collectionName:   "portal_sessions",   // separate from bot's sessions collection
+    ttl:              7 * 24 * 60 * 60,
     autoRemove:       "native",
   }),
   cookie: {
