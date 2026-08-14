@@ -20,20 +20,38 @@ router.get("/discord", passport.authenticate("discord"));
 router.get("/discord/callback",
   passport.authenticate("discord", { failureRedirect: "/login?error=no_role" }),
   (req, res) => {
-    req.session.user = {
+    const userData = {
       _id:            req.user._id.toString(),
       discordId:      req.user.discordId,
       displayName:    req.user.discordUsername,
       avatar:         req.user.discordAvatar,
-      accessLevel:    req.user.accessLevel,       // string "management"
-      numericLevel:   req.user.numericLevel,      // number 80
-      roleLabel:      req.user.roleLabel,          // "Management Team"
-      roleColor:      req.user.roleColor,          // "#ef4444"
+      accessLevel:    req.user.accessLevel,
+      numericLevel:   req.user.numericLevel,
+      roleLabel:      req.user.roleLabel,
+      roleColor:      req.user.roleColor,
       authMethod:     "discord",
       rolesCheckedAt: Date.now(),
     };
-    req.logout(err => {});
-    res.redirect("/dashboard");
+
+    // Must save session to MongoDB BEFORE redirecting.
+    // On Vercel serverless each request is a new instance — if we redirect
+    // before the async write finishes the next request has no session.
+    req.logout(err => {
+      req.session.regenerate(regenErr => {
+        if (regenErr) {
+          console.error("[Auth] Session regenerate error:", regenErr);
+          return res.redirect("/login?error=session");
+        }
+        req.session.user = userData;
+        req.session.save(saveErr => {
+          if (saveErr) {
+            console.error("[Auth] Session save error:", saveErr);
+            return res.redirect("/login?error=session");
+          }
+          res.redirect("/dashboard");
+        });
+      });
+    });
   }
 );
 
@@ -101,12 +119,15 @@ router.get("/me", async (req, res) => {
           return res.status(401).json({ error: "Your staff role has been removed." });
         }
 
-        // Patch session in place
+        // Patch session in place then save
         req.session.user.accessLevel    = resolved.level;
         req.session.user.numericLevel   = resolved.numericLevel;
         req.session.user.roleLabel      = resolved.label;
         req.session.user.roleColor      = resolved.color;
         req.session.user.rolesCheckedAt = Date.now();
+        await new Promise((resolve, reject) =>
+          req.session.save(e => e ? reject(e) : resolve())
+        );
 
         // Keep DB in sync
         await StaffUser.updateOne(
