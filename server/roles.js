@@ -33,27 +33,69 @@ const ROLE_MAP = {
 
   // ── LEADERSHIP ─────────────────────────────────────────────────────────────
 
-  '1530375780075569152': {
+  '1532099437856296980': {
     level:       100,
     displayRank: 100,
-    label:       'Director',
+    label:       'Ownership',
     color:       '#f59e0b',
     section:     'leadership',
   },
 
+  '1532157099923083435': {
+    level:       80,
+    displayRank: 80,
+    label:       'Staff Leadership',
+    color:       '#ef4444',
+    section:     'leadership',
+  },
+  '1532170082191671306': {
+    level:       80,
+    displayRank: 80,
+    label:       'Directive',
+    color:       '#ef4444',
+    section:     'leadership',
+  },
   '1532171392244777072': {
     level:       80,
     displayRank: 80,
-    label:       'Management Team',
+    label:       'Management',
     color:       '#ef4444',
-    section:     'leadership',
+    section:     'staff',
+  },
+  '1532172360021446817': {
+    level:       60,
+    displayRank: 60,
+    label:       'Supervisory',
+    color:       '#ef4444',
+    section:     'staff',
+  },
+  '1532173384375341297': {
+    level:       60,
+    displayRank: 60,
+    label:       'Internal affairs',
+    color:       '#ef4444',
+    section:     'staff',
+  },
+  '1532284263196659822': {
+    level:       40,
+    displayRank: 40,
+    label:       'Administration',
+    color:       '#ef4444',
+    section:     'staff',
+  },
+  '1532284601722994811': {
+    level:       20,
+    displayRank: 20,
+    label:       'Moderation',
+    color:       '#ef4444',
+    section:     'staff',
   },
 
   // ── STAFF ──────────────────────────────────────────────────────────────────
   // ⚠️  Replace ROLE_ADMIN_ID below with your actual Administrator role ID
   //    (currently using Director's ID as a placeholder — they must be different)
 
-  [process.env.ROLE_ADMIN || 'REPLACE_WITH_ADMIN_ROLE_ID']: {
+  [process.env.ROLE_ADMIN || 'REPLACE_WITH_1532170082191671306ADMIN_ROLE_ID']: {
     level:       60,
     displayRank: 60,
     label:       'Administrator',
