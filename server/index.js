@@ -125,6 +125,9 @@ app.get("/api/roblox/avatar", async (req, res) => {
   }
 });
 
+// ── Health check (used by self-ping keepalive) ────────────────────────────────
+app.get("/health", (req, res) => res.json({ ok: true, ts: Date.now() }));
+
 // ── Page routes ───────────────────────────────────────────────────────────────
 const { requireAuth, requireLevel } = require("./middleware");
 
@@ -191,6 +194,34 @@ if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () =>
     console.log(`[WEB] Running locally at http://localhost:${PORT}`)
   );
+} else {
+  // ── Render production — keep-alive self-ping every 5 minutes ─────────────────
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`[WEB] Running on port ${PORT}`);
+
+    const https = require("https");
+    const http  = require("http");
+
+    const URLS = [
+      process.env.BASE_URL       || `http://localhost:${PORT}`, // staff.gssrp.xyz
+      "https://www.gssrp.xyz",
+      "https://gssrp.xyz",
+    ];
+
+    function ping(url) {
+      const lib = url.startsWith("https") ? https : http;
+      lib.get(`${url}/health`, res => {
+        console.log(`[Ping] ${new Date().toISOString()} ${url} — ${res.statusCode}`);
+      }).on("error", err => {
+        console.warn(`[Ping] ${url} failed: ${err.message}`);
+      });
+    }
+
+    setInterval(() => URLS.forEach(ping), 5 * 60 * 1000); // every 5 minutes
+    // Also ping immediately on startup
+    setTimeout(() => URLS.forEach(ping), 10_000);
+  });
 }
 
 module.exports = app;
