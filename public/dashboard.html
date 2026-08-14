@@ -13,14 +13,23 @@
   <aside class="sidebar" id="sidebar"></aside>
   <div class="main">
     <header class="topbar">
-      <span class="topbar-title">Overview</span>      <div class="topbar-right">
+      <span class="topbar-title">Overview</span>
+      <div class="topbar-right">
         <button class="btn btn-primary btn-sm" id="log-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           Log Punishment
         </button>
-        <div id="user-chip" style="display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 12px 5px 8px;">
+        <!-- Notification bell placeholder -->
+        <button class="btn btn-ghost btn-sm" style="padding:5px 8px;" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <!-- User chip -->
+        <div id="user-chip" style="display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 12px 5px 8px;cursor:default;">
           <img id="chip-avatar" src="" style="width:22px;height:22px;border-radius:50%;" alt="">
-          <span id="chip-name" style="font-size:12px;font-weight:600;"></span>
+          <div style="display:flex;flex-direction:column;">
+            <span id="chip-name" style="font-size:11.5px;font-weight:600;line-height:1.2;"></span>
+            <span id="chip-rank" style="font-size:10px;font-weight:500;line-height:1.2;"></span>
+          </div>
         </div>
       </div>
     </header>
@@ -202,6 +211,12 @@
       : `https://cdn.discordapp.com/embed/avatars/0.png`;
     document.getElementById("chip-avatar").src = avatarUrl;
     document.getElementById("chip-name").textContent = user.displayName;
+    const rankEl = document.getElementById("chip-rank");
+    if (rankEl) {
+      rankEl.textContent = capitalize(user.accessLevel);
+      const colors = { owner:"#ffd166", management:"#ff4d6d", admin:"#8b5cf6", moderator:"#4f6fff", staff:"#43e97b" };
+      rankEl.style.color = colors[user.accessLevel] || "#4f6fff";
+    }
 
     // Profile card
     document.getElementById("profile-avatar").src = avatarUrl;

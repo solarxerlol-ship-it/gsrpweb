@@ -81,6 +81,8 @@ app.use("/api/staff",         require("./routes/staffRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 
 // ── Page routes ───────────────────────────────────────────────────────────────
+const { requireAuth, requireLevel } = require("./middleware");
+
 app.get("/", (req, res) =>
   res.redirect(req.session?.user ? "/dashboard" : "/login")
 );
@@ -89,16 +91,36 @@ app.get("/login", (req, res) =>
   res.sendFile(path.join(PUBLIC, "login.html"))
 );
 
-const PROTECTED = [
-  "dashboard", "infractions", "promotions", "erlc", "shifts",
-  "roster", "loa", "announcements", "audit", "settings", "statistics",
-];
+// Pages accessible by all staff
+const STAFF_PAGES = ["dashboard", "erlc", "shifts", "loa", "statistics"];
+STAFF_PAGES.forEach(p => {
+  app.get(`/${p}`, requireAuth, (req, res) =>
+    res.sendFile(path.join(PUBLIC, `${p}.html`))
+  );
+});
 
-PROTECTED.forEach(p => {
-  app.get(`/${p}`, (req, res) => {
-    if (!req.session?.user) return res.redirect("/login");
-    res.sendFile(path.join(PUBLIC, `${p}.html`));
-  });
+// Pages accessible by moderator+
+const MODERATOR_PAGES = ["infractions", "roster"];
+MODERATOR_PAGES.forEach(p => {
+  app.get(`/${p}`, requireLevel("moderator"), (req, res) =>
+    res.sendFile(path.join(PUBLIC, `${p}.html`))
+  );
+});
+
+// Pages accessible by admin+
+const ADMIN_PAGES = ["promotions"];
+ADMIN_PAGES.forEach(p => {
+  app.get(`/${p}`, requireLevel("admin"), (req, res) =>
+    res.sendFile(path.join(PUBLIC, `${p}.html`))
+  );
+});
+
+// Pages accessible by management+
+const MANAGEMENT_PAGES = ["announcements", "audit", "settings"];
+MANAGEMENT_PAGES.forEach(p => {
+  app.get(`/${p}`, requireLevel("management"), (req, res) =>
+    res.sendFile(path.join(PUBLIC, `${p}.html`))
+  );
 });
 
 // ── 404 / fallback ────────────────────────────────────────────────────────────

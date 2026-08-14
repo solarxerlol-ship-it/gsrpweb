@@ -11,40 +11,51 @@
 
     body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background: #000000;
-      color: #e2e8f0;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      background: #0a0b0f;
+      color: #e2e8f0;
       -webkit-font-smoothing: antialiased;
+      overflow: hidden;
     }
 
-    /* Pure black bg with very subtle blue noise */
+    /* ── Subtle grid background ── */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(88,101,242,0.06) 0%, transparent 60%);
+      background-image:
+        linear-gradient(rgba(79,111,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,111,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(79,111,255,0.07) 0%, transparent 70%);
       pointer-events: none;
     }
 
     .wrap {
       position: relative; z-index: 1;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       padding: 20px;
     }
 
-    /* ── Card — dark slate, barely visible border ── */
+    /* ── Card ── */
     .card {
-      background: #1a1d2e;
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 16px;
-      padding: 40px 36px 34px;
+      background: rgba(20, 23, 35, 0.9);
+      border: 1px solid rgba(79,111,255,0.12);
+      border-radius: 18px;
+      padding: 44px 40px 38px;
       box-shadow:
-        0 24px 80px rgba(0,0,0,0.8),
-        0 0 0 1px rgba(255,255,255,0.04) inset;
+        0 32px 80px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(255,255,255,0.03) inset,
+        0 0 60px rgba(79,111,255,0.05);
+      backdrop-filter: blur(20px);
     }
 
     /* ── Logo row ── */
@@ -52,24 +63,25 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 11px;
-      margin-bottom: 30px;
+      gap: 12px;
+      margin-bottom: 28px;
     }
     .logo-img {
-      width: 36px; height: 36px;
-      border-radius: 8px;
+      width: 38px; height: 38px;
+      border-radius: 10px;
       object-fit: cover;
     }
     .logo-fallback {
-      width: 36px; height: 36px;
-      border-radius: 8px;
-      background: #5865f2;
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: #4f6fff;
       display: flex; align-items: center; justify-content: center;
       font-weight: 800; font-size: 14px; color: #fff;
       flex-shrink: 0;
+      box-shadow: 0 0 14px rgba(79,111,255,0.5);
     }
     .logo-text {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
       color: #fff;
       letter-spacing: -0.01em;
@@ -77,27 +89,27 @@
 
     /* ── Heading ── */
     h1 {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 800;
       color: #ffffff;
       text-align: center;
       margin-bottom: 10px;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
     }
     .subtitle {
       text-align: center;
-      color: #64748b;
+      color: #5a6380;
       font-size: 13.5px;
       line-height: 1.65;
-      margin-bottom: 32px;
+      margin-bottom: 30px;
     }
 
     /* ── Tabs ── */
     .tabs {
       display: flex;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(79,111,255,0.1);
       border-radius: 10px;
       padding: 4px;
       gap: 3px;
@@ -107,23 +119,23 @@
       flex: 1; text-align: center;
       padding: 9px 6px;
       border-radius: 7px;
-      font-size: 13px; font-weight: 600;
-      color: #64748b;
+      font-size: 12.5px; font-weight: 600;
+      color: #5a6380;
       cursor: pointer;
       transition: all 0.15s;
       user-select: none;
     }
     .tab.active {
-      background: #5865f2;
+      background: #4f6fff;
       color: #fff;
-      box-shadow: 0 0 16px rgba(88,101,242,0.5), 0 2px 8px rgba(88,101,242,0.3);
+      box-shadow: 0 0 16px rgba(79,111,255,0.5), 0 2px 8px rgba(79,111,255,0.3);
     }
 
-    /* ── Discord button — the star of the page ── */
+    /* ── Discord button ── */
     .btn-discord {
       display: flex; align-items: center; justify-content: center; gap: 14px;
-      width: 100%; padding: 15px 20px;
-      background: #5865f2;
+      width: 100%; padding: 16px 20px;
+      background: #4f6fff;
       color: #fff;
       border: none; border-radius: 10px;
       font-size: 15px; font-weight: 700;
@@ -132,57 +144,52 @@
       letter-spacing: 0.01em;
       transition: background 0.15s, box-shadow 0.2s, transform 0.1s;
       box-shadow:
-        0 0 20px rgba(88,101,242,0.6),
-        0 0 60px rgba(88,101,242,0.2),
-        0 4px 20px rgba(88,101,242,0.4);
+        0 0 24px rgba(79,111,255,0.55),
+        0 0 60px rgba(79,111,255,0.2),
+        0 4px 20px rgba(79,111,255,0.35);
     }
     .btn-discord:hover {
-      background: #4752c4;
+      background: #3a5ce8;
       box-shadow:
-        0 0 30px rgba(88,101,242,0.8),
-        0 0 80px rgba(88,101,242,0.3),
-        0 6px 28px rgba(88,101,242,0.5);
+        0 0 36px rgba(79,111,255,0.75),
+        0 0 80px rgba(79,111,255,0.3),
+        0 6px 28px rgba(79,111,255,0.45);
     }
     .btn-discord:active { transform: scale(0.98); }
     .btn-discord svg { width: 22px; height: 22px; flex-shrink: 0; }
 
-    /* ── Submit button (password form) ── */
+    /* ── Submit button ── */
     .btn-submit {
       width: 100%; padding: 13px 20px;
-      background: #5865f2; color: #fff;
+      background: #4f6fff; color: #fff;
       border: none; border-radius: 10px;
       font-size: 14px; font-weight: 700;
       cursor: pointer; font-family: inherit;
       margin-top: 6px;
       transition: background 0.15s, box-shadow 0.2s, transform 0.1s;
-      box-shadow:
-        0 0 16px rgba(88,101,242,0.5),
-        0 3px 14px rgba(88,101,242,0.35);
+      box-shadow: 0 0 16px rgba(79,111,255,0.45), 0 3px 14px rgba(79,111,255,0.3);
     }
     .btn-submit:hover {
-      background: #4752c4;
-      box-shadow:
-        0 0 26px rgba(88,101,242,0.7),
-        0 5px 20px rgba(88,101,242,0.45);
+      background: #3a5ce8;
+      box-shadow: 0 0 26px rgba(79,111,255,0.65), 0 5px 20px rgba(79,111,255,0.4);
     }
     .btn-submit:active { transform: scale(0.98); }
 
     /* ── Form ── */
     .form-panel { display: none; }
     .form-panel.active { display: block; }
-
     .form-group { margin-bottom: 14px; }
     label {
       display: block;
-      font-size: 12px; font-weight: 600;
-      color: #94a3b8;
+      font-size: 11.5px; font-weight: 600;
+      color: #7b82a8;
       margin-bottom: 7px;
       letter-spacing: 0.03em;
     }
     input {
       width: 100%;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(79,111,255,0.12);
       border-radius: 8px;
       color: #e2e8f0; font-size: 13.5px;
       padding: 11px 14px; outline: none;
@@ -190,32 +197,28 @@
       font-family: inherit;
     }
     input:focus {
-      border-color: #5865f2;
-      box-shadow: 0 0 0 3px rgba(88,101,242,0.2), 0 0 14px rgba(88,101,242,0.12);
+      border-color: #4f6fff;
+      box-shadow: 0 0 0 3px rgba(79,111,255,0.2), 0 0 14px rgba(79,111,255,0.1);
     }
-    input::placeholder { color: #334155; }
+    input::placeholder { color: #2d3350; }
 
     /* ── Footer notes ── */
     .discord-note {
       margin-top: 18px;
       text-align: center;
-      font-size: 12px; color: #475569;
-      line-height: 1.7;
+      font-size: 11.5px; color: #3d4460;
+      line-height: 1.75;
     }
-    .discord-note a {
-      color: #5865f2;
-      text-decoration: none;
-    }
+    .discord-note a { color: #4f6fff; text-decoration: none; }
     .discord-note a:hover { text-decoration: underline; }
-
     .pw-note {
       margin-top: 16px;
       text-align: center;
-      font-size: 12px; color: #475569;
-      line-height: 1.7;
+      font-size: 11.5px; color: #3d4460;
+      line-height: 1.75;
     }
     .pw-note code {
-      background: rgba(88,101,242,0.15);
+      background: rgba(79,111,255,0.15);
       color: #818cf8;
       padding: 1px 6px; border-radius: 4px;
       font-size: 11px;
@@ -223,17 +226,14 @@
 
     /* ── Alert ── */
     .alert {
-      padding: 11px 14px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      margin-bottom: 16px;
-      display: none;
+      padding: 11px 14px; border-radius: 8px;
+      font-size: 12.5px; margin-bottom: 16px; display: none;
     }
     .alert.show { display: block; }
     .alert-error {
-      background: rgba(239,68,68,0.1);
-      color: #f87171;
-      border: 1px solid rgba(239,68,68,0.2);
+      background: rgba(255,77,109,0.1);
+      color: #ff4d6d;
+      border: 1px solid rgba(255,77,109,0.2);
     }
   </style>
 </head>
@@ -245,8 +245,9 @@
       <div class="logo-row">
         <img
           class="logo-img"
-          src="/img/logo.png"
+          src="https://cdn.discordapp.com/icons/1530375780012658918/a1de3f778cee54317a36cbe02e0169de.webp?size=1024"
           alt="GSRP"
+          crossorigin="anonymous"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
         >
         <div class="logo-fallback" style="display:none;">G</div>
@@ -271,7 +272,8 @@
         <div class="alert alert-error" id="discord-error"></div>
         <a href="/auth/discord" style="text-decoration:none;">
           <button class="btn-discord" type="button">
-            <svg viewBox="0 0 71 55" fill="currentColor">
+            <!-- Discord logo SVG -->
+            <svg viewBox="0 0 71 55" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
               <path d="M60.1 4.9A58.4 58.4 0 0 0 45.5.6a.2.2 0 0 0-.2.1 40.8 40.8 0 0 0-1.8 3.7 53.9 53.9 0 0 0-16.2 0A37.2 37.2 0 0 0 25.5.7a.2.2 0 0 0-.2-.1A58.3 58.3 0 0 0 10.7 4.9a.2.2 0 0 0-.1.1C1.6 18.1-.9 31 .3 43.7a.2.2 0 0 0 .1.2 58.7 58.7 0 0 0 17.7 9 .2.2 0 0 0 .3-.1 42 42 0 0 0 3.6-5.9.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4c.4-.3.7-.6 1.1-.9a.2.2 0 0 1 .2 0c11.5 5.3 24 5.3 35.4 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36 36 0 0 1-5.5 2.6.2.2 0 0 0-.1.3 47.1 47.1 0 0 0 3.6 5.9c.1.1.2.1.3 0a58.5 58.5 0 0 0 17.7-9 .2.2 0 0 0 .1-.2c1.5-15.2-2.5-28-10.6-39.6a.2.2 0 0 0-.1-.1zm-36.7 31.8c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1zm23.3 0c-3.5 0-6.3-3.2-6.3-7.1s2.8-7.1 6.3-7.1 6.4 3.2 6.3 7.1c0 3.9-2.8 7.1-6.3 7.1z"/>
             </svg>
             Continue with Discord
@@ -321,7 +323,7 @@
     const params = new URLSearchParams(window.location.search);
     if (params.get("error") === "no_role") {
       const el = document.getElementById("discord-error");
-      el.textContent = "Access denied. You do not have a verified staff role in the GSRP Discord.";
+      el.textContent = "Access denied — you don't have a verified staff role in the GSRP Discord.";
       el.classList.add("show");
     }
 
