@@ -698,3 +698,21 @@ footer { border-top: 1px solid var(--border); padding: 52px 24px 32px; position:
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* ── Review star picker ─────────────────────────────────────────────────── */
+.star-btn {
+  font-size: 28px; background: none; border: none;
+  color: rgba(245,158,11,0.25); cursor: pointer;
+  transition: color 0.15s, transform 0.1s;
+  padding: 0 2px; line-height: 1;
+}
+.star-btn:hover, .star-btn.lit { color: var(--gold); }
+.star-btn:active { transform: scale(0.9); }
+
+/* Carousel dots */
+.car-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(79,111,255,0.2); border: none; cursor: pointer;
+  transition: background 0.2s, transform 0.2s; padding: 0;
+}
+.car-dot.active { background: var(--blue); transform: scale(1.3); }

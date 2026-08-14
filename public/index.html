@@ -231,67 +231,71 @@
     <div class="section-header reveal">
       <span class="section-tag">Testimonials</span>
       <h2 class="section-title">Community Reviews</h2>
-      <p class="section-subtitle">Real reviews from real members. No fake ratings.</p>
+      <p class="section-subtitle">Real reviews from real members.</p>
     </div>
 
-    <!-- Rating summary — populated by JS -->
+    <!-- Summary bar -->
     <div class="reviews-summary reveal" id="reviews-summary" style="display:none;">
       <div class="reviews-rating-big">
         <div class="rating-number" id="avg-rating">—</div>
         <div class="rating-info">
           <div class="stars" id="avg-stars"></div>
-          <div class="reviews-count" id="reviews-count">0 reviews</div>
+          <div class="reviews-count" id="reviews-count"></div>
         </div>
       </div>
       <button class="btn btn-outline" id="open-review-btn">Leave a Review →</button>
     </div>
 
-    <!-- Review cards — populated by JS -->
-    <div class="reviews-grid" id="reviews-grid">
-      <div style="grid-column:1/-1;" class="empty-state-home">Loading reviews...</div>
-    </div>
-
-    <!-- Empty CTA when no reviews yet -->
-    <div id="reviews-empty" style="display:none;text-align:center;padding:40px 0;">
-      <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">No reviews yet. Be the first!</p>
-      <button class="btn btn-outline" id="open-review-btn-2">Leave a Review →</button>
+    <!-- Carousel wrapper -->
+    <div style="position:relative;" id="carousel-wrap">
+      <div class="reviews-grid" id="reviews-grid" style="transition:opacity 0.4s ease;">
+        <div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:32px;font-size:14px;" id="reviews-placeholder">
+          No reviews yet — be the first!<br><br>
+          <button class="btn btn-outline" id="open-review-btn-empty">Leave a Review →</button>
+        </div>
+      </div>
+      <!-- Carousel dots -->
+      <div id="carousel-dots" style="display:flex;justify-content:center;gap:6px;margin-top:20px;"></div>
     </div>
   </div>
 </section>
 
-<!-- Review modal -->
-<div class="modal-overlay" id="modal-review-form" style="z-index:2000;">
-  <div class="modal" style="max-width:500px;">
-    <div class="modal-header-pub">
-      <span style="font-size:15px;font-weight:700;">Leave a Review</span>
-      <button id="close-review-modal" style="background:none;border:none;color:var(--text-muted);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
+<!-- Review modal — same overlay style as LOA/punishment modals -->
+<div class="modal-overlay" id="modal-review-form">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <span class="modal-title">Leave a Review</span>
+      <button class="modal-close" id="close-review-modal">&times;</button>
     </div>
-    <div id="review-alert" style="margin-bottom:12px;"></div>
-    <div id="review-form-inner">
-      <div style="margin-bottom:16px;">
-        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Your Roblox Username</label>
-        <input id="rev-name" class="form-input-pub" type="text" placeholder="YourUsername" autocomplete="off" maxlength="50" />
+    <div id="review-alert"></div>
+    <div id="review-form-wrap">
+      <div class="form-group">
+        <label class="form-label">Your Roblox Username</label>
+        <input id="rev-name" class="form-input" type="text" placeholder="YourUsername" autocomplete="off" maxlength="50" />
       </div>
-      <div style="margin-bottom:16px;">
-        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Rating</label>
-        <div style="display:flex;gap:8px;" id="star-picker">
-          <button type="button" class="star-pick" data-v="1">★</button>
-          <button type="button" class="star-pick" data-v="2">★</button>
-          <button type="button" class="star-pick" data-v="3">★</button>
-          <button type="button" class="star-pick" data-v="4">★</button>
-          <button type="button" class="star-pick" data-v="5">★</button>
+      <div class="form-group">
+        <label class="form-label">Rating</label>
+        <div style="display:flex;gap:6px;" id="star-picker">
+          <button type="button" class="star-btn" data-v="1">★</button>
+          <button type="button" class="star-btn" data-v="2">★</button>
+          <button type="button" class="star-btn" data-v="3">★</button>
+          <button type="button" class="star-btn" data-v="4">★</button>
+          <button type="button" class="star-btn" data-v="5">★</button>
         </div>
       </div>
-      <div style="margin-bottom:20px;">
-        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Your Review</label>
-        <textarea id="rev-text" class="form-input-pub" style="resize:vertical;min-height:90px;" placeholder="What do you think of GSRP?" maxlength="400"></textarea>
+      <div class="form-group">
+        <label class="form-label">Your Review</label>
+        <textarea id="rev-text" class="form-textarea" placeholder="What do you think of GSRP?" maxlength="400" style="min-height:90px;"></textarea>
       </div>
-      <button id="rev-submit" class="btn-submit-pub">Submit Review</button>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="btn btn-ghost" id="cancel-review-btn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="rev-submit">Submit</button>
+      </div>
     </div>
-    <div id="review-success" style="display:none;text-align:center;padding:24px 0;">
-      <div style="font-size:32px;margin-bottom:12px;">✓</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:8px;">Review submitted!</div>
-      <div style="font-size:13px;color:var(--text-muted);">Thanks — it'll show up once approved.</div>
+    <div id="review-success" style="display:none;text-align:center;padding:20px 0;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;display:block;"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;">Review submitted!</div>
+      <div style="font-size:13px;color:var(--text-muted);">Thanks — it'll show once approved by staff.</div>
     </div>
   </div>
 </div>
@@ -487,6 +491,176 @@ async function fetchStatus() {
 }
 fetchStatus();
 setInterval(fetchStatus, 60_000);
+
+/* ── Reviews ─────────────────────────────────────────────────────────────── */
+let allReviews   = [];
+let carouselIdx  = 0;
+let carouselTimer = null;
+let selectedStars = 0;
+
+function openReviewModal() {
+  document.getElementById('modal-review-form').classList.add('open');
+  document.getElementById('review-form-wrap').style.display = '';
+  document.getElementById('review-success').style.display  = 'none';
+  document.getElementById('review-alert').innerHTML = '';
+  document.getElementById('rev-name').value  = '';
+  document.getElementById('rev-text').value  = '';
+  selectedStars = 0;
+  document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('lit'));
+}
+function closeReviewModal() {
+  document.getElementById('modal-review-form').classList.remove('open');
+}
+
+// Open buttons (summary bar + empty state)
+document.getElementById('open-review-btn')?.addEventListener('click', openReviewModal);
+document.getElementById('open-review-btn-empty')?.addEventListener('click', openReviewModal);
+document.getElementById('close-review-modal').addEventListener('click', closeReviewModal);
+document.getElementById('cancel-review-btn').addEventListener('click', closeReviewModal);
+document.getElementById('modal-review-form').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-review-form')) closeReviewModal();
+});
+
+// Star picker
+document.querySelectorAll('.star-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedStars = parseInt(btn.dataset.v);
+    document.querySelectorAll('.star-btn').forEach(b => {
+      b.classList.toggle('lit', parseInt(b.dataset.v) <= selectedStars);
+    });
+  });
+  btn.addEventListener('mouseenter', () => {
+    const v = parseInt(btn.dataset.v);
+    document.querySelectorAll('.star-btn').forEach(b => {
+      b.classList.toggle('lit', parseInt(b.dataset.v) <= v);
+    });
+  });
+  btn.addEventListener('mouseleave', () => {
+    document.querySelectorAll('.star-btn').forEach(b => {
+      b.classList.toggle('lit', parseInt(b.dataset.v) <= selectedStars);
+    });
+  });
+});
+
+// Submit review
+document.getElementById('rev-submit').addEventListener('click', async () => {
+  const alertEl = document.getElementById('review-alert');
+  alertEl.innerHTML = '';
+  const name = document.getElementById('rev-name').value.trim();
+  const text = document.getElementById('rev-text').value.trim();
+  if (!name) { alertEl.innerHTML = '<div class="alert alert-error show">Enter your Roblox username.</div>'; return; }
+  if (!selectedStars) { alertEl.innerHTML = '<div class="alert alert-error show">Pick a star rating.</div>'; return; }
+  if (text.length < 10) { alertEl.innerHTML = '<div class="alert alert-error show">Write at least 10 characters.</div>'; return; }
+
+  const btn = document.getElementById('rev-submit');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const res = await fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, rating: selectedStars, text }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    document.getElementById('review-form-wrap').style.display = 'none';
+    document.getElementById('review-success').style.display   = '';
+  } catch (err) {
+    alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit';
+  }
+});
+
+// Load + render reviews
+async function loadReviews() {
+  try {
+    const res = await fetch('/api/reviews');
+    if (!res.ok) return;
+    allReviews = await res.json();
+    renderReviews();
+  } catch {}
+}
+
+function starsHtml(n) {
+  return Array.from({length:5}, (_,i) =>
+    `<span style="color:${i<n?'var(--gold)':'rgba(245,158,11,0.2)'};">★</span>`
+  ).join('');
+}
+
+function renderReviews() {
+  const grid    = document.getElementById('reviews-grid');
+  const summary = document.getElementById('reviews-summary');
+  const ph      = document.getElementById('reviews-placeholder');
+  const dots    = document.getElementById('carousel-dots');
+
+  if (!allReviews.length) {
+    grid.innerHTML = '';
+    if (ph) ph.style.display = '';
+    summary.style.display = 'none';
+    dots.innerHTML = '';
+    return;
+  }
+
+  if (ph) ph.style.display = 'none';
+
+  // Show summary bar
+  const avg = (allReviews.reduce((s,r) => s + r.rating, 0) / allReviews.length).toFixed(1);
+  document.getElementById('avg-rating').textContent  = avg;
+  document.getElementById('avg-stars').innerHTML     = starsHtml(Math.round(avg));
+  document.getElementById('reviews-count').textContent = `${allReviews.length} review${allReviews.length!==1?'s':''}`;
+  summary.style.display = '';
+
+  // Carousel — show 3 at a time if 3+, otherwise show all
+  const perPage   = 3;
+  const pageCount = allReviews.length >= perPage ? Math.ceil(allReviews.length / perPage) : 1;
+
+  function showPage(idx) {
+    carouselIdx = ((idx % pageCount) + pageCount) % pageCount;
+    const slice = allReviews.length >= perPage
+      ? allReviews.slice(carouselIdx * perPage, carouselIdx * perPage + perPage)
+      : allReviews;
+
+    grid.style.opacity = '0';
+    setTimeout(() => {
+      grid.innerHTML = slice.map((r, i) => `
+        <div class="card review-card reveal visible" style="transition-delay:${i*0.08}s;">
+          <div class="review-stars">${starsHtml(r.rating)}</div>
+          <div class="review-text">"${escH(r.text)}"</div>
+          <div class="review-author">
+            <span class="review-name">${escH(r.name)}</span>
+            <span class="review-role">Community Member</span>
+          </div>
+        </div>`).join('');
+      grid.style.opacity = '1';
+      // update dots
+      dots.querySelectorAll('.car-dot').forEach((d,i) => d.classList.toggle('active', i===carouselIdx));
+    }, 200);
+  }
+
+  // Build dots
+  if (allReviews.length >= perPage && pageCount > 1) {
+    dots.innerHTML = Array.from({length:pageCount}, (_,i) =>
+      `<button class="car-dot${i===0?' active':''}" data-page="${i}"></button>`
+    ).join('');
+    dots.querySelectorAll('.car-dot').forEach(d => {
+      d.addEventListener('click', () => { clearInterval(carouselTimer); showPage(parseInt(d.dataset.page)); startCarousel(); });
+    });
+    startCarousel();
+  }
+
+  showPage(0);
+}
+
+function startCarousel() {
+  clearInterval(carouselTimer);
+  if (allReviews.length >= 3) {
+    carouselTimer = setInterval(() => showPage(carouselIdx + 1), 5000);
+  }
+}
+
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+loadReviews();
 </script>
 </body>
 </html>
