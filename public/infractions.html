@@ -32,12 +32,11 @@
             <thead>
               <tr>
                 <th>Case</th>
-                <th>User ID</th>
+                <th>Username</th>
                 <th>Type</th>
                 <th>Reason</th>
                 <th>Moderator</th>
                 <th>Date</th>
-                <th>Source</th>
                 <th></th>
               </tr>
             </thead>
@@ -138,21 +137,30 @@
 
   function renderTable(records) {
     const tbody = document.getElementById("table-body");
-    if (!records.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No infractions found.</td></tr>';
+    // Only show web-logged (ERLC) punishments — filter out Discord bot ones
+    const filtered = records.filter(r => r.source === 'web');
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No punishments logged yet.</td></tr>';
       return;
     }
-    tbody.innerHTML = records.map(r => {
+    tbody.innerHTML = filtered.map(r => {
       const type = (r.type || "").toLowerCase();
+      const avatarSrc = r.robloxAvatarUrl
+        ? r.robloxAvatarUrl
+        : (r.robloxUserId ? `https://www.roblox.com/bust-thumbnail/image?userId=${r.robloxUserId}&width=48&height=48&format=Png` : '');
       return `
       <tr>
         <td><span class="mono text-muted">#${r.caseId}</span></td>
-        <td><span class="mono">${r.userId}</span></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${avatarSrc ? `<img src="${avatarSrc}" style="width:24px;height:24px;border-radius:50%;flex-shrink:0;border:1px solid var(--border);" onerror="this.style.display='none'">` : ''}
+            <span class="mono">${r.userId}</span>
+          </div>
+        </td>
         <td><span class="badge badge-${TYPE_COLORS[type] || 'gray'}">${type}</span></td>
         <td class="truncate" style="max-width:200px;">${r.reason}</td>
         <td class="text-muted">${r.moderator || "—"}</td>
         <td class="text-muted">${formatDate(r.timestamp)}</td>
-        <td><span class="badge ${r.source === 'web' ? 'badge-blue' : 'badge-gray'}">${r.source || 'bot'}</span></td>
         <td>
           <button class="btn btn-ghost btn-sm" data-action="view" data-uid="${r.userId}">View</button>
           ${currentUser && ['management','owner'].includes(currentUser.accessLevel)

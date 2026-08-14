@@ -16,11 +16,11 @@
     .ap-orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: 0; animation: glowPulse 6s ease-in-out infinite; }
     .ap-orb-1 { width: 600px; height: 500px; background: radial-gradient(ellipse, rgba(79,111,255,0.14) 0%, transparent 70%); top: 5%; left: 50%; transform: translateX(-50%); }
     .ap-orb-2 { width: 300px; height: 300px; background: radial-gradient(ellipse, rgba(124,93,255,0.08) 0%, transparent 70%); bottom: 20%; left: 5%; animation-delay: 2s; }
-    .apply-inner { max-width: 700px; margin: 0 auto; position: relative; z-index: 1; }
-    .apply-header { text-align: center; margin-bottom: 48px; }
+    .apply-inner { max-width: 720px; margin: 0 auto; position: relative; z-index: 1; }
+    .apply-header { text-align: center; margin-bottom: 44px; }
     .apply-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #4f6fff; background: rgba(79,111,255,0.10); border: 1px solid rgba(79,111,255,0.28); border-radius: 99px; padding: 5px 16px; margin-bottom: 24px; animation: fadeUp 0.6s 0.1s both; }
     .apply-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: #4f6fff; animation: pulseDot 2s infinite; }
-    .apply-title { font-size: clamp(36px, 6vw, 62px); font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 16px; animation: fadeUp 0.7s 0.15s both; }
+    .apply-title { font-size: clamp(36px, 6vw, 62px); font-weight: 900; line-height: 0.95; letter-spacing: -0.03em; margin-bottom: 14px; animation: fadeUp 0.7s 0.15s both; }
     .apply-title .t1 { display: block; color: #f0f4ff; }
     .apply-title .t2 { display: block; background: linear-gradient(135deg, #6b8aff 0%, #4f6fff 40%, #7c5dff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 30px rgba(79,111,255,0.5)); }
     .apply-sub { font-size: 15px; color: #8892a4; line-height: 1.75; animation: fadeUp 0.7s 0.2s both; }
@@ -37,7 +37,7 @@
     .ap-textarea { resize: vertical; min-height: 90px; }
     .ap-select { appearance: none; cursor: pointer; }
     .ap-select option { background: #0a0a0f; }
-    .ap-divider { display: flex; align-items: center; gap: 14px; margin: 28px 0 24px; }
+    .ap-divider { display: flex; align-items: center; gap: 14px; margin: 28px 0 22px; }
     .ap-divider-line { flex: 1; height: 1px; background: rgba(79,111,255,0.12); }
     .ap-divider-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #3a4255; white-space: nowrap; }
     .age-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -49,6 +49,10 @@
     .ap-reqs ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
     .ap-reqs li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #8892a4; line-height: 1.5; }
     .ap-reqs li svg { flex-shrink: 0; margin-top: 1px; color: #4f6fff; }
+    .mc-grid { display: flex; flex-direction: column; gap: 7px; }
+    .mc-btn { padding: 11px 14px; border-radius: 8px; text-align: left; font-size: 13px; font-weight: 500; font-family: inherit; background: rgba(255,255,255,0.03); border: 1px solid rgba(79,111,255,0.14); color: #8892a4; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
+    .mc-btn:hover { border-color: rgba(79,111,255,0.35); color: #f0f4ff; background: rgba(79,111,255,0.06); }
+    .mc-btn.selected { background: rgba(79,111,255,0.15); border-color: rgba(79,111,255,0.45); color: #f0f4ff; }
     .ap-submit { width: 100%; padding: 14px; border-radius: 10px; background: #4f6fff; color: #fff; font-size: 15px; font-weight: 700; font-family: inherit; border: none; cursor: pointer; box-shadow: 0 0 24px rgba(79,111,255,0.5), 0 4px 16px rgba(79,111,255,0.3); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
     .ap-submit:hover { background: #3a5ce8; box-shadow: 0 0 40px rgba(79,111,255,0.7); transform: translateY(-2px); }
     .ap-submit:active { transform: scale(0.98); }
@@ -62,13 +66,6 @@
     .ap-success-icon svg { color: #22c55e; }
     .ap-success-title { font-size: 22px; font-weight: 800; color: #f0f4ff; }
     .ap-success-msg { font-size: 14px; color: #8892a4; line-height: 1.7; max-width: 380px; }
-    /* MC option buttons for multiple choice questions */
-    .mc-grid { display: flex; flex-direction: column; gap: 8px; }
-    .mc-btn { padding: 11px 14px; border-radius: 8px; text-align: left; font-size: 13px; font-weight: 500; font-family: inherit; background: rgba(255,255,255,0.03); border: 1px solid rgba(79,111,255,0.14); color: #8892a4; cursor: pointer; transition: all 0.2s; line-height: 1.5; }
-    .mc-btn:hover { border-color: rgba(79,111,255,0.35); color: #f0f4ff; background: rgba(79,111,255,0.06); }
-    .mc-btn.selected { background: rgba(79,111,255,0.15); border-color: rgba(79,111,255,0.5); color: #f0f4ff; }
-    .mc-btn.correct  { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.4); color: #4ade80; }
-    .mc-btn.wrong    { background: rgba(239,68,68,0.10); border-color: rgba(239,68,68,0.35); color: #f87171; }
     @media (max-width: 600px) { .ap-row { grid-template-columns: 1fr; } .apply-card { padding: 24px 20px; } .age-grid { grid-template-columns: repeat(2, 1fr); } }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
@@ -104,41 +101,38 @@
   <div class="apply-inner">
 
     <div class="apply-header">
-      <div class="apply-tag"><span class="dot"></span>Now Recruiting</div>
+      <div class="apply-tag"><span class="dot"></span>Staff Applications Open</div>
       <h1 class="apply-title">
-        <span class="t1">JOIN</span>
-        <span class="t2">GSRP</span>
+        <span class="t1">JOIN THE</span>
+        <span class="t2">STAFF TEAM</span>
       </h1>
-      <p class="apply-sub">Fill this out honestly. We read every application. If something doesn't add up, it gets denied.</p>
+      <p class="apply-sub">This is a staff application — not a player application. Read every question carefully and answer honestly. We read everything.</p>
     </div>
 
     <div class="apply-card">
-
       <div class="ap-reqs">
-        <div class="ap-reqs-title">Before you apply</div>
+        <div class="ap-reqs-title">Requirements</div>
         <ul>
-          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>You need a Roblox account that's in good standing</li>
-          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>You need to already be in our Discord server</li>
-          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>We're a serious RP server — if you're here to minge, don't bother</li>
-          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>You must be 13 or older</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Must be an active member of our Discord server</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Must have played ERLC before — no exceptions</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Must be 13 or older and able to handle the responsibility</li>
+          <li><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>No recent bans or serious punishments in our server</li>
         </ul>
       </div>
 
       <div class="ap-alert" id="apAlert"></div>
 
       <div class="ap-success-screen" id="apSuccess">
-        <div class="ap-success-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </div>
+        <div class="ap-success-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
         <div class="ap-success-title">Application Submitted!</div>
-        <div class="ap-success-msg">We got it. Leadership will review your app and reach out through Discord. Usually takes 24–48 hours.</div>
+        <div class="ap-success-msg">We got it. Leadership will review your application and reach out through Discord within 24–48 hours.</div>
         <a href="/" class="btn btn-outline" style="margin-top:8px;">Back to Home</a>
       </div>
 
       <form id="apForm">
 
-        <!-- ── Section 1: Who are you ── -->
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Who are you</span><div class="ap-divider-line"></div></div>
+        <!-- ── 1. Basic Info ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Basic Info</span><div class="ap-divider-line"></div></div>
 
         <div class="ap-row">
           <div class="ap-group">
@@ -153,13 +147,13 @@
 
         <div class="ap-group">
           <label class="ap-label" for="ap-discord-id">Discord User ID <span>*</span></label>
-          <input class="ap-input" id="ap-discord-id" type="text" placeholder="e.g. 123456789012345678" required autocomplete="off" pattern="[0-9]{17,19}" title="17–19 digit number" />
-          <div style="font-size:11px;color:#3a4255;margin-top:6px;">Discord → Settings → Advanced → Developer Mode on → right-click your name → Copy User ID</div>
+          <input class="ap-input" id="ap-discord-id" type="text" placeholder="e.g. 123456789012345678" required autocomplete="off" pattern="[0-9]{17,19}" />
+          <div style="font-size:11px;color:#3a4255;margin-top:5px;">Settings → Advanced → Developer Mode → right-click your name → Copy User ID</div>
         </div>
 
         <div class="ap-group">
           <label class="ap-label">Age Range <span>*</span></label>
-          <div class="age-grid" id="ageGrid">
+          <div class="age-grid">
             <button type="button" class="age-btn" data-age="13-14">13–14</button>
             <button type="button" class="age-btn" data-age="15-16">15–16</button>
             <button type="button" class="age-btn" data-age="17-18">17–18</button>
@@ -168,20 +162,18 @@
           <input type="hidden" id="ap-age" />
         </div>
 
-        <!-- ── Section 2: Your setup ── -->
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Your setup</span><div class="ap-divider-line"></div></div>
-
         <div class="ap-row">
           <div class="ap-group">
-            <label class="ap-label" for="ap-dept">Department you're applying for <span>*</span></label>
-            <select class="ap-select" id="ap-dept" required>
-              <option value="" disabled selected>Pick one</option>
-              <option value="Law Enforcement">Law Enforcement (LSPD)</option>
-              <option value="State Police">State Police (GSP)</option>
-              <option value="Fire Department">Fire Department (GSFD)</option>
-              <option value="Sheriff's Office">Sheriff's Office (GCSO)</option>
-              <option value="Emergency Medical">Emergency Medical (EMS)</option>
-              <option value="Civilian Operations">Civilian Operations</option>
+            <label class="ap-label" for="ap-timezone">Timezone <span>*</span></label>
+            <select class="ap-select" id="ap-timezone" required>
+              <option value="" disabled selected>Select timezone</option>
+              <option value="EST">Eastern (EST/EDT)</option>
+              <option value="CST">Central (CST/CDT)</option>
+              <option value="MST">Mountain (MST/MDT)</option>
+              <option value="PST">Pacific (PST/PDT)</option>
+              <option value="GMT">GMT / UK</option>
+              <option value="CET">Central Europe (CET)</option>
+              <option value="Other">Other</option>
             </select>
           </div>
           <div class="ap-group">
@@ -189,97 +181,158 @@
             <select class="ap-select" id="ap-exp" required>
               <option value="" disabled selected>Pick one</option>
               <option value="None">Never played it</option>
-              <option value="Beginner">Less than 6 months</option>
-              <option value="Intermediate">6 months – 1.5 years</option>
-              <option value="Experienced">Over 1.5 years</option>
+              <option value="Under 6 months">Under 6 months</option>
+              <option value="6-12 months">6–12 months</option>
+              <option value="1-2 years">1–2 years</option>
+              <option value="2+ years">2+ years</option>
             </select>
           </div>
         </div>
 
-        <!-- ── Section 3: ERLC knowledge ── -->
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">ERLC knowledge</span><div class="ap-divider-line"></div></div>
+        <!-- ── 2. ERLC Knowledge ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">ERLC Knowledge</span><div class="ap-divider-line"></div></div>
 
-        <!-- Q1: RDM -->
         <div class="ap-group">
-          <label class="ap-label">What is RDM? <span>*</span></label>
-          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <label class="ap-label">What does RDM stand for and what is it? <span>*</span></label>
           <div class="mc-grid" id="mc-rdm">
-            <button type="button" class="mc-btn" data-q="rdm" data-val="a">Random Deathmatch — killing someone with no roleplay reason behind it at all</button>
-            <button type="button" class="mc-btn" data-q="rdm" data-val="b">When a cop pulls someone over for speeding</button>
-            <button type="button" class="mc-btn" data-q="rdm" data-val="c">Crashing into someone's car by accident</button>
-            <button type="button" class="mc-btn" data-q="rdm" data-val="d">Shooting someone after a traffic stop goes wrong and they run</button>
+            <button type="button" class="mc-btn" data-q="rdm" data-val="a">Random Deathmatch — killing or shooting someone with zero roleplay reason</button>
+            <button type="button" class="mc-btn" data-q="rdm" data-val="b">Rapid Deployment Mode — when staff respond to an active situation</button>
+            <button type="button" class="mc-btn" data-q="rdm" data-val="c">Rule Defined Moderation — the process of issuing punishments</button>
+            <button type="button" class="mc-btn" data-q="rdm" data-val="d">Shooting back at someone who shot first</button>
           </div>
           <input type="hidden" id="ap-rdm" />
         </div>
 
-        <!-- Q2: VDM -->
         <div class="ap-group">
-          <label class="ap-label">What is VDM? <span>*</span></label>
-          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <label class="ap-label">What does VDM stand for and what is it? <span>*</span></label>
           <div class="mc-grid" id="mc-vdm">
-            <button type="button" class="mc-btn" data-q="vdm" data-val="a">Speeding through a red light during a pursuit</button>
-            <button type="button" class="mc-btn" data-q="vdm" data-val="b">Vehicle Deathmatch — intentionally using your car as a weapon to kill or injure people</button>
-            <button type="button" class="mc-btn" data-q="vdm" data-val="c">Running a stop sign while responding to a call</button>
-            <button type="button" class="mc-btn" data-q="vdm" data-val="d">Accidentally tapping someone's bumper in traffic</button>
+            <button type="button" class="mc-btn" data-q="vdm" data-val="a">Vehicle Damage Mode — enabling PvP in vehicles</button>
+            <button type="button" class="mc-btn" data-q="vdm" data-val="b">Vehicle Deathmatch — intentionally using your car to kill or injure people</button>
+            <button type="button" class="mc-btn" data-q="vdm" data-val="c">Accidentally bumping someone's car during a chase</button>
+            <button type="button" class="mc-btn" data-q="vdm" data-val="d">Speeding through a red light while on duty</button>
           </div>
           <input type="hidden" id="ap-vdm" />
         </div>
 
-        <!-- Q3: FailRP -->
         <div class="ap-group">
-          <label class="ap-label">Which one of these is FailRP? <span>*</span></label>
-          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <label class="ap-label">Which of these is an example of FailRP? <span>*</span></label>
           <div class="mc-grid" id="mc-failrp">
-            <button type="button" class="mc-btn" data-q="failrp" data-val="a">A suspect tries to run on foot after being told to stop</button>
-            <button type="button" class="mc-btn" data-q="failrp" data-val="b">An officer uses their lights and sirens when responding to an emergency</button>
-            <button type="button" class="mc-btn" data-q="failrp" data-val="c">A player jumps off a 10-story building to escape police, then walks it off like nothing happened</button>
-            <button type="button" class="mc-btn" data-q="failrp" data-val="d">A civilian calls 911 to report a robbery</button>
+            <button type="button" class="mc-btn" data-q="failrp" data-val="a">A suspect runs from police on foot after refusing to comply</button>
+            <button type="button" class="mc-btn" data-q="failrp" data-val="b">A player jumps off a roof to escape police, lands fine, and keeps running like nothing happened</button>
+            <button type="button" class="mc-btn" data-q="failrp" data-val="c">An officer initiates a traffic stop for a broken tail light</button>
+            <button type="button" class="mc-btn" data-q="failrp" data-val="d">A civilian calls 911 to report a robbery in progress</button>
           </div>
           <input type="hidden" id="ap-failrp" />
         </div>
 
-        <!-- Q4: Safe zones -->
         <div class="ap-group">
-          <label class="ap-label">Can you shoot or arrest someone inside a safe zone? <span>*</span></label>
-          <div style="font-size:12px;color:#5a6580;margin-bottom:10px;">Pick the right answer.</div>
+          <label class="ap-label">Can you engage someone inside a safe zone? <span>*</span></label>
           <div class="mc-grid" id="mc-safezone">
-            <button type="button" class="mc-btn" data-q="safezone" data-val="a">Yes, anywhere is fair game if they committed a crime</button>
-            <button type="button" class="mc-btn" data-q="safezone" data-val="b">No — safe zones are protected areas, you cannot engage in any hostile actions inside them</button>
-            <button type="button" class="mc-btn" data-q="safezone" data-val="c">Only if they shot at you first</button>
-            <button type="button" class="mc-btn" data-q="safezone" data-val="d">Only management can make that call</button>
+            <button type="button" class="mc-btn" data-q="safezone" data-val="a">Yes, if they committed a crime beforehand</button>
+            <button type="button" class="mc-btn" data-q="safezone" data-val="b">No — safe zones are off-limits for any hostile action, period</button>
+            <button type="button" class="mc-btn" data-q="safezone" data-val="c">Only with admin approval</button>
+            <button type="button" class="mc-btn" data-q="safezone" data-val="d">Yes, but only with a weapon out</button>
           </div>
           <input type="hidden" id="ap-safezone" />
         </div>
 
-        <!-- ── Section 4: Scenarios ── -->
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Scenarios</span><div class="ap-divider-line"></div></div>
-
         <div class="ap-group">
-          <label class="ap-label" for="ap-scenario1">You're on patrol and someone randomly drives into a group of players with their car, killing two of them. They say "it was an accident." What do you do? <span>*</span></label>
-          <textarea class="ap-textarea" id="ap-scenario1" placeholder="Walk us through what you'd do..." required minlength="40"></textarea>
+          <label class="ap-label">What is metagaming? <span>*</span></label>
+          <div class="mc-grid" id="mc-meta">
+            <button type="button" class="mc-btn" data-q="meta" data-val="a">Using information your character wouldn't realistically know to gain an advantage in RP</button>
+            <button type="button" class="mc-btn" data-q="meta" data-val="b">Playing the game on multiple accounts at once</button>
+            <button type="button" class="mc-btn" data-q="meta" data-val="c">Exploiting a bug to duplicate vehicles</button>
+            <button type="button" class="mc-btn" data-q="meta" data-val="d">Talking in Discord while in-game</button>
+          </div>
+          <input type="hidden" id="ap-meta" />
         </div>
 
         <div class="ap-group">
-          <label class="ap-label" for="ap-scenario2">You get into a pursuit with a suspect. They pull into a spawn/safe zone and stop their car. How do you handle it? <span>*</span></label>
-          <textarea class="ap-textarea" id="ap-scenario2" placeholder="Walk us through what you'd do..." required minlength="40"></textarea>
+          <label class="ap-label">If someone is in a pursuit and drives into a spawn area, what do you do? <span>*</span></label>
+          <div class="mc-grid" id="mc-pursuit">
+            <button type="button" class="mc-btn" data-q="pursuit" data-val="a">Continue the pursuit into the spawn area and arrest them</button>
+            <button type="button" class="mc-btn" data-q="pursuit" data-val="b">Stop at the edge, hold the perimeter, and wait for them to leave the protected area</button>
+            <button type="button" class="mc-btn" data-q="pursuit" data-val="c">Ram their car to stop them before they fully enter</button>
+            <button type="button" class="mc-btn" data-q="pursuit" data-val="d">Call it off since spawn areas protect everyone</button>
+          </div>
+          <input type="hidden" id="ap-pursuit" />
         </div>
 
         <div class="ap-group">
-          <label class="ap-label" for="ap-scenario3">Another officer in the server is clearly breaking rules — shooting people for no reason, ignoring callouts, just messing around. What do you do? <span>*</span></label>
-          <textarea class="ap-textarea" id="ap-scenario3" placeholder="Walk us through what you'd do..." required minlength="40"></textarea>
+          <label class="ap-label">What does NLR (New Life Rule) mean? <span>*</span></label>
+          <div class="mc-grid" id="mc-nlr">
+            <button type="button" class="mc-btn" data-q="nlr" data-val="a">You can return to the same situation immediately after respawning</button>
+            <button type="button" class="mc-btn" data-q="nlr" data-val="b">After dying, your character forgets what happened — you can't return to the same RP situation or seek revenge</button>
+            <button type="button" class="mc-btn" data-q="nlr" data-val="c">A rule that lets new players skip certain requirements</button>
+            <button type="button" class="mc-btn" data-q="nlr" data-val="d">You must wait 5 minutes before rejoining a server</button>
+          </div>
+          <input type="hidden" id="ap-nlr" />
         </div>
 
-        <!-- ── Section 5: About you ── -->
-        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">About you</span><div class="ap-divider-line"></div></div>
+        <!-- ── 3. Staff Scenarios ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">Staff Scenarios</span><div class="ap-divider-line"></div></div>
 
         <div class="ap-group">
-          <label class="ap-label" for="ap-why">Why GSRP specifically? <span>*</span></label>
-          <textarea class="ap-textarea" id="ap-why" placeholder="Don't just say 'I want to improve my RP skills' — tell us something real." required minlength="40"></textarea>
+          <label class="ap-label" for="ap-s1">Someone messages you saying another player is RDMing them repeatedly. The reported player has no prior punishments. What do you do? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-s1" placeholder="Walk through exactly what you'd do step by step..." required minlength="40"></textarea>
         </div>
 
         <div class="ap-group">
-          <label class="ap-label" for="ap-extra">Anything else? Previous groups, bans, anything we should know about.</label>
-          <textarea class="ap-textarea" id="ap-extra" placeholder="Optional — but if you've been banned somewhere before, be upfront about it." style="min-height:80px;"></textarea>
+          <label class="ap-label" for="ap-s2">You witness a player VDM someone, but when you check their logs they only have one previous verbal warning from 3 weeks ago. How do you handle the punishment? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-s2" placeholder="What punishment would you give and why?" required minlength="40"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-s3">A player is clearly breaking rules — FailRP, RDM, messing around — but every time you try to deal with it they log off. What do you do? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-s3" placeholder="How do you handle someone who keeps evading?" required minlength="40"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-s4">Another staff member in the server is letting their friends break rules and not doing anything about it. You see it happening. What do you do? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-s4" placeholder="Be honest here." required minlength="40"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-s5">Two players are arguing in chat about whether something was RDM or not. Both are sending you messages at the same time. How do you handle it? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-s5" placeholder="How would you deescalate and make a fair call?" required minlength="30"></textarea>
+        </div>
+
+        <!-- ── 4. About You ── -->
+        <div class="ap-divider"><div class="ap-divider-line"></div><span class="ap-divider-label">About You</span><div class="ap-divider-line"></div></div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-why">Why do you want to be staff at GSRP specifically? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-why" placeholder="Don't give a generic answer. Tell us something real." required minlength="50"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-strength">What's your biggest strength as a potential staff member? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-strength" placeholder="Give a real example if you can." required minlength="30"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-weakness">What's something you're still working on or could improve at? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-weakness" placeholder="Be honest — nobody's perfect." required minlength="30"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-availability">How many hours a week can you realistically commit to being active as staff? <span>*</span></label>
+          <input class="ap-input" id="ap-availability" type="text" placeholder="e.g. 5-10 hours" required />
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-prevstaff">Have you been staff anywhere before? If yes, where and for how long? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-prevstaff" placeholder="List any previous staff experience, or just say no." required minlength="10" style="min-height:70px;"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-bans">Have you ever been banned or warned in our server or any other ERLC server? <span>*</span></label>
+          <textarea class="ap-textarea" id="ap-bans" placeholder="Be upfront. We check." required minlength="10" style="min-height:70px;"></textarea>
+        </div>
+
+        <div class="ap-group">
+          <label class="ap-label" for="ap-extra">Anything else you want us to know?</label>
+          <textarea class="ap-textarea" id="ap-extra" placeholder="Optional — add anything relevant." style="min-height:70px;"></textarea>
         </div>
 
         <button type="submit" class="ap-submit" id="apSubmit">
@@ -326,29 +379,15 @@ toggle.addEventListener('click', () => {
   else { s0.style.transform=s1.style.opacity=s2.style.transform=''; }
 });
 
-/* ── Correct answers ── */
-const ANSWERS = { rdm: 'a', vdm: 'b', failrp: 'c', safezone: 'b' };
+/* ── MC answers — no right/wrong shown, just highlight selected ── */
 const mcAnswers = {};
-
-/* ── MC buttons ── */
 document.querySelectorAll('.mc-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    const q   = btn.dataset.q;
-    const val = btn.dataset.val;
-    // clear this question's selections
-    document.querySelectorAll(`.mc-btn[data-q="${q}"]`).forEach(b => {
-      b.classList.remove('selected','correct','wrong');
-    });
-    // mark correct/wrong immediately so applicant knows
-    if (val === ANSWERS[q]) {
-      btn.classList.add('correct');
-    } else {
-      btn.classList.add('wrong');
-      // show correct one
-      document.querySelector(`.mc-btn[data-q="${q}"][data-val="${ANSWERS[q]}"]`)?.classList.add('correct');
-    }
-    mcAnswers[q] = val;
-    document.getElementById(`ap-${q}`).value = val;
+    const q = btn.dataset.q;
+    document.querySelectorAll(`.mc-btn[data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    mcAnswers[q] = btn.dataset.val;
+    document.getElementById(`ap-${q}`).value = btn.dataset.val;
   });
 });
 
@@ -364,50 +403,58 @@ document.querySelectorAll('.age-btn').forEach(btn => {
 });
 
 /* ── Submit ── */
+const MC_QUESTIONS = ['rdm','vdm','failrp','safezone','meta','pursuit','nlr'];
 document.getElementById('apForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const alertEl   = document.getElementById('apAlert');
   const submitBtn = document.getElementById('apSubmit');
   alertEl.className = 'ap-alert';
-  alertEl.textContent = '';
 
   if (!selectedAge) {
     alertEl.textContent = 'Pick an age range.';
     alertEl.className = 'ap-alert error show'; return;
   }
-  const missing = ['rdm','vdm','failrp','safezone'].filter(q => !mcAnswers[q]);
-  if (missing.length) {
-    alertEl.textContent = 'Answer all the knowledge questions.';
+  const unanswered = MC_QUESTIONS.filter(q => !mcAnswers[q]);
+  if (unanswered.length) {
+    alertEl.textContent = 'Answer all the knowledge questions before submitting.';
     alertEl.className = 'ap-alert error show'; return;
   }
 
   submitBtn.disabled = true;
   submitBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Submitting…`;
 
+  // Correct answers (for staff to see how they did)
+  const CORRECT = { rdm:'a', vdm:'b', failrp:'b', safezone:'b', meta:'a', pursuit:'b', nlr:'b' };
+  const mcResult = {};
+  MC_QUESTIONS.forEach(q => { mcResult[q] = mcAnswers[q]; });
+  mcResult.allCorrect = MC_QUESTIONS.every(q => mcAnswers[q] === CORRECT[q]);
+  mcResult.score = MC_QUESTIONS.filter(q => mcAnswers[q] === CORRECT[q]).length + '/' + MC_QUESTIONS.length;
+
   const payload = {
     robloxUsername:  document.getElementById('ap-roblox').value.trim(),
     discordUsername: document.getElementById('ap-discord').value.trim(),
     discordId:       document.getElementById('ap-discord-id').value.trim(),
     age:             selectedAge,
-    department:      document.getElementById('ap-dept').value,
+    department:      'Staff', // staff app — no department
     experience:      document.getElementById('ap-exp').value,
-    // MC answers
-    mcAnswers: {
-      rdm:      mcAnswers.rdm,
-      vdm:      mcAnswers.vdm,
-      failrp:   mcAnswers.failrp,
-      safezone: mcAnswers.safezone,
-      allCorrect: Object.entries(ANSWERS).every(([q,a]) => mcAnswers[q] === a),
-    },
-    // Scenarios & short answers
-    scenario1: document.getElementById('ap-scenario1').value.trim(),
-    scenario2: document.getElementById('ap-scenario2').value.trim(),
-    scenario3: document.getElementById('ap-scenario3').value.trim(),
-    whyJoin:   document.getElementById('ap-why').value.trim(),
-    extra:     document.getElementById('ap-extra').value.trim(),
-    // legacy fields the backend expects
-    rpMeaning: document.getElementById('ap-scenario1').value.trim(),
-    description: '',
+    mcAnswers:       mcResult,
+    // Scenarios
+    scenario1: document.getElementById('ap-s1').value.trim(),
+    scenario2: document.getElementById('ap-s2').value.trim(),
+    scenario3: document.getElementById('ap-s3').value.trim(),
+    scenario4: document.getElementById('ap-s4').value.trim(),
+    scenario5: document.getElementById('ap-s5').value.trim(),
+    // About
+    whyJoin:      document.getElementById('ap-why').value.trim(),
+    strength:     document.getElementById('ap-strength').value.trim(),
+    weakness:     document.getElementById('ap-weakness').value.trim(),
+    availability: document.getElementById('ap-availability').value.trim(),
+    prevStaff:    document.getElementById('ap-prevstaff').value.trim(),
+    bans:         document.getElementById('ap-bans').value.trim(),
+    extra:        document.getElementById('ap-extra').value.trim(),
+    timezone:     document.getElementById('ap-timezone').value,
+    // Legacy compat fields
+    rpMeaning: document.getElementById('ap-s1').value.trim(),
   };
 
   try {

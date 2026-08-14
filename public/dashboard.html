@@ -369,12 +369,13 @@
 
     try {
       await api('POST', '/api/infractions', {
-        userId:      username,
-        robloxUserId: avatarImg.dataset.userId || null,
-        type:        selectedType,
-        reason:      document.getElementById('log-reason').value.trim(),
-        description: document.getElementById('log-desc').value.trim(),
-        source:      'web',
+        userId:          username,
+        robloxUserId:    avatarImg.dataset.userId || null,
+        robloxAvatarUrl: avatarImg.src && avatarImg.style.display !== 'none' ? avatarImg.src : null,
+        type:            selectedType,
+        reason:          document.getElementById('log-reason').value.trim(),
+        description:     document.getElementById('log-desc').value.trim(),
+        source:          'web',
       });
       showToast('Punishment logged!');
       e.target.reset();

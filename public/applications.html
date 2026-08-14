@@ -161,8 +161,11 @@
       vdm:      'VDM answer',
       failrp:   'FailRP answer',
       safezone: 'Safe zone answer',
+      meta:     'Metagaming answer',
+      pursuit:  'Pursuit/safezone answer',
+      nlr:      'NLR answer',
     };
-    const MC_CORRECT = { rdm:'a', vdm:'b', failrp:'c', safezone:'b' };
+    const MC_CORRECT = { rdm:'a', vdm:'b', failrp:'b', safezone:'b', meta:'a', pursuit:'b', nlr:'b' };
     const MC_OPTIONS = {
       rdm:      ['a','b','c','d'],
       vdm:      ['a','b','c','d'],
@@ -211,11 +214,18 @@
         </div>
       ` : ''}
 
-      ${longAnswer('Scenario 1 — VDM situation', a.scenario1)}
-      ${longAnswer('Scenario 2 — Safe zone pursuit', a.scenario2)}
-      ${longAnswer('Scenario 3 — Rulebreaking officer', a.scenario3)}
-      ${longAnswer('Why GSRP specifically?', a.whyJoin)}
-      ${longAnswer('Additional info / previous groups', a.extra)}
+      ${longAnswer('Scenario 1 — RDM report', a.scenario1)}
+      ${longAnswer('Scenario 2 — VDM punishment', a.scenario2)}
+      ${longAnswer('Scenario 3 — Rule evader', a.scenario3)}
+      ${longAnswer('Scenario 4 — Staff misconduct', a.scenario4)}
+      ${longAnswer('Scenario 5 — Player dispute', a.scenario5)}
+      ${longAnswer('Why GSRP staff specifically?', a.whyJoin)}
+      ${longAnswer('Biggest strength', a.strength)}
+      ${longAnswer('Areas to improve', a.weakness)}
+      ${longAnswer('Weekly availability', a.availability)}
+      ${longAnswer('Previous staff experience', a.prevStaff)}
+      ${longAnswer('Prior bans / warnings', a.bans)}
+      ${longAnswer('Additional info', a.extra)}
     `;
 
     // Action buttons — only show for pending
