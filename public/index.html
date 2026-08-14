@@ -234,13 +234,13 @@
       <p class="section-subtitle">Real reviews from real members.</p>
     </div>
 
-    <!-- Summary bar -->
-    <div class="reviews-summary reveal" id="reviews-summary" style="display:none;">
-      <div class="reviews-rating-big">
-        <div class="rating-number" id="avg-rating">—</div>
-        <div class="rating-info">
+    <!-- Summary bar — always visible, button always there -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px;" class="reveal">
+      <div id="reviews-summary-inner" style="display:flex;align-items:center;gap:16px;">
+        <div class="rating-number" id="avg-rating" style="display:none;font-size:42px;font-weight:900;"></div>
+        <div id="avg-info" style="display:none;">
           <div class="stars" id="avg-stars"></div>
-          <div class="reviews-count" id="reviews-count"></div>
+          <div class="reviews-count" id="reviews-count" style="font-size:13px;color:var(--text-muted);margin-top:4px;"></div>
         </div>
       </div>
       <button class="btn btn-outline" id="open-review-btn">Leave a Review →</button>
@@ -430,10 +430,13 @@ window.addEventListener('scroll', () => {
   }
 }, { passive: true });
 
-/* ── Active nav link on scroll ──────────────────────────────────────────── */
+/* ── Active nav link — only after user scrolls ──────────────────────────── */
+let hasScrolled = false;
+window.addEventListener('scroll', () => { hasScrolled = true; }, { once: true, passive: true });
 const sections   = document.querySelectorAll('section[id]');
 const navAnchors = document.querySelectorAll('.nav-links a');
 const sectionObs = new IntersectionObserver((entries) => {
+  if (!hasScrolled) return;
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       navAnchors.forEach(a => a.classList.remove('active'));
@@ -603,12 +606,15 @@ function renderReviews() {
 
   if (ph) ph.style.display = 'none';
 
-  // Show summary bar
-  const avg = (allReviews.reduce((s,r) => s + r.rating, 0) / allReviews.length).toFixed(1);
-  document.getElementById('avg-rating').textContent  = avg;
-  document.getElementById('avg-stars').innerHTML     = starsHtml(Math.round(avg));
-  document.getElementById('reviews-count').textContent = `${allReviews.length} review${allReviews.length!==1?'s':''}`;
-  summary.style.display = '';
+  // Show avg rating if reviews exist
+  if (allReviews.length) {
+    const avg = (allReviews.reduce((s,r) => s + r.rating, 0) / allReviews.length).toFixed(1);
+    document.getElementById('avg-rating').textContent  = avg;
+    document.getElementById('avg-rating').style.display = '';
+    document.getElementById('avg-stars').innerHTML     = starsHtml(Math.round(avg));
+    document.getElementById('reviews-count').textContent = `${allReviews.length} review${allReviews.length!==1?'s':''}`;
+    document.getElementById('avg-info').style.display  = '';
+  }
 
   // Carousel — show 3 at a time if 3+, otherwise show all
   const perPage   = 3;
