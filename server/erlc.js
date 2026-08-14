@@ -4,7 +4,7 @@
  */
 
 const axios = require("axios");
-const { HttpsProxyAgent } = await import('https-proxy-agent');
+const { HttpsProxyAgent } = require("https-proxy-agent");
 
 const BASE = "https://api.erlc.gg/v2";
 
