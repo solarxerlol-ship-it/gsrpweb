@@ -11,8 +11,26 @@ const { requireAuth, requireLevel, apiWriteLimiter } = require("../middleware");
 const { logERLCCommandToDiscord } = require("../discord");
 
 router.get("/server",    requireAuth, async (req, res) => {
-  try { res.json(await erlc.getServer()); }
+  try { res.json(await erlc.getServer(req.query)); }
   catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Public server status — no auth, used by the public homepage
+router.get("/server-public", async (req, res) => {
+  try {
+    const data = await erlc.getServer({ Players: true });
+    // Only expose safe public fields
+    res.json({
+      CurrentPlayers: data.CurrentPlayers,
+      MaxPlayers:     data.MaxPlayers,
+      Name:           data.Name,
+      Queue:          Array.isArray(data.Queue) ? data.Queue.length : (data.Queue ?? 0),
+      JoinKey:        data.JoinKey ? true : false,
+      Players:        Array.isArray(data.Players)
+        ? data.Players.map(p => ({ Team: p.Team, Callsign: p.Callsign, Player: p.Player?.split(':')[0] }))
+        : [],
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 router.get("/players",   requireAuth, async (req, res) => {
