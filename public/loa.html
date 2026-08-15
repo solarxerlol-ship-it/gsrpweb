@@ -100,7 +100,12 @@
             <button class="btn btn-danger btn-sm" data-action="deny" data-id="${l._id}">Deny</button>
           </td>` : `<td></td>`;
         return `<tr>
-          <td>${l.username || l.discordId || "—"}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:9px;">
+              ${discordAvatar(l.discordId, l.discordAvatar, 28)}
+              <span style="font-weight:600;">${l.username || l.discordId || "—"}</span>
+            </div>
+          </td>
           <td class="truncate" style="max-width:200px;">${l.reason}</td>
           <td class="text-muted">${formatDate(l.startDate)}</td>
           <td class="text-muted">${formatDate(l.endDate)}</td>

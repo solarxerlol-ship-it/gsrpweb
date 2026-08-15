@@ -246,10 +246,17 @@ router.get("/loa/all", requireAuth, async (req, res) => {
   try {
     const userId = req.session.user.discordId || req.session.user._id;
     const isMod  = ["moderator","admin","management","owner"].includes(req.session.user.accessLevel);
-    // Moderators+ see all; regular staff see only their own
     const query  = isMod ? {} : { discordId: userId };
     const loas   = await LOA.find(query).sort({ createdAt: -1 }).lean();
-    res.json(loas);
+    // Enrich with Discord avatar
+    const ids   = loas.map(l => l.discordId).filter(Boolean);
+    const users = await StaffUser.find({ discordId: { $in: ids } }).lean();
+    const uMap  = Object.fromEntries(users.map(u => [u.discordId, u]));
+    const enriched = loas.map(l => ({
+      ...l,
+      discordAvatar: uMap[l.discordId]?.discordAvatar || null,
+    }));
+    res.json(enriched);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

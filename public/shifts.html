@@ -62,9 +62,9 @@
       const el = document.getElementById("active-shifts");
       if (!shifts.length) { el.innerHTML = '<div class="empty-state">No one is on duty.</div>'; return; }
       el.innerHTML = shifts.map(s => `
-        <div class="feed-item">
-          <div class="feed-dot green"></div>
-          <span>${s.username || s.discordId}</span>
+        <div class="feed-item" style="gap:10px;">
+          ${discordAvatar(s.discordId, s.discordAvatar, 28)}
+          <span style="flex:1;">${s.username || s.discordId}</span>
           <span class="feed-time">${formatDuration(Date.now() - s.startedAt)}</span>
         </div>
       `).join("");
@@ -77,9 +77,10 @@
       const el  = document.getElementById("top-hours");
       if (!top.length) { el.innerHTML = '<div class="empty-state">No shift data this week.</div>'; return; }
       el.innerHTML = top.map((u, i) => `
-        <div class="feed-item">
+        <div class="feed-item" style="gap:10px;">
           <span style="color:var(--text-muted);min-width:22px;font-size:12px;">#${i+1}</span>
-          <span>${u.username || u.discordId}</span>
+          ${discordAvatar(u.discordId, u.discordAvatar, 26)}
+          <span style="flex:1;">${u.username || u.discordId}</span>
           <span class="feed-time">${formatDuration(u.total)}</span>
         </div>
       `).join("");

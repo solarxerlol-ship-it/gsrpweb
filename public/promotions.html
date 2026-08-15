@@ -24,14 +24,13 @@
           <table>
             <thead>
               <tr>
-                <th>User ID</th>
+                <th>User</th>
                 <th>Type</th>
                 <th>From</th>
                 <th>To</th>
                 <th>Reason</th>
                 <th>By</th>
                 <th>Date</th>
-                <th>Source</th>
               </tr>
             </thead>
             <tbody id="table-body">
@@ -128,14 +127,18 @@
     }
     tbody.innerHTML = records.map(r => `
       <tr>
-        <td class="mono">${r.userId}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${discordAvatar(r.userId, r.discordAvatar, 26)}
+            <span class="mono" style="font-size:12px;">${r.userId}</span>
+          </div>
+        </td>
         <td><span class="badge badge-${TYPE_COLOR[r.type] || 'gray'}">${r.type}</span></td>
         <td class="text-muted">${r.fromRole || "—"}</td>
         <td>${r.toRole || "—"}</td>
         <td class="truncate" style="max-width:180px;">${r.reason || "—"}</td>
         <td class="text-muted">${r.executor || "—"}</td>
         <td class="text-muted">${formatDate(r.timestamp)}</td>
-        <td><span class="badge ${r.source === 'web' ? 'badge-blue' : 'badge-gray'}">${r.source || 'bot'}</span></td>
       </tr>
     `).join("");
   }

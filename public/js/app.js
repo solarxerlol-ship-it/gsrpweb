@@ -180,6 +180,24 @@ async function renderSidebar() {
 /* ── Helpers ─────────────────────────────────────────────────────────────────*/
 function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ""; }
 
+/* ── Avatar helper — Discord headshot or initial fallback ────────────────────*/
+function discordAvatar(discordId, avatarHash, size = 32) {
+  if (discordId && avatarHash) {
+    return `<img src="https://cdn.discordapp.com/avatars/${discordId}/${avatarHash}.png?size=${size}"
+      style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border-md);flex-shrink:0;"
+      onerror="this.replaceWith(avatarInitial('${discordId}','${size}'))" alt="">`;
+  }
+  return avatarInitial(discordId, size);
+}
+function avatarInitial(name, size = 32) {
+  const el = document.createElement('div');
+  const initial = String(name || '?')[0].toUpperCase();
+  const hue = [...String(name||'')].reduce((a,c)=>a+c.charCodeAt(0),0) % 360;
+  el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:${Math.floor(size*0.42)}px;font-weight:700;background:hsl(${hue},55%,20%);color:hsl(${hue},80%,70%);border:1.5px solid var(--border-md);`;
+  el.textContent = initial;
+  return el.outerHTML;
+}
+
 function timeAgo(ts) {
   const diff = Math.floor((Date.now() - ts) / 1000);
   if (diff < 60) return `${diff}s ago`;
