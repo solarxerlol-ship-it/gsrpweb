@@ -66,7 +66,28 @@
     .type-pill.selected-kick    { background: rgba(139,92,246,0.12); border-color: var(--purple); color: var(--purple); }
     .type-pill.selected-ban     { background: rgba(239,68,68,0.12); border-color: var(--danger); color: var(--danger); }
 
-    /* ── User profile popup ── */
+    /* ── Live feed cards ── */
+    .feed-card {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      transition: border-color 0.15s, background 0.15s;
+      font-size: 13px;
+    }
+    .feed-card:hover { border-color: var(--border-md); background: rgba(79,111,255,0.03); }
+    .feed-card-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0;
+      border: 1.5px solid var(--border-md);
+      background: var(--bg-hover);
+    }
+    .feed-card-body { flex: 1; min-width: 0; line-height: 1.5; }
+    .feed-card-body b { color: var(--text-primary); font-weight: 700; }
+    .feed-card-body .feed-action { color: var(--text-secondary); }
+    .feed-card-body .feed-cmd { color: var(--accent); font-size: 12px; }
+    .feed-card-time { font-size: 11px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
     .profile-popup-header {
       display: flex; align-items: center; gap: 14px;
       margin-bottom: 18px;
@@ -176,13 +197,16 @@
 
       <!-- Bottom: live feed + recent punishments -->
       <div class="two-col">
-        <!-- Live feed -->
+      <!-- Live feed -->
         <div class="card">
           <div class="card-header">
             <span class="card-title">Live Feed</span>
             <span class="badge badge-blue">ERLC</span>
           </div>
-          <div id="live-feed"><div class="empty-state">No activity yet.</div></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <input id="feed-search" class="form-input" placeholder="Search players, commands…" style="font-size:12px;padding:6px 10px;">
+          </div>
+          <div id="live-feed" style="display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;"></div>
         </div>
 
         <!-- Top Hours -->
@@ -522,57 +546,107 @@
     } catch {}
   }
 
+  let feedData = [];
+
   async function loadErlcFeed() {
     const el = document.getElementById('live-feed');
     try {
-      const [kills, cmds] = await Promise.all([
+      const [kills, cmds, joins] = await Promise.all([
         api('GET', '/api/erlc/kill-logs').catch(() => []),
         api('GET', '/api/erlc/command-logs').catch(() => []),
+        api('GET', '/api/erlc/join-logs').catch(() => []),
       ]);
 
-      // Merge and tag each entry
-      const feed = [
-        ...kills.map(l => ({ ...l, _type: 'kill',    ts: (l.Timestamp || 0) * 1000 })),
-        ...cmds.map(l  => ({ ...l, _type: 'command', ts: (l.Timestamp || 0) * 1000 })),
-      ].sort((a, b) => b.ts - a.ts).slice(0, 20);
+      feedData = [
+        ...kills.map(l => ({ ...l, _type: 'kill',    ts: (l.Timestamp||0)*1000 })),
+        ...cmds.map(l  => ({ ...l, _type: 'command', ts: (l.Timestamp||0)*1000 })),
+        ...joins.map(l => ({ ...l, _type: l.Join ? 'join' : 'leave', ts: (l.Timestamp||0)*1000 })),
+      ].sort((a, b) => b.ts - a.ts).slice(0, 40);
 
-      if (!feed.length) { el.innerHTML = '<div class="empty-state">No ERLC activity.</div>'; return; }
-
-      el.innerHTML = feed.map(l => {
-        if (l._type === 'kill') {
-          const killer = (l.Killer || 'Unknown').split(':')[0];
-          const killed = (l.Killed || 'Unknown').split(':')[0];
-          return `<div class="feed-item">
-            <div class="feed-dot red"></div>
-            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-              <span style="font-weight:600;">${escFeed(killer)}</span>
-              <span style="color:var(--text-muted);"> killed </span>
-              <span style="font-weight:600;">${escFeed(killed)}</span>
-            </span>
-            <span class="feed-time">${formatTime(l.ts)}</span>
-          </div>`;
-        }
-        if (l._type === 'command') {
-          const player = (l.Player || 'Unknown').split(':')[0];
-          const cmd    = l.Command || '';
-          // Detect PMs — ERLC PM command is `:pm username message`
-          const isPm = /^:pm\b/i.test(cmd.trim());
-          return `<div class="feed-item">
-            <div class="feed-dot ${isPm ? 'yellow' : 'blue'}"></div>
-            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-              <span style="font-weight:600;">${escFeed(player)}</span>
-              <span style="color:var(--text-muted);"> ${isPm ? 'sent a PM' : 'ran'} </span>
-              <span style="font-size:12px;color:var(--accent);">${escFeed(cmd.length > 48 ? cmd.slice(0,48)+'…' : cmd)}</span>
-            </span>
-            <span class="feed-time">${formatTime(l.ts)}</span>
-          </div>`;
-        }
-        return '';
-      }).join('');
+      renderFeed();
     } catch {
       el.innerHTML = '<div class="empty-state">ERLC data unavailable.</div>';
     }
   }
+
+  function robloxHeadshot(username) {
+    // Use cached avatar from Roblox thumbnail via username hash — fallback to default
+    return `https://www.roblox.com/headshot-thumbnail/image?userId=1&width=48&height=48&format=Png`;
+  }
+
+  function feedAvatar(username) {
+    return `<img class="feed-card-avatar"
+      src="https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(username)}&backgroundColor=0a3d62,1e3799,4a235a,145a32,7b241c&fontFamily=Inter&fontSize=40"
+      onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" alt="">`;
+  }
+
+  function renderFeed() {
+    const el     = document.getElementById('live-feed');
+    const search = (document.getElementById('feed-search')?.value || '').toLowerCase().trim();
+    const visible = search
+      ? feedData.filter(l => {
+          const player = (l.Player||l.Killer||'').toLowerCase();
+          const cmd    = (l.Command||'').toLowerCase();
+          return player.includes(search) || cmd.includes(search);
+        })
+      : feedData;
+
+    if (!visible.length) {
+      el.innerHTML = `<div class="empty-state">${search ? 'No results.' : 'No ERLC activity.'}</div>`;
+      return;
+    }
+
+    el.innerHTML = visible.map(l => {
+      const ago = timeAgo(l.ts);
+
+      if (l._type === 'kill') {
+        const killer = (l.Killer||'Unknown').split(':')[0];
+        const killed = (l.Killed||'Unknown').split(':')[0];
+        return `<div class="feed-card">
+          ${feedAvatar(killer)}
+          <div class="feed-card-body">
+            <b>${escFeed(killer)}</b>
+            <span class="feed-action"> killed </span>
+            <b>${escFeed(killed)}</b>
+          </div>
+          <span class="feed-card-time">${ago}</span>
+        </div>`;
+      }
+
+      if (l._type === 'command') {
+        const player = (l.Player||'Unknown').split(':')[0];
+        const cmd    = l.Command || '';
+        const isPm   = /^:pm\b/i.test(cmd.trim());
+        const label  = isPm ? 'sent a PM' : 'ran the command';
+        return `<div class="feed-card">
+          ${feedAvatar(player)}
+          <div class="feed-card-body">
+            <b>${escFeed(player)}</b>
+            <span class="feed-action"> ${label} </span>
+            <span class="feed-cmd">${escFeed(cmd.length > 60 ? cmd.slice(0,60)+'…' : cmd)}</span>
+          </div>
+          <span class="feed-card-time">${ago}</span>
+        </div>`;
+      }
+
+      if (l._type === 'join' || l._type === 'leave') {
+        const player = (l.Player||'Unknown').split(':')[0];
+        const action = l._type === 'join' ? 'joined the game' : 'left the game';
+        return `<div class="feed-card">
+          ${feedAvatar(player)}
+          <div class="feed-card-body">
+            <b>${escFeed(player)}</b>
+            <span class="feed-action"> ${action}</span>
+          </div>
+          <span class="feed-card-time">${ago}</span>
+        </div>`;
+      }
+      return '';
+    }).join('');
+  }
+
+  // Wire search
+  document.getElementById('feed-search')?.addEventListener('input', renderFeed);
 
   function escFeed(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
