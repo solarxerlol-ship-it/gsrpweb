@@ -49,14 +49,15 @@
 
 <!-- Review modal -->
 <div class="modal-overlay" id="modal-review">
-  <div class="modal modal-lg">
-    <div class="modal-header">
+  <div class="modal modal-lg" style="max-height:90vh;display:flex;flex-direction:column;width:100%;max-width:760px;">
+    <div class="modal-header" style="flex-shrink:0;">
       <span class="modal-title" id="modal-title">Application Review</span>
       <button class="modal-close" data-close-modal="modal-review">&times;</button>
     </div>
-    <div id="modal-body" style="margin-bottom:20px;"></div>
+    <!-- Scrollable body -->
+    <div id="modal-body" style="overflow-y:auto;flex:1;padding-right:4px;margin-bottom:14px;"></div>
     <div id="modal-alert"></div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;" id="modal-actions"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;border-top:1px solid var(--border);padding-top:14px;" id="modal-actions"></div>
   </div>
 </div>
 
@@ -142,99 +143,124 @@
     if (!a) return;
     currentApp = a;
 
-    document.getElementById('modal-title').textContent = `Application — ${a.robloxUsername}`;
+    document.getElementById('modal-title').textContent = `${a.robloxUsername} — ${a.department}`;
     document.getElementById('modal-alert').innerHTML = '';
 
-    const fields = [
-      ['Roblox Username', a.robloxUsername],
-      ['Discord Username', a.discordUsername],
-      ['Discord ID', a.discordId],
-      ['Age Range', a.age],
-      ['Department', a.department],
-      ['ERLC Experience', a.experience],
-      ['Submitted', formatDate(a.createdAt)],
-      ['Status', capitalize(a.status)],
-    ];
-
     const MC_LABELS = {
-      rdm:      'RDM answer',
-      vdm:      'VDM answer',
-      failrp:   'FailRP answer',
-      safezone: 'Safe zone answer',
-      meta:     'Metagaming answer',
-      pursuit:  'Pursuit/safezone answer',
-      nlr:      'NLR answer',
+      rdm:      'What does RDM stand for and what is it?',
+      vdm:      'What does VDM stand for and what is it?',
+      failrp:   'Which of these is an example of FailRP?',
+      safezone: 'Can you engage someone inside a safe zone?',
+      meta:     'What is metagaming?',
+      pursuit:  'Pursuit into a spawn area — what do you do?',
+      nlr:      'What does NLR (New Life Rule) mean?',
+    };
+    const MC_OPTIONS = {
+      rdm:      { a:'Random Deathmatch — killing/shooting with zero RP reason', b:'Rapid Deployment Mode — staff respond to situation', c:'Rule Defined Moderation — issuing punishments', d:'Shooting back at someone who shot first' },
+      vdm:      { a:'Vehicle Damage Mode — enabling PvP in vehicles', b:'Vehicle Deathmatch — using your car to kill/injure', c:'Accidentally bumping someone during a chase', d:'Speeding through a red light on duty' },
+      failrp:   { a:'Suspect runs from police on foot after refusing to comply', b:'Player jumps off roof, lands fine, keeps running like nothing happened', c:'Officer initiates traffic stop for broken tail light', d:'Civilian calls 911 to report a robbery' },
+      safezone: { a:'Yes, if they committed a crime beforehand', b:'No — safe zones are off-limits for any hostile action', c:'Only with admin approval', d:'Yes, but only with a weapon out' },
+      meta:     { a:'Using info your character wouldn\'t know to gain RP advantage', b:'Playing on multiple accounts at once', c:'Exploiting a bug to duplicate vehicles', d:'Talking in Discord while in-game' },
+      pursuit:  { a:'Continue pursuit into spawn area and arrest them', b:'Stop at edge, hold perimeter, wait for them to leave', c:'Ram their car before they fully enter', d:'Call it off since spawn areas protect everyone' },
+      nlr:      { a:'You can return to the same situation immediately after respawning', b:'After dying, character forgets — can\'t return to same RP situation', c:'A rule that lets new players skip requirements', d:'Must wait 5 minutes before rejoining a server' },
     };
     const MC_CORRECT = { rdm:'a', vdm:'b', failrp:'b', safezone:'b', meta:'a', pursuit:'b', nlr:'b' };
-    const MC_OPTIONS = {
-      rdm:      ['a','b','c','d'],
-      vdm:      ['a','b','c','d'],
-      failrp:   ['a','b','c','d'],
-      safezone: ['a','b','c','d'],
-    };
+    const mc = a.mcAnswers || {};
 
-    function answerRow(label, val, correct) {
-      const ok = val === correct;
-      const color = ok ? 'var(--success)' : 'var(--danger)';
-      const icon  = ok ? '✓' : '✗';
-      return `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:10px 14px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">${label}</div>
-        <div style="font-size:13px;font-weight:600;color:${color};">${icon} Option ${(val||'—').toUpperCase()}${ok ? '' : ` (correct: ${correct.toUpperCase()})`}</div>
+    function section(title) {
+      return `<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);">${title}</div>`;
+    }
+
+    function infoGrid(pairs) {
+      return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${pairs.map(([k,v]) => `
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
+            <div style="font-size:9.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;">${k}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">${escHtml(String(v || '—'))}</div>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    function mcRow(q) {
+      const chosen  = mc[q];
+      const correct = MC_CORRECT[q];
+      const isRight = chosen === correct;
+      const opts    = MC_OPTIONS[q] || {};
+      return `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:12px 14px;margin-bottom:8px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:8px;">${MC_LABELS[q]}</div>
+        ${Object.entries(opts).map(([letter, text]) => {
+          const isChosen  = letter === chosen;
+          const isCorrect = letter === correct;
+          let bg = 'transparent', border = 'var(--border)', color = 'var(--text-muted)';
+          if (isCorrect) { bg = 'rgba(34,197,94,0.08)'; border = 'rgba(34,197,94,0.35)'; color = 'var(--success)'; }
+          if (isChosen && !isCorrect) { bg = 'rgba(239,68,68,0.08)'; border = 'rgba(239,68,68,0.35)'; color = 'var(--danger)'; }
+          const icon = isCorrect ? '✓' : (isChosen && !isCorrect ? '✗' : '');
+          const weight = (isChosen || isCorrect) ? '700' : '500';
+          return `<div style="display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:5px;background:${bg};border:1px solid ${border};margin-bottom:4px;">
+            <span style="font-size:11px;font-weight:700;color:${color};min-width:14px;">${icon || letter.toUpperCase()}</span>
+            <span style="font-size:12px;color:${color};font-weight:${weight};line-height:1.5;">${escHtml(text)}</span>
+          </div>`;
+        }).join('')}
       </div>`;
     }
 
     function longAnswer(label, val) {
-      if (!val) return '';
-      return `<div style="margin-bottom:14px;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">${label}</div>
-        <div style="font-size:13px;color:var(--text-primary);line-height:1.7;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;padding:14px;white-space:pre-wrap;">${escHtml(val)}</div>
+      if (!val || !val.trim()) return '';
+      return `<div style="margin-bottom:12px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">${label}</div>
+        <div style="font-size:13px;color:var(--text-primary);line-height:1.75;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:12px 14px;white-space:pre-wrap;word-break:break-word;">${escHtml(val)}</div>
       </div>`;
     }
 
-    const mc = a.mcAnswers || {};
+    // MC score
+    const mcKeys = Object.keys(MC_CORRECT);
+    const answered = mcKeys.filter(q => mc[q]);
+    const correct  = mcKeys.filter(q => mc[q] === MC_CORRECT[q]);
+    const scoreColor = correct.length >= 6 ? 'var(--success)' : correct.length >= 4 ? 'var(--warning)' : 'var(--danger)';
 
     document.getElementById('modal-body').innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
-        ${fields.map(([k,v]) => `
-          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">
-            <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">${k}</div>
-            <div style="font-size:13px;font-weight:600;">${escHtml(String(v || '—'))}</div>
-          </div>
-        `).join('')}
-      </div>
+      ${section('Basic Info')}
+      ${infoGrid([
+        ['Roblox Username', a.robloxUsername],
+        ['Discord Username', a.discordUsername],
+        ['Discord ID',       a.discordId],
+        ['Age Range',        a.age],
+        ['Timezone',         a.timezone || '—'],
+        ['Department',       a.department],
+        ['ERLC Experience',  a.experience],
+        ['Submitted',        formatDate(a.createdAt)],
+        ['Status',           capitalize(a.status)],
+        ['Reviewed By',      a.reviewedBy || '—'],
+      ])}
 
-      ${Object.keys(MC_CORRECT).some(q => mc[q]) ? `
-        <div style="margin-bottom:20px;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Knowledge Questions</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            ${Object.entries(MC_CORRECT).map(([q,correct]) =>
-              answerRow(MC_LABELS[q], mc[q], correct)
-            ).join('')}
-          </div>
-        </div>
-      ` : ''}
+      ${section(`ERLC Knowledge — Score: ${correct.length}/${mcKeys.length}`)}
+      <div style="margin-bottom:4px;font-size:12px;color:${scoreColor};font-weight:700;">${correct.length}/${mcKeys.length} correct &nbsp;${correct.length === mcKeys.length ? '🎉 Perfect score' : correct.length >= 5 ? '👍 Solid' : '⚠️ Needs review'}</div>
+      ${mcKeys.map(q => mcRow(q)).join('')}
 
-      ${longAnswer('Scenario 1 — RDM report', a.scenario1)}
-      ${longAnswer('Scenario 2 — VDM punishment', a.scenario2)}
-      ${longAnswer('Scenario 3 — Rule evader', a.scenario3)}
-      ${longAnswer('Scenario 4 — Staff misconduct', a.scenario4)}
-      ${longAnswer('Scenario 5 — Player dispute', a.scenario5)}
+      ${section('Staff Scenarios')}
+      ${longAnswer('Scenario 1 — Player reports repeated RDM', a.scenario1)}
+      ${longAnswer('Scenario 2 — Witnessed VDM, one prior verbal warning', a.scenario2)}
+      ${longAnswer('Scenario 3 — Rule-breaker keeps logging off', a.scenario3)}
+      ${longAnswer('Scenario 4 — Staff member letting friends break rules', a.scenario4)}
+      ${longAnswer('Scenario 5 — Two players arguing about RDM simultaneously', a.scenario5)}
+
+      ${section('About You')}
       ${longAnswer('Why GSRP staff specifically?', a.whyJoin)}
       ${longAnswer('Biggest strength', a.strength)}
-      ${longAnswer('Areas to improve', a.weakness)}
-      ${longAnswer('Weekly availability', a.availability)}
+      ${longAnswer('Areas to improve / weakness', a.weakness)}
+      ${longAnswer('Weekly availability / hours', a.availability)}
       ${longAnswer('Previous staff experience', a.prevStaff)}
-      ${longAnswer('Prior bans / warnings', a.bans)}
-      ${longAnswer('Additional info', a.extra)}
+      ${longAnswer('Prior bans or warnings', a.bans)}
+      ${longAnswer('Anything else', a.extra)}
     `;
 
-    // Action buttons — only show for pending
+    // Action buttons
     const actionsEl = document.getElementById('modal-actions');
     if (a.status === 'pending') {
       actionsEl.innerHTML = `
         <button class="btn btn-ghost" data-close-modal="modal-review">Close</button>
-        <button class="btn btn-danger" data-action="deny">Deny</button>
-        <button class="btn btn-success" data-action="accept">Accept</button>
+        <button class="btn btn-danger" data-action="deny">✗ Deny</button>
+        <button class="btn btn-success" data-action="accept">✓ Accept</button>
       `;
     } else {
       actionsEl.innerHTML = `<button class="btn btn-ghost" data-close-modal="modal-review">Close</button>`;
