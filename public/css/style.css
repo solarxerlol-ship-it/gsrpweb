@@ -4,10 +4,10 @@
 :root {
   /* Pure black base with blue glow */
   --bg-base:    #000000;
-  --bg-surface: #050508;
-  --bg-card:    #09090f;
-  --bg-hover:   #0e0e17;
-  --bg-input:   #050508;
+  --bg-surface: #030303;
+  --bg-card:    #070707;
+  --bg-hover:   #0c0c0c;
+  --bg-input:   #030303;
 
   /* Borders */
   --border:    rgba(79,111,255,0.14);
@@ -53,8 +53,11 @@ html, body {
   font-weight: 700;
 }
 
-/* Force bold on all text elements */
-*, *::before, *::after {
+/* Force bold on all text elements — exclude pseudo-elements used for bg */
+body, h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, label,
+td, th, li, .nav-item, .card-title, .stat-value, .stat-label,
+.topbar-title, .sidebar-title, .feed-card-body, .plog-username,
+.plog-reason, .plog-meta, .modal-title, .badge, .btn {
   font-weight: 700 !important;
 }
 
@@ -63,9 +66,8 @@ body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0;
   background:
-    radial-gradient(ellipse 70% 55% at 15% 5%, rgba(79,111,255,0.18) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 45% at 85% 90%, rgba(79,111,255,0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 40% at 50% 50%, rgba(79,111,255,0.04) 0%, transparent 70%);
+    radial-gradient(ellipse 65% 50% at 12% 0%, rgba(79,111,255,0.30) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 45% at 88% 95%, rgba(79,111,255,0.22) 0%, transparent 50%);
   pointer-events: none;
   animation: bgPulse 8s ease-in-out infinite alternate;
 }
