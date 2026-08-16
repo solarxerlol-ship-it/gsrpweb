@@ -57,6 +57,7 @@
         <div class="tab" data-tab="killlogs">Kill Logs</div>
         <div class="tab" data-tab="cmdlogs">Command Logs</div>
         <div class="tab" data-tab="joinlogs">Join Logs</div>
+        <div class="tab" data-tab="punish">Log Punishment</div>
         <div class="tab" data-tab="commands" id="tab-commands">Run Command</div>
       </div>
 
@@ -134,6 +135,58 @@
         </div>
       </div>
 
+      <!-- Log Punishment -->
+      <div class="tab-panel" id="panel-punish" style="display:none;">
+        <div class="card" style="max-width:620px;">
+          <div class="card-header"><span class="card-title">Log In-Game Punishment</span></div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+            Log an ERLC in-game punishment against a player. Select from the current server or type a username manually.
+          </p>
+          <div id="punish-alert"></div>
+
+          <!-- Player picker -->
+          <div class="form-group">
+            <label class="form-label">Player (from server)</label>
+            <select class="form-select" id="p-player-select">
+              <option value="">— Select a player or type below —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Or enter Roblox Username manually</label>
+            <input class="form-input" id="p-username" placeholder="RobloxUsername">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Punishment Type</label>
+            <select class="form-select" id="p-type">
+              <option value="warn">Warning</option>
+              <option value="verbal">Verbal Warning</option>
+              <option value="strike">Strike</option>
+              <option value="kick">Kick</option>
+              <option value="ban">Ban</option>
+              <option value="mute">Mute</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Reason</label>
+            <input class="form-input" id="p-reason" placeholder="Reason for punishment">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes (optional)</label>
+            <textarea class="form-textarea" id="p-notes" placeholder="Additional details..." style="min-height:70px;"></textarea>
+          </div>
+
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-danger" id="p-submit">Log Punishment</button>
+          </div>
+
+          <!-- Recent punishments logged this session -->
+          <div id="p-history" style="margin-top:20px;"></div>
+        </div>
+      </div>
+
       <!-- Run command -->
       <div class="tab-panel" id="panel-commands" style="display:none;">
         <div class="card" style="max-width:600px;">
@@ -157,6 +210,8 @@
 <script src="/js/app.js"></script>
 <script>
   const cmdHistory = [];
+  const punishHistory = [];
+  let cachedPlayers = [];
 
   async function init() {
     const user = await getUser();

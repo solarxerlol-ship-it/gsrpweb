@@ -321,9 +321,9 @@
     pRank.textContent = user.roleLabel || capitalize(user.accessLevel);
     pRank.style.color = user.roleColor || colors[user.accessLevel] || '#4f6fff';
 
-    // Hide log panel if not moderator+
+    // Hide "Log Punishment" button if not moderator+, but keep the list visible
     if (!hasLevel(user.accessLevel, 'moderator')) {
-      document.getElementById('log-panel').style.display = 'none';
+      document.getElementById('toggle-log-btn').style.display = 'none';
     }
 
     loadStats();

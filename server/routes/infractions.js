@@ -131,15 +131,11 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
       moderatorName: actor.displayName,
     };
 
-    // ── Only notify bot/Discord for bot-sourced infractions.
-    // ERLC punishments logged via the web portal (source=web) are
-    // internal staff records only — no bot DM, no Discord embed.
-    if (record.source !== "web") {
-      if (process.env.PORTAL_BOT_URL && process.env.PORTAL_INTERNAL_SECRET) {
-        notifyBot(botPayload);
-      } else {
-        logInfractionToDiscord(botPayload);
-      }
+    // ── Always log to Discord. For web portal infractions, post the embed
+    // directly. Also notify the bot (for DMs etc.) if it's configured.
+    logInfractionToDiscord(botPayload);
+    if (process.env.PORTAL_BOT_URL && process.env.PORTAL_INTERNAL_SECRET) {
+      notifyBot(botPayload);
     }
 
     res.json(record.toObject());
