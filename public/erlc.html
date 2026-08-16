@@ -7,6 +7,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .type-pill {
+      padding: 5px 12px; border-radius: 99px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+      border: 1px solid var(--border-md); background: transparent;
+      color: var(--text-secondary); cursor: pointer; font-family: inherit;
+      transition: all 0.15s; text-transform: uppercase;
+    }
+    .type-pill:hover { border-color: var(--accent); color: var(--accent); }
+    .type-pill.selected-verbal { background: rgba(107,114,128,0.15); border-color: #6b7280; color: #9ca3af; }
+    .type-pill.selected-warn   { background: rgba(245,158,11,0.12);  border-color: #f59e0b; color: #f59e0b; }
+    .type-pill.selected-kick   { background: rgba(139,92,246,0.12);  border-color: #8b5cf6; color: #8b5cf6; }
+    .type-pill.selected-ban    { background: rgba(239,68,68,0.12);   border-color: #ef4444; color: #ef4444; }
+    .p-suggest-item:hover { background: rgba(79,111,255,0.06); }
+    .p-suggest-item:last-child { border-bottom: none !important; }
+  </style>
 </head>
 <body>
 <div class="app-layout">
@@ -226,8 +242,16 @@
 <script src="/js/app.js"></script>
 <script>
   const cmdHistory = [];
-  const punishHistory = [];
-  let cachedPlayers = [];
+  let cachedPlayers = [];   // live players from ERLC
+  let pSelectedType = '';
+  let pAvatarData   = null; // { id, url } from Roblox API
+
+  const P_TYPE_META = {
+    verbal: { label: 'Verbal',  color: '#9ca3af', bg: 'rgba(107,114,128,0.12)' },
+    warn:   { label: 'Warn',    color: '#f59e0b', bg: 'rgba(245,158,11,0.12)'  },
+    kick:   { label: 'Kick',    color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)'  },
+    ban:    { label: 'Ban',     color: '#ef4444', bg: 'rgba(239,68,68,0.12)'   },
+  };
 
   async function init() {
     const user = await getUser();
@@ -239,6 +263,7 @@
     }
 
     setupTabs();
+    setupPunishTab();
     loadAll();
   }
 
@@ -249,6 +274,8 @@
         document.querySelectorAll(".tab-panel").forEach(p => p.style.display = "none");
         tab.classList.add("active");
         document.getElementById(`panel-${tab.dataset.tab}`).style.display = "";
+        // Refresh recent punishments when tab opened
+        if (tab.dataset.tab === 'punish') loadRecentPunishments();
       });
     });
   }
@@ -273,7 +300,6 @@
       document.getElementById("server-status").textContent = "Offline";
       document.getElementById("server-status").className   = "badge badge-red";
     }
-
     try {
       const [q, mc, ec] = await Promise.all([
         api("GET", "/api/erlc/queue"),
@@ -289,6 +315,8 @@
   async function loadPlayers() {
     try {
       const players = await api("GET", "/api/erlc/players");
+      // Cache for Tab autocomplete on the punishment tab
+      cachedPlayers = players.map(p => (p.Player || "").split(":")[0]).filter(Boolean);
       const tbody = document.getElementById("t-players");
       if (!players.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No players in server.</td></tr>'; return; }
       tbody.innerHTML = players.map(p => {
@@ -391,6 +419,201 @@
     } catch {}
   }
 
+  /* ── Punishment tab ──────────────────────────────────────────────────────── */
+  function setupPunishTab() {
+    const input      = document.getElementById('p-username');
+    const suggestBox = document.getElementById('p-suggestions');
+    const tabHint    = document.getElementById('p-tab-hint');
+    const tabName    = document.getElementById('p-tab-name');
+    const avatarImg  = document.getElementById('p-avatar-img');
+    let tabMatch     = '';
+    let avatarDebounce = null;
+
+    // ── Type pills ────────────────────────────────────────────────────────────
+    document.querySelectorAll('#p-type-pills .type-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('#p-type-pills .type-pill').forEach(p => p.className = 'type-pill');
+        pSelectedType = pill.dataset.type;
+        pill.classList.add(`selected-${pSelectedType}`);
+        document.getElementById('p-type').value = pSelectedType;
+      });
+    });
+
+    // ── Input: filter server players + Tab autocomplete ───────────────────────
+    input.addEventListener('input', () => {
+      const val = input.value;
+      if (!val) {
+        hideSuggestions();
+        tabHint.style.display = 'none';
+        tabMatch = '';
+        return;
+      }
+
+      // Match against cached in-server players
+      const lower   = val.toLowerCase();
+      const matches = cachedPlayers.filter(n => n.toLowerCase().startsWith(lower));
+      tabMatch = matches[0] || '';
+
+      // Show Tab hint if there's a single clear match
+      if (tabMatch && tabMatch.toLowerCase() !== lower) {
+        tabName.textContent = tabMatch;
+        tabHint.style.display = '';
+      } else {
+        tabHint.style.display = 'none';
+      }
+
+      // Dropdown list
+      if (matches.length > 0) {
+        suggestBox.innerHTML = matches.slice(0, 8).map(n =>
+          `<div class="p-suggest-item" data-name="${n}" style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);">
+            <span style="font-weight:600;color:var(--text-primary);">${n.slice(0, val.length)}</span><span style="color:var(--text-muted);">${n.slice(val.length)}</span>
+          </div>`
+        ).join('');
+        suggestBox.style.display = '';
+      } else {
+        hideSuggestions();
+      }
+
+      // Avatar debounce for manual typing
+      clearTimeout(avatarDebounce);
+      avatarDebounce = setTimeout(() => resolveAvatar(val.trim()), 700);
+    });
+
+    // Tab key → autocomplete
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Tab' && tabMatch) {
+        e.preventDefault();
+        input.value = tabMatch;
+        tabHint.style.display = 'none';
+        hideSuggestions();
+        resolveAvatar(tabMatch);
+        tabMatch = '';
+      }
+      if (e.key === 'Escape') hideSuggestions();
+    });
+
+    // Click suggestion item
+    suggestBox.addEventListener('click', e => {
+      const item = e.target.closest('.p-suggest-item');
+      if (!item) return;
+      input.value = item.dataset.name;
+      hideSuggestions();
+      tabHint.style.display = 'none';
+      tabMatch = '';
+      resolveAvatar(item.dataset.name);
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#p-username') && !e.target.closest('#p-suggestions')) hideSuggestions();
+    });
+
+    function hideSuggestions() {
+      suggestBox.style.display = 'none';
+      suggestBox.innerHTML = '';
+    }
+
+    // Resolve Roblox avatar for the selected player
+    async function resolveAvatar(username) {
+      if (!username) { avatarImg.style.display = 'none'; pAvatarData = null; return; }
+      try {
+        const idRes = await fetch(`/api/roblox/user?username=${encodeURIComponent(username)}`);
+        if (!idRes.ok) throw new Error();
+        const { id } = await idRes.json();
+        if (!id) throw new Error();
+        const thumbRes = await fetch(`/api/roblox/avatar?userId=${id}`);
+        if (!thumbRes.ok) throw new Error();
+        const { url } = await thumbRes.json();
+        pAvatarData = { id: String(id), url };
+        avatarImg.src = url;
+        avatarImg.style.display = '';
+      } catch {
+        pAvatarData = null;
+        avatarImg.style.display = 'none';
+      }
+    }
+
+    // ── Submit ────────────────────────────────────────────────────────────────
+    document.getElementById('p-submit').addEventListener('click', async () => {
+      const alertEl = document.getElementById('punish-alert');
+      alertEl.innerHTML = '';
+      const username = document.getElementById('p-username').value.trim();
+      const reason   = document.getElementById('p-reason').value.trim();
+      const notes    = document.getElementById('p-notes').value.trim();
+
+      if (!username) { alertEl.innerHTML = '<div class="alert alert-error show">Enter a player username.</div>'; return; }
+      if (!pSelectedType) { alertEl.innerHTML = '<div class="alert alert-error show">Select a punishment type.</div>'; return; }
+      if (!reason) { alertEl.innerHTML = '<div class="alert alert-error show">Enter a reason.</div>'; return; }
+
+      const btn = document.getElementById('p-submit');
+      btn.disabled = true; btn.textContent = 'Logging…';
+      try {
+        await api('POST', '/api/erlc-punishments', {
+          userId:          username,
+          robloxUserId:    pAvatarData?.id   || null,
+          robloxAvatarUrl: pAvatarData?.url  || null,
+          type:            pSelectedType,
+          reason,
+          description:     notes,
+        });
+
+        showToast(`Punishment logged for ${username}`);
+
+        // Reset form
+        document.getElementById('p-username').value = '';
+        document.getElementById('p-reason').value   = '';
+        document.getElementById('p-notes').value    = '';
+        document.querySelectorAll('#p-type-pills .type-pill').forEach(p => p.className = 'type-pill');
+        pSelectedType = '';
+        document.getElementById('p-type').value = '';
+        avatarImg.style.display = 'none';
+        pAvatarData = null;
+        alertEl.innerHTML = '';
+
+        loadRecentPunishments();
+      } catch (err) {
+        alertEl.innerHTML = `<div class="alert alert-error show">${err.message}</div>`;
+      } finally {
+        btn.disabled = false; btn.textContent = 'Log Punishment';
+      }
+    });
+
+    // Refresh button
+    document.getElementById('p-refresh')?.addEventListener('click', loadRecentPunishments);
+  }
+
+  async function loadRecentPunishments() {
+    const el = document.getElementById('p-history');
+    try {
+      const { records } = await api('GET', '/api/erlc-punishments?limit=20');
+      if (!records || !records.length) {
+        el.innerHTML = '<div class="empty-state">No punishments yet.</div>';
+        return;
+      }
+      el.innerHTML = records.map(r => {
+        const t = (r.type || 'warn').toLowerCase();
+        const m = P_TYPE_META[t] || P_TYPE_META.warn;
+        const avatarSrc = r.robloxAvatarUrl || '';
+        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+          ${avatarSrc
+            ? `<img src="${avatarSrc}" style="width:28px;height:28px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--border-md);" onerror="this.style.display='none'">`
+            : `<div style="width:28px;height:28px;border-radius:50%;background:var(--bg-hover);flex-shrink:0;"></div>`}
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+              <span style="font-size:13px;font-weight:700;">${r.userId}</span>
+              <span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;background:${m.bg};color:${m.color};border:1px solid ${m.color}33;">${m.label}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-secondary);">${r.reason}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">by ${r.moderator || '—'} · ${timeAgo(r.timestamp)}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } catch {
+      el.innerHTML = '<div class="empty-state">Could not load punishments.</div>';
+    }
+  }
+
+  /* ── Run command ─────────────────────────────────────────────────────────── */
   document.getElementById("cmd-run")?.addEventListener("click", async () => {
     const input = document.getElementById("cmd-input");
     const cmd   = input.value.trim();
