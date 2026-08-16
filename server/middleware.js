@@ -10,7 +10,7 @@ function requireAuth(req, res, next) {
   if (req.path.startsWith("/api/")) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-  res.redirect("/login");
+  res.redirect("/staff/login");
 }
 
 /** Factory — require minimum access level */
@@ -21,13 +21,13 @@ function requireLevel(level) {
     const user = req.session?.user;
     if (!user) {
       if (req.path.startsWith("/api/")) return res.status(401).json({ error: "Unauthorized" });
-      return res.redirect("/login");
+      return res.redirect("/staff/login");
     }
     const userIdx  = LEVELS.indexOf(user.accessLevel);
     const reqIdx   = LEVELS.indexOf(level);
     if (userIdx >= reqIdx) return next();
     if (req.path.startsWith("/api/")) return res.status(403).json({ error: "Forbidden — insufficient rank" });
-    res.redirect("/dashboard?error=forbidden");
+    res.redirect("/staff/dashboard?error=forbidden");
   };
 }
 

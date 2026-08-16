@@ -18,11 +18,11 @@ async function getUser() {
   if (_currentUser) return _currentUser;
   try {
     const res = await fetch("/auth/me");
-    if (!res.ok) { window.location.href = "/login"; return null; }
+    if (!res.ok) { window.location.href = "/staff/login"; return null; }
     _currentUser = await res.json();
     return _currentUser;
   } catch {
-    window.location.href = "/login";
+    window.location.href = "/staff/login";
     return null;
   }
 }
@@ -41,21 +41,21 @@ async function getUser() {
  * ─────────────────────────────────────────────────────────────────────────── */
 const NAV = [
   // ── All staff ──────────────────────────────────────────────────────────────
-  { label: "Overview",         icon: "grid",      href: "/dashboard"                       },
-  { label: "Shifts",           icon: "clock",     href: "/shifts"                          },
-  { label: "ERLC",             icon: "zap",       href: "/erlc"                            },
-  { label: "Leave of Absence", icon: "calendar",  href: "/loa"                             },
-  { label: "Statistics",       icon: "bar-chart", href: "/statistics"                      },
-  { label: "Docs",             icon: "book",      href: "/docs"                            },
+  { label: "Overview",         icon: "grid",      href: "/staff/dashboard"                       },
+  { label: "Shifts",           icon: "clock",     href: "/staff/shifts"                          },
+  { label: "ERLC",             icon: "zap",       href: "/staff/erlc"                            },
+  { label: "Leave of Absence", icon: "calendar",  href: "/staff/loa"                             },
+  { label: "Statistics",       icon: "bar-chart", href: "/staff/statistics"                      },
+  { label: "Docs",             icon: "book",      href: "/staff/docs"                            },
   // ── Moderator+ ─────────────────────────────────────────────────────────────
-  { label: "Infractions",      icon: "shield",    href: "/infractions", minLevel: "moderator"  },
-  { label: "Roster",           icon: "users",     href: "/roster",      minLevel: "moderator"  },
+  { label: "Infractions",      icon: "shield",    href: "/staff/infractions", minLevel: "moderator"  },
+  { label: "Roster",           icon: "users",     href: "/staff/roster",      minLevel: "moderator"  },
   // ── Admin+ ─────────────────────────────────────────────────────────────────
-  { label: "Promotions",       icon: "arrow-up",  href: "/promotions",  minLevel: "admin"      },
+  { label: "Promotions",       icon: "arrow-up",  href: "/staff/promotions",  minLevel: "admin"      },
   // ── Management+ ────────────────────────────────────────────────────────────
-  { label: "Applications",     icon: "clipboard", href: "/applications",   minLevel: "management" },
-  { label: "Audit Log",        icon: "file-text", href: "/audit",         minLevel: "management" },
-  { label: "Settings",         icon: "settings",  href: "/settings",      minLevel: "management" },
+  { label: "Applications",     icon: "clipboard", href: "/staff/applications",   minLevel: "management" },
+  { label: "Audit Log",        icon: "file-text", href: "/staff/audit",         minLevel: "management" },
+  { label: "Settings",         icon: "settings",  href: "/staff/settings",      minLevel: "management" },
 ];
 
 /* ── Icon SVGs ───────────────────────────────────────────────────────────────*/
@@ -120,7 +120,9 @@ async function renderSidebar() {
 
   function renderItems(items) {
     return items.map(item => {
-      const active = window.location.pathname === item.href ? " active" : "";
+      // Match both /staff/dashboard and /dashboard as active
+      const base = item.href.replace('/staff', '');
+      const active = (window.location.pathname === item.href || window.location.pathname === base) ? " active" : "";
       return `<a class="nav-item${active}" href="${item.href}">
         ${svgIcon(item.icon)}
         <span>${item.label}</span>

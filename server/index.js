@@ -107,6 +107,8 @@ if (isProduction) {
 // ── Static files ──────────────────────────────────────────────────────────────
 const PUBLIC = path.resolve(__dirname, "../public");
 app.use(express.static(PUBLIC));
+// Also serve static assets under /staff prefix so relative paths work
+app.use("/staff", express.static(PUBLIC));
 
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use("/auth",              require("./routes/authRoutes"));
@@ -161,76 +163,79 @@ app.get("/health", (req, res) => res.json({ ok: true, ts: Date.now() }));
 // ── Page routes ───────────────────────────────────────────────────────────────
 const { requireAuth, requireLevel } = require("./middleware");
 
-app.get("/", (req, res) => {
-  const host = req.hostname || '';
-  // On staff subdomain: only login/dashboard, never homepage
-  if (host.startsWith('staff.')) {
-    return res.redirect(req.session?.user ? "/dashboard" : "/login");
-  }
-  // On main domain: go to homepage, or dashboard if already logged in
-  res.redirect(req.session?.user ? "/dashboard" : "/home");
-});
-
-// ── Public pages — redirect away on staff subdomain ──────────────────────────
-// staff.gssrp.xyz should only serve the login + staff panel, not the public site
-function blockOnStaffDomain(req, res, next) {
+// ── staff.gssrp.xyz → redirect to gssrp.xyz/staff ────────────────────────────
+app.use((req, res, next) => {
   const host = req.hostname || '';
   if (host.startsWith('staff.')) {
-    return res.redirect('https://www.gssrp.xyz' + req.path);
+    // Redirect the whole subdomain to /staff equivalent on main domain
+    const mainHost = host.replace(/^staff\./, '');
+    // Map bare paths to /staff paths
+    const staffPath = req.path === '/' ? '/staff' : `/staff${req.path}`;
+    return res.redirect(301, `https://${mainHost}${staffPath}${req.url.includes('?') ? '?' + req.url.split('?')[1] : ''}`);
   }
   next();
-}
+});
 
-app.get("/home",      blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
-app.get("/map",       blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "map.html")));
-app.get("/shop",      blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "shop.html")));
-app.get("/apply",     blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "apply.html")));
-app.get("/index",     blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
+// ── Root ──────────────────────────────────────────────────────────────────────
+app.get("/", (req, res) => {
+  res.redirect(req.session?.user ? "/staff/dashboard" : "/home");
+});
 
-app.get("/login", (req, res) =>
+// /staff root → login or dashboard
+app.get("/staff", (req, res) => {
+  res.redirect(req.session?.user ? "/staff/dashboard" : "/staff/login");
+});
+
+// ── Public pages (main domain only) ──────────────────────────────────────────
+app.get("/home",  (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
+app.get("/map",   (req, res) => res.sendFile(path.join(PUBLIC, "map.html")));
+app.get("/shop",  (req, res) => res.sendFile(path.join(PUBLIC, "shop.html")));
+app.get("/apply", (req, res) => res.sendFile(path.join(PUBLIC, "apply.html")));
+app.get("/index", (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
+
+// ── Login — both /login and /staff/login ─────────────────────────────────────
+app.get(["/login", "/staff/login"], (req, res) =>
   res.sendFile(path.join(PUBLIC, "login.html"))
 );
 
-// Pages accessible by all staff
-const STAFF_PAGES = ["dashboard", "erlc", "shifts", "loa", "statistics", "docs"];
-STAFF_PAGES.forEach(p => {
-  app.get(`/${p}`, requireAuth, (req, res) =>
-    res.sendFile(path.join(PUBLIC, `${p}.html`))
-  );
-});
+// ── Helper: register a page at both /page and /staff/page ────────────────────
+function staffPage(route, middleware, file) {
+  const handlers = [...(Array.isArray(middleware) ? middleware : [middleware]),
+    (req, res) => res.sendFile(path.join(PUBLIC, file))];
+  app.get(`/${route}`,        ...handlers);
+  app.get(`/staff/${route}`,  ...handlers);
+}
 
-// Pages accessible by moderator+
-const MODERATOR_PAGES = ["infractions", "roster"];
-MODERATOR_PAGES.forEach(p => {
-  app.get(`/${p}`, requireLevel("moderator"), (req, res) =>
-    res.sendFile(path.join(PUBLIC, `${p}.html`))
-  );
-});
+// All staff pages
+staffPage("dashboard",    requireAuth,                   "dashboard.html");
+staffPage("erlc",         requireAuth,                   "erlc.html");
+staffPage("shifts",       requireAuth,                   "shifts.html");
+staffPage("loa",          requireAuth,                   "loa.html");
+staffPage("statistics",   requireAuth,                   "statistics.html");
+staffPage("docs",         requireAuth,                   "docs.html");
+staffPage("map",          requireAuth,                   "map.html");
 
-// Pages accessible by admin+
-const ADMIN_PAGES = ["promotions"];
-ADMIN_PAGES.forEach(p => {
-  app.get(`/${p}`, requireLevel("admin"), (req, res) =>
-    res.sendFile(path.join(PUBLIC, `${p}.html`))
-  );
-});
+// Moderator+
+staffPage("infractions",  requireLevel("moderator"),     "infractions.html");
+staffPage("roster",       requireLevel("moderator"),     "roster.html");
 
-// Pages accessible by management+
-const MANAGEMENT_PAGES = ["announcements", "audit", "settings", "applications"];
-MANAGEMENT_PAGES.forEach(p => {
-  app.get(`/${p}`, requireLevel("management"), (req, res) =>
-    res.sendFile(path.join(PUBLIC, `${p}.html`))
-  );
-});
+// Admin+
+staffPage("promotions",   requireLevel("admin"),         "promotions.html");
+
+// Management+
+staffPage("announcements",requireLevel("management"),    "announcements.html");
+staffPage("audit",        requireLevel("management"),    "audit.html");
+staffPage("settings",     requireLevel("management"),    "settings.html");
+staffPage("applications", requireLevel("management"),    "applications.html");
 
 // ── 404 / fallback ────────────────────────────────────────────────────────────
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ error: "Not found" });
   }
-  const host = req.hostname || '';
-  if (host.startsWith('staff.')) {
-    return res.redirect("/login");
+  // Unknown staff panel path → login
+  if (req.path.startsWith("/staff/")) {
+    return res.redirect("/staff/login");
   }
   res.redirect("/home");
 });

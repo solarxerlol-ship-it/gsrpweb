@@ -24,7 +24,7 @@ router.get("/discord/callback",
   }),
   (req, res) => {
     const user = req.user;
-    if (!user) return res.redirect("/login?error=no_role");
+    if (!user) return res.redirect("/staff/login?error=no_role");
 
     const userData = {
       _id:            user._id.toString(),
@@ -45,15 +45,15 @@ router.get("/discord/callback",
     req.session.regenerate(regenErr => {
       if (regenErr) {
         console.error("[Auth] Session regenerate error:", regenErr);
-        return res.redirect("/login?error=session");
+        return res.redirect("/staff/login?error=session");
       }
       req.session.user = userData;
       req.session.save(saveErr => {
         if (saveErr) {
           console.error("[Auth] Session save error:", saveErr);
-          return res.redirect("/login?error=session");
+          return res.redirect("/staff/login?error=session");
         }
-        res.redirect("/dashboard");
+        res.redirect("/staff/dashboard");
       });
     });
   }
@@ -87,7 +87,7 @@ router.post("/login", loginLimiter, async (req, res) => {
     };
 
     await StaffUser.updateOne({ _id: user._id }, { lastLogin: Date.now() });
-    res.json({ success: true, redirect: "/dashboard" });
+    res.json({ success: true, redirect: "/staff/dashboard" });
   } catch (err) {
     console.error("[Auth] Login error:", err);
     res.status(500).json({ error: "Login failed." });
@@ -97,7 +97,7 @@ router.post("/login", loginLimiter, async (req, res) => {
 // ── Logout ────────────────────────────────────────────────────────────────────
 
 router.get("/logout", (req, res) => {
-  req.session.destroy(() => res.redirect("/login"));
+  req.session.destroy(() => res.redirect("/staff/login"));
 });
 
 // ── GET /auth/me ──────────────────────────────────────────────────────────────
