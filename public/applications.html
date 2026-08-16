@@ -263,6 +263,12 @@
 
   document.getElementById('refresh-btn').addEventListener('click', loadApplications);
 
+  // Event delegation for application cards — open modal on click
+  document.querySelector('.content').addEventListener('click', (e) => {
+    const card = e.target.closest('[data-app-id]');
+    if (card) openApp(card.dataset.appId);
+  });
+
   // Event delegation for modal action buttons (accept/deny/close rendered dynamically)
   document.getElementById('modal-actions').addEventListener('click', (e) => {
     const btn = e.target.closest('[data-action]');

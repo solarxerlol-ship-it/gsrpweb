@@ -8,7 +8,7 @@
 const express = require("express");
 const router  = express.Router();
 const { Application } = require("../db");
-const { requireLevel } = require("../middleware");
+const { requireAuth, requireLevel } = require("../middleware");
 
 // ── Rate limit public submissions (simple in-memory per IP) ──────────────────
 const submissionCooldown = new Map();
@@ -72,7 +72,7 @@ router.post("/", async (req, res) => {
 });
 
 // ── GET /api/applications — management+ ──────────────────────────────────────
-router.get("/", requireLevel("management"), async (req, res) => {
+router.get("/", requireAuth, requireLevel("management"), async (req, res) => {
   try {
     const apps = await Application.find().sort({ createdAt: -1 }).lean();
     res.json(apps);
@@ -82,7 +82,7 @@ router.get("/", requireLevel("management"), async (req, res) => {
 });
 
 // ── PATCH /api/applications/:id — accept or deny ─────────────────────────────
-router.patch("/:id", requireLevel("management"), async (req, res) => {
+router.patch("/:id", requireAuth, requireLevel("management"), async (req, res) => {
   try {
     const { status } = req.body;
     if (!["accepted", "denied"].includes(status)) {
