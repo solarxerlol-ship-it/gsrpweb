@@ -2,12 +2,12 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Deep navy blue background — not pure black */
-  --bg-base:    #080c14;
-  --bg-surface: #0c1120;
-  --bg-card:    #0f1526;
-  --bg-hover:   #141c30;
-  --bg-input:   #0c1120;
+  /* Deep dark navy — matches dashboard screenshot */
+  --bg-base:    #0b0d12;
+  --bg-surface: #0f1117;
+  --bg-card:    #13161e;
+  --bg-hover:   #181c27;
+  --bg-input:   #0f1117;
 
   /* Borders */
   --border:    rgba(79,111,255,0.14);
@@ -50,7 +50,12 @@ html, body {
   color: var(--text-primary);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  font-weight: 500;
+  font-weight: 700;
+}
+
+/* Force bold on all text elements */
+*, *::before, *::after {
+  font-weight: 700 !important;
 }
 
 /* Animated background gradient */
@@ -58,8 +63,8 @@ body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(79,111,255,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(79,111,255,0.07) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(79,111,255,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(79,111,255,0.05) 0%, transparent 60%);
   pointer-events: none;
   animation: bgPulse 8s ease-in-out infinite alternate;
 }
