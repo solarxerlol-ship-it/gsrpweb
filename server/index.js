@@ -131,15 +131,31 @@ app.get("/health", (req, res) => res.json({ ok: true, ts: Date.now() }));
 // ── Page routes ───────────────────────────────────────────────────────────────
 const { requireAuth, requireLevel } = require("./middleware");
 
-app.get("/", (req, res) =>
-  res.redirect(req.session?.user ? "/dashboard" : "/login")
-);
+app.get("/", (req, res) => {
+  const host = req.hostname || '';
+  // On staff subdomain: only login/dashboard, never homepage
+  if (host.startsWith('staff.')) {
+    return res.redirect(req.session?.user ? "/dashboard" : "/login");
+  }
+  // On main domain: go to homepage, or dashboard if already logged in
+  res.redirect(req.session?.user ? "/dashboard" : "/home");
+});
 
-// ── Public pages — no auth ────────────────────────────────────────────────────
-app.get("/home",      (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
-app.get("/map",       (req, res) => res.sendFile(path.join(PUBLIC, "map.html")));
-app.get("/shop",      (req, res) => res.sendFile(path.join(PUBLIC, "shop.html")));
-app.get("/apply",     (req, res) => res.sendFile(path.join(PUBLIC, "apply.html")));
+// ── Public pages — redirect away on staff subdomain ──────────────────────────
+// staff.gssrp.xyz should only serve the login + staff panel, not the public site
+function blockOnStaffDomain(req, res, next) {
+  const host = req.hostname || '';
+  if (host.startsWith('staff.')) {
+    return res.redirect('https://www.gssrp.xyz' + req.path);
+  }
+  next();
+}
+
+app.get("/home",      blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
+app.get("/map",       blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "map.html")));
+app.get("/shop",      blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "shop.html")));
+app.get("/apply",     blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "apply.html")));
+app.get("/index",     blockOnStaffDomain, (req, res) => res.sendFile(path.join(PUBLIC, "index.html")));
 
 app.get("/login", (req, res) =>
   res.sendFile(path.join(PUBLIC, "login.html"))
@@ -182,7 +198,11 @@ app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
     return res.status(404).json({ error: "Not found" });
   }
-  res.redirect("/login");
+  const host = req.hostname || '';
+  if (host.startsWith('staff.')) {
+    return res.redirect("/login");
+  }
+  res.redirect("/home");
 });
 
 // ── Error handler ─────────────────────────────────────────────────────────────

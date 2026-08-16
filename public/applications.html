@@ -205,10 +205,10 @@
     }
 
     function longAnswer(label, val) {
-      if (!val || !val.trim()) return '';
+      const text = (val || '').trim();
       return `<div style="margin-bottom:12px;">
         <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">${label}</div>
-        <div style="font-size:13px;color:var(--text-primary);line-height:1.75;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:12px 14px;white-space:pre-wrap;word-break:break-word;">${escHtml(val)}</div>
+        <div style="font-size:13px;color:${text ? 'var(--text-primary)' : 'var(--text-muted)'};line-height:1.75;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:7px;padding:12px 14px;white-space:pre-wrap;word-break:break-word;">${text ? escHtml(text) : '<em>No answer provided.</em>'}</div>
       </div>`;
     }
 
