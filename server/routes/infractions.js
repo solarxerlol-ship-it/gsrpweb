@@ -131,12 +131,15 @@ router.post("/", requireAuth, requireLevel("moderator"), apiWriteLimiter, async 
       moderatorName: actor.displayName,
     };
 
-    // ── Notify bot — it handles the Discord embed in the same format as /infraction-add
-    // Only post our own embed as fallback if bot webhook isn't configured
-    if (process.env.PORTAL_BOT_URL && process.env.PORTAL_INTERNAL_SECRET) {
-      notifyBot(botPayload); // bot posts the formatted embed
-    } else {
-      logInfractionToDiscord(botPayload); // fallback plain embed
+    // ── Only notify bot/Discord for bot-sourced infractions.
+    // ERLC punishments logged via the web portal (source=web) are
+    // internal staff records only — no bot DM, no Discord embed.
+    if (record.source !== "web") {
+      if (process.env.PORTAL_BOT_URL && process.env.PORTAL_INTERNAL_SECRET) {
+        notifyBot(botPayload);
+      } else {
+        logInfractionToDiscord(botPayload);
+      }
     }
 
     res.json(record.toObject());
