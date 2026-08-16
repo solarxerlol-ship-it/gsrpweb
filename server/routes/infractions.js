@@ -54,12 +54,20 @@ router.get("/", requireAuth, requireLevel("moderator"), async (req, res) => {
   try {
     const page  = Math.max(1, parseInt(req.query.page)  || 1);
     const limit = Math.min(100, parseInt(req.query.limit) || 25);
-    const query = req.query.search
-      ? { $or: [
-          { userId: req.query.search },
-          { reason: { $regex: req.query.search, $options: "i" } },
-        ]}
-      : {};
+    const query = {};
+
+    // Filter by source if provided (e.g. source=web for portal-logged only)
+    if (req.query.source) {
+      query.source = req.query.source;
+    }
+
+    if (req.query.search) {
+      query.$or = [
+        { userId: req.query.search },
+        { reason: { $regex: req.query.search, $options: "i" } },
+      ];
+    }
+
     const [records, total] = await Promise.all([
       Infraction.find(query).sort({ timestamp: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Infraction.countDocuments(query),

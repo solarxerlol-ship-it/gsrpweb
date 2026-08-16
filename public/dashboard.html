@@ -179,15 +179,18 @@
           <div id="active-shifts"><div class="empty-state">No one is on duty.</div></div>
         </div>
 
-        <!-- ERLC Mod Logs card -->
+        <!-- ERLC Punishments card — mods log in-game punishments, saved to DB permanently -->
         <div class="card" id="log-panel" style="display:flex;flex-direction:column;">
           <div class="card-header" style="flex-shrink:0;">
-            <span class="card-title">ERLC Mod Logs</span>
-            <span class="badge badge-blue">Live</span>
+            <span class="card-title">ERLC Punishments</span>
+            <button class="btn btn-primary btn-sm" id="toggle-log-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Log Punishment
+            </button>
           </div>
-          <!-- Mod command log list — scrollable -->
+          <!-- Saved punishment list — from DB, permanent, scrollable -->
           <div id="recent-punishments" style="overflow-y:auto;max-height:340px;">
-            <div class="empty-state">Loading mod logs…</div>
+            <div class="empty-state">No punishments logged.</div>
           </div>
         </div>
       </div>
@@ -331,6 +334,8 @@
     loadTopHours();
     setupTypePills();
     setupAvatarPreview();
+
+    document.getElementById('toggle-log-btn')?.addEventListener('click', () => openModal('modal-punishment'));
   }
 
   /* ── Type pills ─────────────────────────────────────────────────────────── */
@@ -412,72 +417,40 @@
     }
   });
 
-  /* ── ERLC Mod Logs — commands run by moderators in-game ─────────────────── */
+  /* ── ERLC Punishments — mods log in-game punishments, saved permanently to DB ── */
   async function loadRecentPunishments() {
     const el = document.getElementById('recent-punishments');
     try {
-      const cmds = await api('GET', '/api/erlc/command-logs').catch(() => []);
-      // Filter: only moderation-style commands (:kick :ban :warn :tp :pm :jail etc.)
-      const MOD_CMDS = /^:(kick|ban|unban|warn|tp|jail|unjail|pm|respawn|explode|change|startfire|stopfire)/i;
-      const modLogs = cmds
-        .filter(l => MOD_CMDS.test((l.Command || '').trim()))
-        .sort((a, b) => (b.Timestamp || 0) - (a.Timestamp || 0))
-        .slice(0, 15);
-
-      if (!modLogs.length) {
-        el.innerHTML = '<div class="empty-state">No mod commands logged.</div>';
+      // source=web means logged by a mod via this portal (not auto-imported from bot)
+      const { records } = await api('GET', '/api/infractions?limit=10&source=web');
+      if (!records || !records.length) {
+        el.innerHTML = '<div class="empty-state">No punishments logged.</div>';
         return;
       }
-
-      // Fetch Roblox avatars for all unique players in parallel
-      const players = [...new Set(modLogs.map(l => (l.Player || '').split(':')[0]).filter(Boolean))];
-      const avatarMap = {};
-      await Promise.all(players.map(async name => {
-        try {
-          const idRes = await fetch(`/api/roblox/user?username=${encodeURIComponent(name)}`);
-          if (!idRes.ok) return;
-          const { id } = await idRes.json();
-          if (!id) return;
-          const thumbRes = await fetch(`/api/roblox/avatar?userId=${id}`);
-          if (!thumbRes.ok) return;
-          const { url } = await thumbRes.json();
-          if (url) avatarMap[name.toLowerCase()] = url;
-        } catch {}
-      }));
-
-      el.innerHTML = modLogs.map(l => {
-        const player   = (l.Player || 'Unknown').split(':')[0];
-        const cmd      = l.Command || '';
-        const ts       = (l.Timestamp || 0) * 1000;
-        const avatar   = avatarMap[player.toLowerCase()]
-          || `https://www.roblox.com/bust-thumbnail/image?userId=1&width=48&height=48&format=Png`;
-
-        // Color-code the command verb
-        const verb = (cmd.match(/^:(\w+)/i) || [])[1] || '';
-        const cmdColor = /^(ban|kick|jail|explode)/i.test(verb) ? 'var(--danger)'
-          : /^(warn)/i.test(verb) ? 'var(--warning)'
-          : /^(unban|unjail)/i.test(verb) ? 'var(--success)'
-          : 'var(--accent)';
-
+      el.innerHTML = records.map(r => {
+        const t = (r.type || 'warn').toLowerCase();
+        const m = TYPE_META[t] || TYPE_META.warn;
+        // Use cached roblox avatar if available, otherwise fall back to stored URL or thumbnail
+        const avatarSrc = r.robloxAvatarUrl
+          || (r.robloxUserId ? `https://www.roblox.com/bust-thumbnail/image?userId=${r.robloxUserId}&width=48&height=48&format=Png` : '');
         return `
-          <div class="plog-item">
-            <img class="plog-avatar" src="${avatar}" alt=""
+          <div class="plog-item" onclick="viewUser('${escHtml(r.userId)}', '${r.robloxUserId || ''}')">
+            <img class="plog-avatar" src="${avatarSrc || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt=""
               onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             <div class="plog-body">
               <div class="plog-top">
-                <span class="plog-username">${escHtml(player)}</span>
-                <span class="plog-type-badge" style="background:${cmdColor}22;color:${cmdColor};border:1px solid ${cmdColor}44;">
-                  :${escHtml(verb.toUpperCase())}
-                </span>
+                <span class="plog-username">${escHtml(r.userId)}</span>
+                <span class="plog-type-badge" style="background:${m.bg};color:${m.color};border:1px solid ${m.color}33;">${m.label}</span>
               </div>
-              <div class="plog-reason">${escHtml(cmd.length > 70 ? cmd.slice(0,70)+'…' : cmd)}</div>
-              <div class="plog-meta">${ts ? timeAgo(ts) : 'Unknown time'}</div>
+              <div class="plog-reason">${escHtml(r.reason)}</div>
+              <div class="plog-meta">by ${escHtml(r.moderator || 'Unknown')} · ${timeAgo(r.timestamp)}</div>
             </div>
           </div>`;
       }).join('');
-    } catch (err) {
-      el.innerHTML = '<div class="empty-state">Could not load mod logs.</div>';
+    } catch {
+      el.innerHTML = '<div class="empty-state">Could not load punishments.</div>';
     }
+  }
   }
 
   /* ── User profile popup ─────────────────────────────────────────────────── */
