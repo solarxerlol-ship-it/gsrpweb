@@ -23,14 +23,29 @@ const app = express();
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
-      styleSrc:   ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
-      fontSrc:    ["'self'", "fonts.gstatic.com"],
-      imgSrc:     ["'self'", "data:", "cdn.discordapp.com", "https:"],
-      connectSrc: ["'self'"],
+      defaultSrc:  ["'self'"],
+      scriptSrc:   ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
+      styleSrc:    ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
+      fontSrc:     ["'self'", "fonts.gstatic.com"],
+      imgSrc:      [
+        "'self'", "data:", "blob:",
+        "cdn.discordapp.com",
+        "thumbnails.roblox.com",
+        "www.roblox.com",
+        "tr.rbxcdn.com",
+        "https:",
+      ],
+      connectSrc:  [
+        "'self'",
+        "users.roblox.com",
+        "thumbnails.roblox.com",
+      ],
     },
   },
+  // Don't let helmet's HSTS cause issues on non-HTTPS local dev
+  hsts: process.env.NODE_ENV === "production"
+    ? { maxAge: 31536000, includeSubDomains: true }
+    : false,
 }));
 
 const allowedOrigin = process.env.BASE_URL || "*";
@@ -40,10 +55,12 @@ app.use(cors({ origin: allowedOrigin, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ── Trust Vercel's proxy so secure cookies work ───────────────────────────────
+// ── Trust proxy — Render/Vercel sit behind load balancers ────────────────────
+// "1" trusts the first proxy hop — sufficient for Render and Vercel
 app.set("trust proxy", 1);
 
 // ── Session ───────────────────────────────────────────────────────────────────
+const isProduction = process.env.NODE_ENV === "production";
 app.use(session({
   name:              "gsrp.sid",
   secret:            process.env.SESSION_SECRET || "gsrp-change-me",
@@ -57,9 +74,9 @@ app.use(session({
     touchAfter:     24 * 3600,
   }),
   cookie: {
-    secure:   true,    // always — Vercel is always HTTPS
+    secure:   isProduction, // only enforce HTTPS in production
     httpOnly: true,
-    sameSite: "lax",   // lax works for OAuth redirect flows
+    sameSite: "lax",
     maxAge:   7 * 24 * 60 * 60 * 1000,
   },
 }));
@@ -72,6 +89,19 @@ try {
   app.use(passport.session());
 } catch (err) {
   console.error("[Auth] Passport setup failed:", err.message);
+}
+
+// ── Force HTTPS in production ─────────────────────────────────────────────────
+// Render and Vercel terminate SSL at their edge — req.secure checks the
+// x-forwarded-proto header (enabled by trust proxy above).
+if (isProduction) {
+  app.use((req, res, next) => {
+    if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+      return next();
+    }
+    // Redirect HTTP → HTTPS
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  });
 }
 
 // ── Static files ──────────────────────────────────────────────────────────────
