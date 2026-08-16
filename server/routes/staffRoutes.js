@@ -179,7 +179,7 @@ router.get("/shift/active", requireAuth, async (req, res) => {
   }
 });
 
-router.get("/shifts/all", requireAuth, requireLevel("moderator"), async (req, res) => {
+router.get("/shifts/all", requireAuth, async (req, res) => {
   try {
     const shifts = await Shift.find({ active: true }).lean();
     // Enrich with avatar from StaffUser

@@ -49,8 +49,8 @@ async function notifyBot(payload) {
   }
 }
 
-// ── GET /api/infractions — paginated list, moderator+ ─────────────────────────
-router.get("/", requireAuth, requireLevel("moderator"), async (req, res) => {
+// ── GET /api/infractions — paginated list, any authenticated staff ────────────
+router.get("/", requireAuth, async (req, res) => {
   try {
     const page  = Math.max(1, parseInt(req.query.page)  || 1);
     const limit = Math.min(100, parseInt(req.query.limit) || 25);
