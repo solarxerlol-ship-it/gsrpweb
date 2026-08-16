@@ -2,12 +2,12 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Near-black base with subtle blue glow */
-  --bg-base:    #05060a;
-  --bg-surface: #090b10;
-  --bg-card:    #0d0f15;
-  --bg-hover:   #111520;
-  --bg-input:   #090b10;
+  /* Pure black base with blue glow */
+  --bg-base:    #000000;
+  --bg-surface: #050508;
+  --bg-card:    #09090f;
+  --bg-hover:   #0e0e17;
+  --bg-input:   #050508;
 
   /* Borders */
   --border:    rgba(79,111,255,0.14);

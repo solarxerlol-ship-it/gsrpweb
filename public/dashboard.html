@@ -179,18 +179,15 @@
           <div id="active-shifts"><div class="empty-state">No one is on duty.</div></div>
         </div>
 
-        <!-- Punishments card — list with Log button that opens modal -->
+        <!-- ERLC Mod Logs card -->
         <div class="card" id="log-panel" style="display:flex;flex-direction:column;">
           <div class="card-header" style="flex-shrink:0;">
-            <span class="card-title">Punishments</span>
-            <button class="btn btn-primary btn-sm" id="toggle-log-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Log Punishment
-            </button>
+            <span class="card-title">ERLC Mod Logs</span>
+            <span class="badge badge-blue">Live</span>
           </div>
-          <!-- Punishment list — scrollable, stays in card -->
+          <!-- Mod command log list — scrollable -->
           <div id="recent-punishments" style="overflow-y:auto;max-height:340px;">
-            <div class="empty-state">No punishments logged.</div>
+            <div class="empty-state">Loading mod logs…</div>
           </div>
         </div>
       </div>
@@ -334,8 +331,6 @@
     loadTopHours();
     setupTypePills();
     setupAvatarPreview();
-
-    document.getElementById('toggle-log-btn').addEventListener('click', () => openModal('modal-punishment'));
   }
 
   /* ── Type pills ─────────────────────────────────────────────────────────── */
@@ -417,32 +412,72 @@
     }
   });
 
-  /* ── Recent punishments list ────────────────────────────────────────────── */
+  /* ── ERLC Mod Logs — commands run by moderators in-game ─────────────────── */
   async function loadRecentPunishments() {
     const el = document.getElementById('recent-punishments');
     try {
-      const { records } = await api('GET', '/api/infractions?limit=8');
-      if (!records.length) { el.innerHTML = '<div class="empty-state">No punishments logged.</div>'; return; }
-      el.innerHTML = records.map(r => {
-        const t = (r.type || 'warn').toLowerCase();
-        const m = TYPE_META[t] || TYPE_META.warn;
-        const avatarSrc = r.robloxAvatarUrl
-          ? r.robloxAvatarUrl
-          : `https://www.roblox.com/bust-thumbnail/image?userId=${r.robloxUserId || 0}&width=48&height=48&format=Png`;
+      const cmds = await api('GET', '/api/erlc/command-logs').catch(() => []);
+      // Filter: only moderation-style commands (:kick :ban :warn :tp :pm :jail etc.)
+      const MOD_CMDS = /^:(kick|ban|unban|warn|tp|jail|unjail|pm|respawn|explode|change|startfire|stopfire)/i;
+      const modLogs = cmds
+        .filter(l => MOD_CMDS.test((l.Command || '').trim()))
+        .sort((a, b) => (b.Timestamp || 0) - (a.Timestamp || 0))
+        .slice(0, 15);
+
+      if (!modLogs.length) {
+        el.innerHTML = '<div class="empty-state">No mod commands logged.</div>';
+        return;
+      }
+
+      // Fetch Roblox avatars for all unique players in parallel
+      const players = [...new Set(modLogs.map(l => (l.Player || '').split(':')[0]).filter(Boolean))];
+      const avatarMap = {};
+      await Promise.all(players.map(async name => {
+        try {
+          const idRes = await fetch(`/api/roblox/user?username=${encodeURIComponent(name)}`);
+          if (!idRes.ok) return;
+          const { id } = await idRes.json();
+          if (!id) return;
+          const thumbRes = await fetch(`/api/roblox/avatar?userId=${id}`);
+          if (!thumbRes.ok) return;
+          const { url } = await thumbRes.json();
+          if (url) avatarMap[name.toLowerCase()] = url;
+        } catch {}
+      }));
+
+      el.innerHTML = modLogs.map(l => {
+        const player   = (l.Player || 'Unknown').split(':')[0];
+        const cmd      = l.Command || '';
+        const ts       = (l.Timestamp || 0) * 1000;
+        const avatar   = avatarMap[player.toLowerCase()]
+          || `https://www.roblox.com/bust-thumbnail/image?userId=1&width=48&height=48&format=Png`;
+
+        // Color-code the command verb
+        const verb = (cmd.match(/^:(\w+)/i) || [])[1] || '';
+        const cmdColor = /^(ban|kick|jail|explode)/i.test(verb) ? 'var(--danger)'
+          : /^(warn)/i.test(verb) ? 'var(--warning)'
+          : /^(unban|unjail)/i.test(verb) ? 'var(--success)'
+          : 'var(--accent)';
+
         return `
-          <div class="plog-item" onclick="viewUser('${escHtml(r.userId)}', '${r.robloxUserId || ''}')">
-            <img class="plog-avatar" src="${avatarSrc}" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <div class="plog-item">
+            <img class="plog-avatar" src="${avatar}" alt=""
+              onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
             <div class="plog-body">
               <div class="plog-top">
-                <span class="plog-username">${escHtml(r.userId)}</span>
-                <span class="plog-type-badge" style="background:${m.bg};color:${m.color};border:1px solid ${m.color}33;">${m.label}</span>
+                <span class="plog-username">${escHtml(player)}</span>
+                <span class="plog-type-badge" style="background:${cmdColor}22;color:${cmdColor};border:1px solid ${cmdColor}44;">
+                  :${escHtml(verb.toUpperCase())}
+                </span>
               </div>
-              <div class="plog-reason">${escHtml(r.reason)}</div>
-              <div class="plog-meta">${timeAgo(r.timestamp)}</div>
+              <div class="plog-reason">${escHtml(cmd.length > 70 ? cmd.slice(0,70)+'…' : cmd)}</div>
+              <div class="plog-meta">${ts ? timeAgo(ts) : 'Unknown time'}</div>
             </div>
           </div>`;
       }).join('');
-    } catch { el.innerHTML = '<div class="empty-state">Could not load punishments.</div>'; }
+    } catch (err) {
+      el.innerHTML = '<div class="empty-state">Could not load mod logs.</div>';
+    }
   }
 
   /* ── User profile popup ─────────────────────────────────────────────────── */
@@ -508,12 +543,20 @@
       const top = await api('GET', '/api/staff/shifts/top');
       const el  = document.getElementById('top-hours');
       if (!top || !top.length) { el.innerHTML = '<div class="empty-state">No shift data this week.</div>'; return; }
-      el.innerHTML = top.map((u, i) => `
-        <div class="feed-item">
-          <span style="color:var(--text-muted);min-width:18px;">#${i+1}</span>
-          <span>${u.username || u.discordId}</span>
+      el.innerHTML = top.map((u, i) => {
+        const avatarUrl = (u.discordId && u.discordAvatar)
+          ? `https://cdn.discordapp.com/avatars/${u.discordId}/${u.discordAvatar}.png?size=32`
+          : `https://cdn.discordapp.com/embed/avatars/0.png`;
+        return `
+        <div class="feed-item" style="gap:10px;">
+          <span style="color:var(--text-muted);min-width:18px;font-size:11px;">#${i+1}</span>
+          <img src="${avatarUrl}" alt=""
+            style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--border-md);flex-shrink:0;"
+            onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <span style="flex:1;">${escHtml(u.username || u.discordId)}</span>
           <span class="feed-time">${formatDuration(u.total)}</span>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     } catch {}
   }
 
@@ -537,16 +580,53 @@
       const shifts = await api('GET', '/api/staff/shifts/all');
       const el = document.getElementById('active-shifts');
       if (!shifts.length) { el.innerHTML = '<div class="empty-state">No one is on duty.</div>'; return; }
-      el.innerHTML = shifts.slice(0,8).map(s => `
-        <div class="feed-item">
+      el.innerHTML = shifts.slice(0,8).map(s => {
+        const avatarUrl = (s.discordId && s.discordAvatar)
+          ? `https://cdn.discordapp.com/avatars/${s.discordId}/${s.discordAvatar}.png?size=32`
+          : `https://cdn.discordapp.com/embed/avatars/0.png`;
+        return `
+        <div class="feed-item" style="gap:10px;">
           <div class="feed-dot green"></div>
-          <span>${s.username || s.discordId}</span>
+          <img src="${avatarUrl}" alt=""
+            style="width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--border-md);flex-shrink:0;"
+            onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+          <span style="flex:1;">${escHtml(s.username || s.discordId)}</span>
           <span class="feed-time">${formatDuration(Date.now() - s.startedAt)}</span>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     } catch {}
   }
 
   let feedData = [];
+  // Cache of username → Roblox avatar URL so we don't re-fetch on re-renders
+  const feedAvatarCache = {};
+
+  async function resolveFeedAvatar(username) {
+    const key = username.toLowerCase();
+    if (feedAvatarCache[key]) return feedAvatarCache[key];
+    try {
+      const idRes = await fetch(`/api/roblox/user?username=${encodeURIComponent(username)}`);
+      if (!idRes.ok) throw new Error();
+      const { id } = await idRes.json();
+      if (!id) throw new Error();
+      const thumbRes = await fetch(`/api/roblox/avatar?userId=${id}`);
+      if (!thumbRes.ok) throw new Error();
+      const { url } = await thumbRes.json();
+      feedAvatarCache[key] = url || null;
+      return url || null;
+    } catch {
+      feedAvatarCache[key] = null;
+      return null;
+    }
+  }
+
+  function feedAvatar(username, resolvedUrl) {
+    const src = resolvedUrl
+      || `https://www.roblox.com/bust-thumbnail/image?userId=1&width=48&height=48&format=Png`;
+    return `<img class="feed-card-avatar"
+      src="${src}"
+      onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" alt="">`;
+  }
 
   async function loadErlcFeed() {
     const el = document.getElementById('live-feed');
@@ -563,21 +643,17 @@
         ...joins.map(l => ({ ...l, _type: l.Join ? 'join' : 'leave', ts: (l.Timestamp||0)*1000 })),
       ].sort((a, b) => b.ts - a.ts).slice(0, 40);
 
+      // Pre-fetch all unique usernames in the feed
+      const names = [...new Set(feedData.map(l => {
+        const raw = l.Player || l.Killer || '';
+        return raw.split(':')[0];
+      }).filter(Boolean))];
+      await Promise.all(names.map(n => resolveFeedAvatar(n)));
+
       renderFeed();
     } catch {
       el.innerHTML = '<div class="empty-state">ERLC data unavailable.</div>';
     }
-  }
-
-  function robloxHeadshot(username) {
-    // Use cached avatar from Roblox thumbnail via username hash — fallback to default
-    return `https://www.roblox.com/headshot-thumbnail/image?userId=1&width=48&height=48&format=Png`;
-  }
-
-  function feedAvatar(username) {
-    return `<img class="feed-card-avatar"
-      src="https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(username)}&backgroundColor=0a3d62,1e3799,4a235a,145a32,7b241c&fontFamily=Inter&fontSize=40"
-      onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" alt="">`;
   }
 
   function renderFeed() {
@@ -602,8 +678,9 @@
       if (l._type === 'kill') {
         const killer = (l.Killer||'Unknown').split(':')[0];
         const killed = (l.Killed||'Unknown').split(':')[0];
+        const avatar = feedAvatarCache[killer.toLowerCase()] || null;
         return `<div class="feed-card">
-          ${feedAvatar(killer)}
+          ${feedAvatar(killer, avatar)}
           <div class="feed-card-body">
             <b>${escFeed(killer)}</b>
             <span class="feed-action"> killed </span>
@@ -618,8 +695,9 @@
         const cmd    = l.Command || '';
         const isPm   = /^:pm\b/i.test(cmd.trim());
         const label  = isPm ? 'sent a PM' : 'ran the command';
+        const avatar = feedAvatarCache[player.toLowerCase()] || null;
         return `<div class="feed-card">
-          ${feedAvatar(player)}
+          ${feedAvatar(player, avatar)}
           <div class="feed-card-body">
             <b>${escFeed(player)}</b>
             <span class="feed-action"> ${label} </span>
@@ -632,8 +710,9 @@
       if (l._type === 'join' || l._type === 'leave') {
         const player = (l.Player||'Unknown').split(':')[0];
         const action = l._type === 'join' ? 'joined the game' : 'left the game';
+        const avatar = feedAvatarCache[player.toLowerCase()] || null;
         return `<div class="feed-card">
-          ${feedAvatar(player)}
+          ${feedAvatar(player, avatar)}
           <div class="feed-card-body">
             <b>${escFeed(player)}</b>
             <span class="feed-action"> ${action}</span>

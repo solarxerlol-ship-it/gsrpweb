@@ -28,7 +28,7 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #05060a;
+  background: #000000;
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -735,7 +735,7 @@ footer { border-top: 1px solid var(--border); padding: 52px 24px 32px; position:
 .modal-overlay.open { display: flex; }
 
 .modal {
-  background: #090b10;
+  background: #050508;
   border: 1px solid rgba(79,111,255,0.22);
   border-radius: 14px;
   padding: 28px;
