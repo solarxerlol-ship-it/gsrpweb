@@ -321,10 +321,8 @@
     pRank.textContent = user.roleLabel || capitalize(user.accessLevel);
     pRank.style.color = user.roleColor || colors[user.accessLevel] || '#4f6fff';
 
-    // Hide "Log Punishment" button if not moderator+, but keep the list visible
-    if (!hasLevel(user.accessLevel, 'moderator')) {
-      document.getElementById('toggle-log-btn').style.display = 'none';
-    }
+    // Hide "Log Punishment" button if not staff (everyone with portal access can log ERLC punishments)
+    // The button is visible to all authenticated staff
 
     loadStats();
     loadActiveShifts();
@@ -392,14 +390,13 @@
     const avatarImg = document.getElementById('log-avatar');
 
     try {
-      await api('POST', '/api/infractions', {
+      await api('POST', '/api/erlc-punishments', {
         userId:          username,
         robloxUserId:    avatarImg.dataset.userId || null,
         robloxAvatarUrl: avatarImg.src && avatarImg.style.display !== 'none' ? avatarImg.src : null,
         type:            selectedType,
         reason:          document.getElementById('log-reason').value.trim(),
         description:     document.getElementById('log-desc').value.trim(),
-        source:          'web',
       });
       showToast('Punishment logged!');
       e.target.reset();
@@ -417,12 +414,11 @@
     }
   });
 
-  /* ── ERLC Punishments — mods log in-game punishments, saved permanently to DB ── */
+  /* ── ERLC Punishments — separate from bot infractions ───────────────────── */
   async function loadRecentPunishments() {
     const el = document.getElementById('recent-punishments');
     try {
-      // source=web means logged by a mod via this portal (not auto-imported from bot)
-      const { records } = await api('GET', '/api/infractions?limit=10&source=web');
+      const { records } = await api('GET', '/api/erlc-punishments?limit=10');
       if (!records || !records.length) {
         el.innerHTML = '<div class="empty-state">No punishments logged.</div>';
         return;
@@ -430,7 +426,6 @@
       el.innerHTML = records.map(r => {
         const t = (r.type || 'warn').toLowerCase();
         const m = TYPE_META[t] || TYPE_META.warn;
-        // Use cached roblox avatar if available, otherwise fall back to stored URL or thumbnail
         const avatarSrc = r.robloxAvatarUrl
           || (r.robloxUserId ? `https://www.roblox.com/bust-thumbnail/image?userId=${r.robloxUserId}&width=48&height=48&format=Png` : '');
         return `
@@ -460,14 +455,15 @@
 
     try {
       const [records, avatarData] = await Promise.all([
-        api('GET', `/api/infractions/${encodeURIComponent(username)}`),
+        api('GET', `/api/erlc-punishments?userId=${encodeURIComponent(username)}&limit=50`),
         robloxUserId ? fetch(`/api/roblox/avatar?userId=${robloxUserId}`).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
       ]);
+      const recordList = records.records || [];
 
       const avatarUrl = avatarData?.url || `https://www.roblox.com/bust-thumbnail/image?userId=${robloxUserId||0}&width=150&height=150&format=Png`;
 
       const badgeCounts = {};
-      records.forEach(r => { const t = (r.type||'warn').toLowerCase(); badgeCounts[t] = (badgeCounts[t]||0)+1; });
+      recordList.forEach(r => { const t = (r.type||'warn').toLowerCase(); badgeCounts[t] = (badgeCounts[t]||0)+1; });
 
       content.innerHTML = `
         <div class="profile-popup-header">
@@ -483,11 +479,11 @@
             </div>
           </div>
         </div>
-        <div class="profile-section-label">${records.length} Punishment${records.length !== 1 ? 's' : ''}</div>
+        <div class="profile-section-label">${recordList.length} Punishment${recordList.length !== 1 ? 's' : ''}</div>
         <div>
-          ${records.length === 0
+          ${recordList.length === 0
             ? '<div class="empty-state" style="padding:16px;">No punishments on record.</div>'
-            : records.map(r => {
+            : recordList.map(r => {
                 const t = (r.type||'warn').toLowerCase();
                 const m = TYPE_META[t] || TYPE_META.warn;
                 return `

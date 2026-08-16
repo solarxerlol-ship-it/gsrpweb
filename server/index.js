@@ -115,6 +115,7 @@ app.use("/auth",              require("./routes/authRoutes"));
 app.use("/api/infractions",   require("./routes/infractions"));
 app.use("/api/promotions",    require("./routes/promotions"));
 app.use("/api/erlc",          require("./routes/erlcRoutes"));
+app.use("/api/erlc-punishments", require("./routes/erlcPunishmentRoutes"));
 app.use("/api/staff",         require("./routes/staffRoutes"));
 app.use("/api/announcements", require("./routes/announcementRoutes"));
 app.use("/api/docs",          require("./routes/docsRoutes"));

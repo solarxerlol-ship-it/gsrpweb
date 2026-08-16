@@ -137,53 +137,69 @@
 
       <!-- Log Punishment -->
       <div class="tab-panel" id="panel-punish" style="display:none;">
-        <div class="card" style="max-width:620px;">
-          <div class="card-header"><span class="card-title">Log In-Game Punishment</span></div>
-          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">
-            Log an ERLC in-game punishment against a player. Select from the current server or type a username manually.
-          </p>
-          <div id="punish-alert"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
 
-          <!-- Player picker -->
-          <div class="form-group">
-            <label class="form-label">Player (from server)</label>
-            <select class="form-select" id="p-player-select">
-              <option value="">— Select a player or type below —</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Or enter Roblox Username manually</label>
-            <input class="form-input" id="p-username" placeholder="RobloxUsername">
+          <!-- Form -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Log In-Game Punishment</span></div>
+            <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+              Type a username and press <kbd style="background:var(--bg-hover);border:1px solid var(--border-md);border-radius:4px;padding:1px 5px;font-size:10px;">Tab</kbd> to autocomplete from current server players.
+            </p>
+            <div id="punish-alert"></div>
+
+            <!-- Username with Tab autocomplete -->
+            <div class="form-group" style="position:relative;">
+              <label class="form-label">Roblox Username</label>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <img id="p-avatar-img" src="" alt="" style="width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border-md);background:var(--bg-hover);flex-shrink:0;display:none;">
+                <div style="position:relative;flex:1;">
+                  <input class="form-input" id="p-username" placeholder="Start typing… then press Tab" autocomplete="off">
+                  <!-- Tab suggestion ghost text -->
+                  <div id="p-tab-hint" style="position:absolute;top:50%;right:10px;transform:translateY(-50%);font-size:11px;color:var(--text-muted);pointer-events:none;display:none;">
+                    Tab to complete: <span id="p-tab-name" style="color:var(--text-secondary);font-weight:600;"></span>
+                  </div>
+                </div>
+              </div>
+              <!-- Dropdown suggestions -->
+              <div id="p-suggestions" style="display:none;position:absolute;z-index:50;background:var(--bg-card);border:1px solid var(--border-md);border-radius:var(--radius-sm);box-shadow:var(--shadow);width:100%;margin-top:2px;max-height:180px;overflow-y:auto;"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Punishment Type</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;" id="p-type-pills">
+                <button type="button" class="type-pill" data-type="verbal">Verbal</button>
+                <button type="button" class="type-pill" data-type="warn">Warn</button>
+                <button type="button" class="type-pill" data-type="kick">Kick</button>
+                <button type="button" class="type-pill" data-type="ban">Ban</button>
+              </div>
+              <input type="hidden" id="p-type">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Reason</label>
+              <input class="form-input" id="p-reason" placeholder="Reason for punishment">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Notes <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+              <textarea class="form-textarea" id="p-notes" placeholder="Additional details..." style="min-height:60px;"></textarea>
+            </div>
+
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+              <button class="btn btn-danger" id="p-submit">Log Punishment</button>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Punishment Type</label>
-            <select class="form-select" id="p-type">
-              <option value="warn">Warning</option>
-              <option value="verbal">Verbal Warning</option>
-              <option value="strike">Strike</option>
-              <option value="kick">Kick</option>
-              <option value="ban">Ban</option>
-              <option value="mute">Mute</option>
-            </select>
+          <!-- Recent punishments (this session + DB) -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Punishments</span>
+              <button class="btn btn-ghost btn-sm" id="p-refresh">↻ Refresh</button>
+            </div>
+            <div id="p-history" style="max-height:480px;overflow-y:auto;">
+              <div class="empty-state">No punishments yet.</div>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">Reason</label>
-            <input class="form-input" id="p-reason" placeholder="Reason for punishment">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Notes (optional)</label>
-            <textarea class="form-textarea" id="p-notes" placeholder="Additional details..." style="min-height:70px;"></textarea>
-          </div>
-
-          <div style="display:flex;gap:8px;justify-content:flex-end;">
-            <button class="btn btn-danger" id="p-submit">Log Punishment</button>
-          </div>
-
-          <!-- Recent punishments logged this session -->
-          <div id="p-history" style="margin-top:20px;"></div>
         </div>
       </div>
 

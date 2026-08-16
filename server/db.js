@@ -146,14 +146,27 @@ const applicationSchema = new mongoose.Schema({
   reviewedAt:      { type: Number, default: null },
 });
 
-// ── Models (safe re-use across hot reloads) ───────────────────────────────────
-const Infraction   = mongoose.models.Infraction   || mongoose.model("Infraction",   infractionSchema);
-const Promotion    = mongoose.models.Promotion    || mongoose.model("Promotion",    promotionSchema);
-const StaffUser    = mongoose.models.StaffUser    || mongoose.model("StaffUser",    staffUserSchema);
-const Shift        = mongoose.models.Shift        || mongoose.model("Shift",        shiftSchema);
-const LOA          = mongoose.models.LOA          || mongoose.model("LOA",          loaSchema);
-const AuditLog     = mongoose.models.AuditLog     || mongoose.model("AuditLog",     auditSchema);
-const Announcement = mongoose.models.Announcement || mongoose.model("Announcement", announcementSchema);
-const Application  = mongoose.models.Application  || mongoose.model("Application",  applicationSchema);
+const erlcPunishmentSchema = new mongoose.Schema({
+  userId:          String,   // Roblox username
+  robloxUserId:    String,   // Roblox numeric ID
+  robloxAvatarUrl: String,   // cached headshot URL
+  type:            String,   // verbal, warn, kick, ban
+  reason:          String,
+  description:     String,
+  moderator:       String,   // display name of the staff who logged it
+  moderatorId:     String,   // discordId of the staff who logged it
+  timestamp:       { type: Number, default: () => Date.now() },
+});
 
-module.exports = { connect, Infraction, Promotion, StaffUser, Shift, LOA, AuditLog, Announcement, Application };
+// ── Models (safe re-use across hot reloads) ───────────────────────────────────
+const Infraction      = mongoose.models.Infraction      || mongoose.model("Infraction",      infractionSchema);
+const Promotion       = mongoose.models.Promotion       || mongoose.model("Promotion",       promotionSchema);
+const StaffUser       = mongoose.models.StaffUser       || mongoose.model("StaffUser",       staffUserSchema);
+const Shift           = mongoose.models.Shift           || mongoose.model("Shift",           shiftSchema);
+const LOA             = mongoose.models.LOA             || mongoose.model("LOA",             loaSchema);
+const AuditLog        = mongoose.models.AuditLog        || mongoose.model("AuditLog",        auditSchema);
+const Announcement    = mongoose.models.Announcement    || mongoose.model("Announcement",    announcementSchema);
+const Application     = mongoose.models.Application     || mongoose.model("Application",     applicationSchema);
+const ErlcPunishment  = mongoose.models.ErlcPunishment  || mongoose.model("ErlcPunishment",  erlcPunishmentSchema);
+
+module.exports = { connect, Infraction, Promotion, StaffUser, Shift, LOA, AuditLog, Announcement, Application, ErlcPunishment };
