@@ -10,8 +10,7 @@
 const express = require("express");
 const router  = express.Router();
 const { ErlcPunishment, AuditLog } = require("../db");
-const { requireAuth, requireLevel, apiWriteLimiter } = require("../middleware");
-const { logInfractionToDiscord } = require("../discord");
+const { requireAuth, apiWriteLimiter } = require("../middleware");
 
 // ── GET — all staff can read ──────────────────────────────────────────────────
 router.get("/", requireAuth, async (req, res) => {
@@ -58,17 +57,6 @@ router.post("/", requireAuth, apiWriteLimiter, async (req, res) => {
       action:    "erlc_punishment_add",
       target:    userId,
       details:   { type, reason },
-    });
-
-    // Post Discord embed to infraction log channel
-    logInfractionToDiscord({
-      caseId:        record._id.toString().slice(-6).toUpperCase(),
-      userId,
-      type,
-      reason,
-      description:   description || "",
-      moderatorId:   actor.discordId,
-      moderatorName: actor.displayName,
     });
 
     res.json(record.toObject());
