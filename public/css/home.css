@@ -28,7 +28,7 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #0b0d12;
+  background: #05060a;
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -304,19 +304,19 @@ img { display: block; }
 }
 .hero-orb-1 {
   width: 700px; height: 500px;
-  background: radial-gradient(ellipse, rgba(79,111,255,0.20) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(79,111,255,0.28) 0%, transparent 65%);
   top: 10%; left: 50%; transform: translateX(-50%);
   animation-delay: 0s;
 }
 .hero-orb-2 {
   width: 400px; height: 400px;
-  background: radial-gradient(ellipse, rgba(99,91,255,0.12) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(99,91,255,0.18) 0%, transparent 65%);
   bottom: 20%; left: 10%;
   animation-delay: 2s;
 }
 .hero-orb-3 {
   width: 300px; height: 300px;
-  background: radial-gradient(ellipse, rgba(79,200,255,0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(79,200,255,0.14) 0%, transparent 65%);
   top: 30%; right: 8%;
   animation-delay: 4s;
 }
@@ -735,7 +735,7 @@ footer { border-top: 1px solid var(--border); padding: 52px 24px 32px; position:
 .modal-overlay.open { display: flex; }
 
 .modal {
-  background: #0f1117;
+  background: #090b10;
   border: 1px solid rgba(79,111,255,0.22);
   border-radius: 14px;
   padding: 28px;
