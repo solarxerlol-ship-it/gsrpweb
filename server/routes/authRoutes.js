@@ -18,38 +18,42 @@ const ROLE_REFRESH_MS = 5 * 60 * 1000;
 router.get("/discord", passport.authenticate("discord"));
 
 router.get("/discord/callback",
-  passport.authenticate("discord", { failureRedirect: "/login?error=no_role" }),
+  passport.authenticate("discord", {
+    failureRedirect: "/login?error=no_role",
+    session: false,   // don't let passport touch the session — we manage it manually
+  }),
   (req, res) => {
+    const user = req.user;
+    if (!user) return res.redirect("/login?error=no_role");
+
     const userData = {
-      _id:            req.user._id.toString(),
-      discordId:      req.user.discordId,
-      displayName:    req.user.discordUsername,
-      avatar:         req.user.discordAvatar,
-      accessLevel:    req.user.accessLevel,
-      numericLevel:   req.user.numericLevel,
-      roleLabel:      req.user.roleLabel,
-      roleColor:      req.user.roleColor,
+      _id:            user._id.toString(),
+      discordId:      user.discordId,
+      displayName:    user.discordUsername,
+      avatar:         user.discordAvatar,
+      accessLevel:    user.accessLevel,
+      numericLevel:   user.numericLevel,
+      roleLabel:      user.roleLabel,
+      roleColor:      user.roleColor,
       authMethod:     "discord",
       rolesCheckedAt: Date.now(),
     };
 
-    // Must save session to MongoDB BEFORE redirecting.
-    // On Vercel serverless each request is a new instance — if we redirect
-    // before the async write finishes the next request has no session.
-    req.logout(err => {
-      req.session.regenerate(regenErr => {
-        if (regenErr) {
-          console.error("[Auth] Session regenerate error:", regenErr);
+    // Regenerate session to prevent fixation, then save before redirecting.
+    // On Vercel serverless each invocation is stateless — must fully persist
+    // the session to MongoDB before the 302 so the next request can read it.
+    req.session.regenerate(regenErr => {
+      if (regenErr) {
+        console.error("[Auth] Session regenerate error:", regenErr);
+        return res.redirect("/login?error=session");
+      }
+      req.session.user = userData;
+      req.session.save(saveErr => {
+        if (saveErr) {
+          console.error("[Auth] Session save error:", saveErr);
           return res.redirect("/login?error=session");
         }
-        req.session.user = userData;
-        req.session.save(saveErr => {
-          if (saveErr) {
-            console.error("[Auth] Session save error:", saveErr);
-            return res.redirect("/login?error=session");
-          }
-          res.redirect("/dashboard");
-        });
+        res.redirect("/dashboard");
       });
     });
   }

@@ -319,9 +319,15 @@
 
     // Error from Discord OAuth redirect
     const params = new URLSearchParams(window.location.search);
-    if (params.get("error") === "no_role") {
+    const errMap = {
+      no_role: "Access denied — you don't have a verified staff role in the GSRP Discord.",
+      session: "Session error — please try again.",
+      invalid_code: "Login expired — please try again.",
+    };
+    const errKey = params.get("error");
+    if (errKey) {
       const el = document.getElementById("discord-error");
-      el.textContent = "Access denied — you don't have a verified staff role in the GSRP Discord.";
+      el.textContent = errMap[errKey] || "Login failed — please try again.";
       el.classList.add("show");
     }
 
