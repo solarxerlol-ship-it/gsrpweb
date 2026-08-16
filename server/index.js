@@ -265,7 +265,7 @@ if (process.env.NODE_ENV !== "production") {
     const http  = require("http");
 
     const URLS = [
-      process.env.BASE_URL       || `http://localhost:${PORT}`, // staff.gssrp.xyz
+      process.env.BASE_URL       || `http://localhost:${PORT}`, // gssrp.xyz
       "https://www.gssrp.xyz",
       "https://gssrp.xyz",
     ];
